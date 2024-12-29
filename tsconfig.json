@@ -6,20 +6,21 @@
     "allowSyntheticDefaultImports": true,
     "lib": ["ES2020"],
     "strict": true,
-    "baseUrl": "./",
+    "baseUrl": "./src",
     "paths": {
-      "@server/*": ["src/server/*"],
-      "@services/*": ["src/services/*"],
-      "@repositories/*": ["src/repositories/*"],
-      "@handlers/*": ["src/handlers/*"],
-      "@utils/*": ["src/utils/*"],
-      "@types/*": ["src/types/*"],
-      "@db/*": ["src/db/*"],
-      "@routes/*": ["src/routes/*"]
+      "@env/*": ["env/*"],
+      "@server/*": ["server/*"],
+      "@services/*": ["services/*"],
+      "@repositories/*": ["repositories/*"],
+      "@handlers/*": ["handlers/*"],
+      "@utils/*": ["utils/*"],
+      "@types/*": ["types/*"],
+      "@db/*": ["db/*"],
+      "@routes/*": ["routes/*"]
     },
     "outDir": "dist",
-    "rootDir": "./src"
+    "rootDir": "./src" 
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*"], 
   "exclude": ["node_modules"]
 }
