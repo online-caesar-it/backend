@@ -2,8 +2,10 @@
   "scripts": {
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --watch src --exec ts-node src/index.ts",
-    "db:push": "drizzle-kit push"
+    "dev": "nodemon --watch src --exec ts-node  -r tsconfig-paths/register src/index.ts",
+    "db:push": "drizzle-kit push",
+    "db:migrate": "drizzle-kit migrate",
+    "start": "node dist/index.js"
   },
   "dependencies": {
     "dotenv": "^16.4.7",
@@ -13,6 +15,7 @@
     "nodemon": "^3.1.9",
     "pg": "^8.13.1",
     "postgres": "^3.4.5",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.2"
   },
   "devDependencies": {
