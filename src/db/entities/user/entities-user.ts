@@ -5,5 +5,4 @@ export const entitiesUser = pgTable("users", {
   email: text("email").notNull(),
   password: text("password").notNull(),
   role: text("role").notNull(),
-  username: text("username").notNull(),
 });

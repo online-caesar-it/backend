@@ -1,26 +1,17 @@
-import fastify, { FastifyReply, FastifyRequest } from "fastify";
+import fastify from "fastify";
 import { envConfig } from "./env";
-import { entitiesUser } from "@db/entities/user/entities-user";
-import { db } from "./db";
-
+import { authRouter } from "@routes/auth/auth-router";
+import { checkRequestBody, errorMiddleware } from "middleware/error";
 const app = fastify();
-app.post("/user", async (request: FastifyRequest, reply: FastifyReply) => {
-  try {
-    const [user] = await db.insert(entitiesUser).values({
-      email: "@lox",
-      password: "pass",
-      role: "schedule",
-      username: "lox",
-    });
+app.addHook("preHandler", checkRequestBody);
 
-    reply.status(201).send({ message: "User created", user: user });
-  } catch (error) {
-    console.error("Error inserting mock data:", error);
-    reply.status(500).send({ message: "Failed to insert mock data" });
-  }
-});
+app.setErrorHandler(errorMiddleware);
 const start = async () => {
   try {
+    const routers = [authRouter(app)];
+    for (const route of routers) {
+      route.register();
+    }
     await app.listen({
       port: Number(envConfig.PORT) || 5000,
       host: "127.0.0.2",
