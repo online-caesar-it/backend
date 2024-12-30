@@ -15,6 +15,13 @@
       "when": 1735478629986,
       "tag": "0001_common_wendigo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1735547175649,
+      "tag": "0002_uneven_blur",
+      "breakpoints": true
     }
   ]
 }

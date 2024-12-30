@@ -11,6 +11,7 @@ const start = async () => {
     const routers = [authRouter(app)];
     for (const route of routers) {
       route.register();
+      route.login();
     }
     await app.listen({
       port: Number(envConfig.PORT) || 5000,

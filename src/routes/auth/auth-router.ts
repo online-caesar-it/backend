@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { post } from "..";
 import { entities } from "enums/entities/entities";
-import { registerHandler } from "@handlers/auth/auth-handler";
+import { loginHandler, registerHandler } from "@handlers/auth/auth-handler";
 
 export const authRouter = (routers: FastifyInstance) => {
   return {
@@ -9,6 +9,13 @@ export const authRouter = (routers: FastifyInstance) => {
       post({
         path: `/${entities.AUTH}/register`,
         handler: async (req, reply) => await registerHandler(req, reply),
+        routers,
+      });
+    },
+    login: () => {
+      post({
+        path: `/${entities.AUTH}/login`,
+        handler: async (req, reply) => await loginHandler(req, reply),
         routers,
       });
     },
