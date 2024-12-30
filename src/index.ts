@@ -2,17 +2,18 @@ import fastify from "fastify";
 import { envConfig } from "./env";
 import { authRouter } from "@routes/auth/auth-router";
 import { checkRequestBody, errorMiddleware } from "middleware/error";
+import { userRouter } from "@routes/user/user-router";
 const app = fastify();
 app.addHook("preHandler", checkRequestBody);
 
 app.setErrorHandler(errorMiddleware);
 const start = async () => {
   try {
-    const routers = [authRouter(app)];
-    for (const route of routers) {
-      route.register();
-      route.login();
-    }
+    const authRouterInstance = authRouter(app);
+    const userRouterInstance = userRouter(app);
+    userRouterInstance.getSelf();
+    authRouterInstance.login();
+    authRouterInstance.register();
     await app.listen({
       port: Number(envConfig.PORT) || 5000,
       host: "127.0.0.2",

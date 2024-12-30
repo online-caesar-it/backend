@@ -8,15 +8,13 @@ import {
 } from "consts/response-status/response-status";
 import { IUserDto } from "dto/user-dto";
 import { FastifyReply, FastifyRequest } from "fastify";
-import { error } from "enums/error/error";
-import { envConfig } from "env";
 export const registerHandler = async (
   req: FastifyRequest,
   reply: FastifyReply
 ) => {
   try {
     const { token, userCreating } = await registerService(req.body as IUserDto);
-    console.log(token, "register");
+
     reply.status(CREATE_SUCCESS).send({
       message: USER_SUCCESS_REGISTER,
       user: userCreating,
@@ -38,16 +36,12 @@ export const loginHandler = async (
 ) => {
   try {
     const { token, findUser } = await loginService(req.body as IUserDto);
-    console.log(token);
     reply.status(SUCCESS).send({ token, user: findUser });
   } catch (err) {
     if (err instanceof Error) {
-      console.log(err.message);
       reply.status(CLIENT_ERROR).send({ message: err.message });
     } else {
-      console.log("Unknown error:", err);
       reply.status(CLIENT_ERROR).send({ message: "An unknown error occurred" });
     }
   }
 };
-
