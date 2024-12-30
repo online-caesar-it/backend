@@ -1,5 +1,5 @@
-import { CLIENT_ERROR } from "consts/response-status/response-status";
-import { error } from "enums/error/error";
+import { CLIENT_ERROR } from "../consts/response-status/response-status";
+import { error } from "../enums/error/error";
 import { FastifyReply, FastifyRequest } from "fastify";
 
 export const checkRequestBody = async (
@@ -18,6 +18,5 @@ export const errorMiddleware = async (
 ) => {
   console.error(error);
 
-  // Отправляем общий ответ об ошибке
   reply.status(500).send({ message: "Internal Server Error" });
 };

@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { FastifyRequest, FastifyReply } from "fastify";
 import { envConfig } from "../env";
-import { UNAUTHORIZED } from "consts/response-status/response-status";
+import { UNAUTHORIZED } from "../consts/response-status/response-status";
 
 export const checkToken = async (req: FastifyRequest, reply: FastifyReply) => {
   const authHeader = req.headers.authorization;

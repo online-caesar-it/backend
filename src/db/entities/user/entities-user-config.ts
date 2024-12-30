@@ -1,4 +1,4 @@
-import { integer, pgTable, serial, text, uuid } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, uuid } from "drizzle-orm/pg-core";
 
 export const entitiesUserConfig = pgTable("users", {
   id: serial("id").primaryKey(),

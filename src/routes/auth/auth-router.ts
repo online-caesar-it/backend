@@ -1,7 +1,10 @@
 import { FastifyInstance } from "fastify";
 import { post } from "..";
-import { entities } from "enums/entities/entities";
-import { loginHandler, registerHandler } from "@handlers/auth/auth-handler";
+import { entities } from "../../enums/entities/entities";
+import {
+  registerHandler,
+  loginHandler,
+} from "../../handlers/auth/auth-handler";
 
 export const authRouter = (routers: FastifyInstance) => {
   return {
