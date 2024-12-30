@@ -12,7 +12,7 @@ export const findUserByEmail = async (email: string) => {
   try {
     const [user] = await db
       .select()
-      .from(entitiesUser)
+      .from(entitiesUserConfig)
       .where(eq(entitiesUserConfig.email, email));
     return user;
   } catch (error) {
@@ -30,16 +30,19 @@ export const createUser = async (user: IUserDto) => {
       role: user.role,
     })
     .returning();
-  const [userCreatingConfig] = await db.insert(entitiesUserConfig).values({
-    email: user.email,
-    userId: userCreating.id,
-    password: user.password,
-  });
+  const [userCreatingConfig] = await db
+    .insert(entitiesUserConfig)
+    .values({
+      email: user.email,
+      userId: userCreating.id,
+      password: user.password,
+    })
+    .returning();
   return { userCreating, userCreatingConfig };
 };
 
-export const createAccessToken = async (id: number, email: string) => {
-  const token = jwt.sign({ id: id, email }, String(envConfig.SECRET_KEY), {
+export const createAccessToken = async (id: string) => {
+  const token = jwt.sign({ id: id }, String(envConfig.SECRET_KEY), {
     expiresIn: "1h",
   });
 
@@ -56,27 +59,25 @@ export const registerService = async (user: IUserDto) => {
     ...user,
     password: passwordHash,
   });
-  const token = await createAccessToken(
-    userCreating.id,
-    userCreatingConfig.
-  );
 
-  return { userCreating, token };
-};
-export const loginService = async (user: IUserDto) => {
-  const findUser = await findUserByEmail(user.email);
-  if (!findUser) {
-    throw new Error(error.USER_NOT_EXIST);
-  }
-  const isValidPassword = await bcrypt.compare(
-    user.password,
-    findUser.password
-  );
+  const token = await createAccessToken(userCreating.id);
 
-  if (!isValidPassword) {
-    throw new Error(error.USER_NOT_VALID_PASSWORD);
-  }
-  const token = await createAccessToken(findUser.id, findUser.email);
-  console.log(token);
-  return { token, findUser };
+  return { userCreating, token, userCreatingConfig };
 };
+// export const loginService = async (user: IUserDto) => {
+//   const findUser = await findUserByEmail(user.email);
+//   if (!findUser) {
+//     throw new Error(error.USER_NOT_EXIST);
+//   }
+//   const isValidPassword = await bcrypt.compare(
+//     user.password,
+//     findUser.password
+//   );
+
+//   if (!isValidPassword) {
+//     throw new Error(error.USER_NOT_VALID_PASSWORD);
+//   }
+//   const token = await createAccessToken(findUser.id);
+//   console.log(token);
+//   return { token, findUser };
+// };

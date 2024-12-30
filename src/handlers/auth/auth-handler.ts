@@ -1,4 +1,4 @@
-import { loginService, registerService } from "@services/auth/auth-service";
+import { registerService } from "@services/auth/auth-service";
 import { USER_SUCCESS_REGISTER } from "consts/response-status/response-message";
 import jwt from "jsonwebtoken";
 import {
@@ -35,8 +35,8 @@ export const loginHandler = async (
   reply: FastifyReply
 ) => {
   try {
-    const { token, findUser } = await loginService(req.body as IUserDto);
-    reply.status(SUCCESS).send({ token, user: findUser });
+    // const { token, findUser } = await loginService(req.body as IUserDto);
+    // reply.status(SUCCESS).send({ token, user: findUser });
   } catch (err) {
     if (err instanceof Error) {
       reply.status(CLIENT_ERROR).send({ message: err.message });
