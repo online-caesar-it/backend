@@ -22,6 +22,13 @@
       "when": 1735547175649,
       "tag": "0002_uneven_blur",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1735555600993,
+      "tag": "0003_easy_squadron_supreme",
+      "breakpoints": true
     }
   ]
 }
