@@ -1,13 +1,12 @@
-import { IUserDto } from "dto/user-dto";
-import { error } from "enums/error/error";
-import { envConfig } from "env";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import { entitiesUser } from "@db/entities/user/entities-user";
-import { db } from "@db/index";
+import { IUserDto } from "../../dto/user-dto";
+import { error } from "../../enums/error/error";
+import { envConfig } from "../../env";
 import { eq } from "drizzle-orm";
-import { entitiesUserConfig } from "@db/entities/user/entities-user-config";
-
+import jwt from "jsonwebtoken";
+import { entitiesUserConfig } from "db/entities/user/entities-user-config";
+import { db } from "db";
+import { entitiesUser } from "db/entities/user/entities-user";
 export const findUserByEmail = async (email: string) => {
   try {
     const [user] = await db
@@ -30,14 +29,11 @@ export const createUser = async (user: IUserDto) => {
       role: user.role,
     })
     .returning();
-  const [userCreatingConfig] = await db
-    .insert(entitiesUserConfig)
-    .values({
-      email: user.email,
-      userId: userCreating.id,
-      password: user.password,
-    })
-    .returning();
+  const [userCreatingConfig] = await db.insert(entitiesUserConfig).values({
+    email: user.email,
+    userId: userCreating.id,
+    password: user.password,
+  });
   return { userCreating, userCreatingConfig };
 };
 
@@ -59,25 +55,24 @@ export const registerService = async (user: IUserDto) => {
     ...user,
     password: passwordHash,
   });
-
   const token = await createAccessToken(userCreating.id);
 
   return { userCreating, token, userCreatingConfig };
 };
-// export const loginService = async (user: IUserDto) => {
-//   const findUser = await findUserByEmail(user.email);
-//   if (!findUser) {
-//     throw new Error(error.USER_NOT_EXIST);
-//   }
-//   const isValidPassword = await bcrypt.compare(
-//     user.password,
-//     findUser.password
-//   );
+export const loginService = async (user: IUserDto) => {
+  const findUser = await findUserByEmail(user.email);
+  if (!findUser) {
+    throw new Error(error.USER_NOT_EXIST);
+  }
+  const isValidPassword = await bcrypt.compare(
+    user.password,
+    findUser.password
+  );
 
-//   if (!isValidPassword) {
-//     throw new Error(error.USER_NOT_VALID_PASSWORD);
-//   }
-//   const token = await createAccessToken(findUser.id);
-//   console.log(token);
-//   return { token, findUser };
-// };
+  if (!isValidPassword) {
+    throw new Error(error.USER_NOT_VALID_PASSWORD);
+  }
+  const token = await createAccessToken(findUser.userId || "");
+  console.log(token);
+  return { token, findUser };
+};

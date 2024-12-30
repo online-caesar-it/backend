@@ -1,8 +1,8 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 
-import postgres from "postgres";
 import { entities } from "./entities/index";
-import { envConfig } from "env";
+import { envConfig } from "../env";
+import postgres = require("postgres");
 
 if (!envConfig) {
   throw new Error("env not defined");

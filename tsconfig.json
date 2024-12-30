@@ -1,26 +1,19 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "CommonJS",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "lib": ["ES2020"],
-    "strict": true,
-    "baseUrl": "./src",
-    "paths": {
-      "@env/*": ["env/*"],
-      "@server/*": ["server/*"],
-      "@services/*": ["services/*"],
-      "@repositories/*": ["repositories/*"],
-      "@handlers/*": ["handlers/*"],
-      "@utils/*": ["utils/*"],
-      "@types/*": ["types/*"],
-      "@db/*": ["db/*"],
-      "@routes/*": ["routes/*"]
-    },
-    "outDir": "dist",
-    "rootDir": "./src" 
+    "target": "ES2020", // Это нормально, но можно попробовать ES2021
+    "module": "CommonJS", // CommonJS для совместимости с Node.js
+    "esModuleInterop": true, // Корректная работа с импортами
+    "allowSyntheticDefaultImports": true, // Упрощает импорт модулей
+    "strict": true, // Включает строгую проверку типов
+    "skipLibCheck": true, // Отключает проверку типов внутри зависимостей
+    "lib": ["ES2020"], // Для современных возможностей ES2020
+    "baseUrl": "./src", // Для корректной работы с путями
+    "outDir": "./dist", // Каталог для сборки
+    "rootDir": "./src", // Каталог с исходным кодом
+    "moduleResolution": "node", // Для работы с node_modules
+    "resolveJsonModule": true, // Для импорта JSON-файлов
+    "typeRoots": ["./node_modules/@types", "./src/types"] // Указание путей для типов
   },
-  "include": ["src/**/*"], 
-  "exclude": ["node_modules"]
+  "include": ["src/**/*"], // Указывает файлы для компиляции
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"] // Исключение ненужных файлов
 }

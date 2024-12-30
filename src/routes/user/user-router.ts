@@ -1,7 +1,7 @@
-import { entities } from "enums/entities/entities";
+import { entities } from "../../enums/entities/entities";
 import { get } from "..";
-import { getSelfHandler } from "@handlers/user/user-handler";
 import { FastifyInstance } from "fastify";
+import { getSelfHandler } from "../../handlers/user/user-handler";
 
 export const userRouter = (routers: FastifyInstance) => {
   return {

@@ -1,23 +1,28 @@
-import { registerService } from "@services/auth/auth-service";
-import { USER_SUCCESS_REGISTER } from "consts/response-status/response-message";
-import jwt from "jsonwebtoken";
+import { USER_SUCCESS_REGISTER } from "../../consts/response-status/response-message";
 import {
   CLIENT_ERROR,
   CREATE_SUCCESS,
   SUCCESS,
-} from "consts/response-status/response-status";
-import { IUserDto } from "dto/user-dto";
+} from "../../consts/response-status/response-status";
+import { IUserDto } from "../../dto/user-dto";
 import { FastifyReply, FastifyRequest } from "fastify";
+import {
+  loginService,
+  registerService,
+} from "../../services/auth/auth-service";
 export const registerHandler = async (
   req: FastifyRequest,
   reply: FastifyReply
 ) => {
   try {
-    const { token, userCreating } = await registerService(req.body as IUserDto);
+    const { token, userCreating, userCreatingConfig } = await registerService(
+      req.body as IUserDto
+    );
 
     reply.status(CREATE_SUCCESS).send({
       message: USER_SUCCESS_REGISTER,
       user: userCreating,
+      userConfig: userCreatingConfig,
       token,
     });
   } catch (err) {
@@ -35,8 +40,8 @@ export const loginHandler = async (
   reply: FastifyReply
 ) => {
   try {
-    // const { token, findUser } = await loginService(req.body as IUserDto);
-    // reply.status(SUCCESS).send({ token, user: findUser });
+    const { token, findUser } = await loginService(req.body as IUserDto);
+    reply.status(SUCCESS).send({ token, user: findUser });
   } catch (err) {
     if (err instanceof Error) {
       reply.status(CLIENT_ERROR).send({ message: err.message });

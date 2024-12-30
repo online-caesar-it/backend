@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --build --clean && tsc && tsc-alias",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon --watch src --exec ts-node  -r tsconfig-paths/register src/index.ts",
     "db:push": "drizzle-kit push",
@@ -19,6 +19,7 @@
     "nodemon": "^3.1.9",
     "pg": "^8.13.1",
     "postgres": "^3.4.5",
+    "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.2"
   },

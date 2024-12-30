@@ -1,8 +1,8 @@
 import fastify from "fastify";
 import { envConfig } from "./env";
-import { authRouter } from "@routes/auth/auth-router";
-import { checkRequestBody, errorMiddleware } from "middleware/error";
-import { userRouter } from "@routes/user/user-router";
+import { userRouter } from "./routes/user/user-router";
+import { checkRequestBody, errorMiddleware } from "./middleware/error";
+import { authRouter } from "./routes/auth/auth-router";
 const app = fastify();
 app.addHook("preHandler", checkRequestBody);
 
