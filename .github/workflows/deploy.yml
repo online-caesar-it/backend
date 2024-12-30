@@ -38,6 +38,6 @@ jobs:
           script: |
             cd backend
             git pull origin main
-            npm i
-            npm build
+            npm install
+            npm run build
             pm2 restart api
