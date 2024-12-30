@@ -1,13 +1,12 @@
+import bcrypt from "bcrypt";
 import { IUserDto } from "../../dto/user-dto";
 import { error } from "../../enums/error/error";
 import { envConfig } from "../../env";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import { eq } from "drizzle-orm";
-import { entitiesUserConfig } from "../../db/entities/user/entities-user-config";
-import { db } from "../../db";
-import { entitiesUser } from "../../db/entities/user/entities-user";
-
+import jwt from "jsonwebtoken";
+import { entitiesUserConfig } from "db/entities/user/entities-user-config";
+import { db } from "db";
+import { entitiesUser } from "db/entities/user/entities-user";
 export const findUserByEmail = async (email: string) => {
   try {
     const [user] = await db
