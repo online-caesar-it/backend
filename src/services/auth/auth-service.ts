@@ -4,9 +4,21 @@ import { error } from "../../enums/error/error";
 import { envConfig } from "../../env";
 import { eq } from "drizzle-orm";
 import jwt from "jsonwebtoken";
-import { entitiesUserConfig } from "db/entities/user/entities-user-config";
-import { db } from "db";
-import { entitiesUser } from "db/entities/user/entities-user";
+import { entitiesUserConfig } from "../../db/entities/user/entities-user-config";
+import { db } from "../../db";
+import { entitiesUser } from "../../db/entities/user/entities-user";
+import { USER_NOT_FOUND } from "../../consts/response-status/response-message";
+export const findUserConfigByUserId = async (userId: string) => {
+  try {
+    const [user] = await db
+      .select()
+      .from(entitiesUserConfig)
+      .where(eq(entitiesUserConfig.userId, userId));
+    return user;
+  } catch (error) {
+    console.error("Произошла ошибка в методе findUserByConfigByUserId", error);
+  }
+};
 export const findUserByEmail = async (email: string) => {
   try {
     const [user] = await db
@@ -16,6 +28,21 @@ export const findUserByEmail = async (email: string) => {
     return user;
   } catch (error) {
     console.error("Произошла ошибка в методе findUserByEmail", error);
+  }
+};
+export const findUserById = async (id: string) => {
+  try {
+    const [user] = await db
+      .select()
+      .from(entitiesUser)
+      .where(eq(entitiesUser.id, id));
+    if (!user) {
+      throw new Error(USER_NOT_FOUND);
+    }
+    console.log(user);
+    return user;
+  } catch (error) {
+    console.error("Произошла ошибка в методе findUserById", error);
   }
 };
 export const createUser = async (user: IUserDto) => {
@@ -29,11 +56,14 @@ export const createUser = async (user: IUserDto) => {
       role: user.role,
     })
     .returning();
-  const [userCreatingConfig] = await db.insert(entitiesUserConfig).values({
-    email: user.email,
-    userId: userCreating.id,
-    password: user.password,
-  });
+  const [userCreatingConfig] = await db
+    .insert(entitiesUserConfig)
+    .values({
+      email: user.email,
+      userId: userCreating.id,
+      password: user.password,
+    })
+    .returning();
   return { userCreating, userCreatingConfig };
 };
 
@@ -60,19 +90,21 @@ export const registerService = async (user: IUserDto) => {
   return { userCreating, token, userCreatingConfig };
 };
 export const loginService = async (user: IUserDto) => {
-  const findUser = await findUserByEmail(user.email);
-  if (!findUser) {
+  const findUserConfig = await findUserByEmail(user.email);
+
+  if (!findUserConfig) {
     throw new Error(error.USER_NOT_EXIST);
   }
+  const findUser = await findUserById(findUserConfig.userId || "");
+  console.log(findUserConfig);
   const isValidPassword = await bcrypt.compare(
     user.password,
-    findUser.password
+    findUserConfig.password
   );
 
   if (!isValidPassword) {
     throw new Error(error.USER_NOT_VALID_PASSWORD);
   }
-  const token = await createAccessToken(findUser.userId || "");
-  console.log(token);
-  return { token, findUser };
+  const token = await createAccessToken(findUserConfig.userId || "");
+  return { token, findUser, findUserConfig };
 };

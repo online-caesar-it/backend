@@ -1,19 +1,20 @@
 {
   "compilerOptions": {
-    "target": "ES2020", // Это нормально, но можно попробовать ES2021
-    "module": "CommonJS", // CommonJS для совместимости с Node.js
-    "esModuleInterop": true, // Корректная работа с импортами
-    "allowSyntheticDefaultImports": true, // Упрощает импорт модулей
-    "strict": true, // Включает строгую проверку типов
-    "skipLibCheck": true, // Отключает проверку типов внутри зависимостей
-    "lib": ["ES2020"], // Для современных возможностей ES2020
-    "baseUrl": "./src", // Для корректной работы с путями
-    "outDir": "./dist", // Каталог для сборки
-    "rootDir": "./src", // Каталог с исходным кодом
-    "moduleResolution": "node", // Для работы с node_modules
-    "resolveJsonModule": true, // Для импорта JSON-файлов
-    "typeRoots": ["./node_modules/@types", "./src/types"] // Указание путей для типов
+    "target": "ES2020",
+    "module": "CommonJS",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "lib": ["ES2020"],
+    "baseUrl": "./src",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
-  "include": ["src/**/*"], // Указывает файлы для компиляции
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"] // Исключение ненужных файлов
+  "include": ["src/**/*", "src/types/**/*.d.ts"],
+  "files": ["src/types/fastify.d.ts"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
 }

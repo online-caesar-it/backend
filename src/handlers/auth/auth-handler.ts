@@ -27,10 +27,8 @@ export const registerHandler = async (
     });
   } catch (err) {
     if (err instanceof Error) {
-      console.log(err.message);
       reply.status(CLIENT_ERROR).send({ message: err.message });
     } else {
-      console.log("Unknown error:", err);
       reply.status(CLIENT_ERROR).send({ message: "An unknown error occurred" });
     }
   }
@@ -40,8 +38,12 @@ export const loginHandler = async (
   reply: FastifyReply
 ) => {
   try {
-    const { token, findUser } = await loginService(req.body as IUserDto);
-    reply.status(SUCCESS).send({ token, user: findUser });
+    const { token, findUser, findUserConfig } = await loginService(
+      req.body as IUserDto
+    );
+    reply
+      .status(SUCCESS)
+      .send({ token, user: findUser, userConfig: findUserConfig });
   } catch (err) {
     if (err instanceof Error) {
       reply.status(CLIENT_ERROR).send({ message: err.message });

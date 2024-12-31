@@ -4,8 +4,6 @@ import { userRouter } from "./routes/user/user-router";
 import { checkRequestBody, errorMiddleware } from "./middleware/error";
 import { authRouter } from "./routes/auth/auth-router";
 const app = fastify();
-app.addHook("preHandler", checkRequestBody);
-
 app.setErrorHandler(errorMiddleware);
 const start = async () => {
   try {

@@ -1,8 +1,9 @@
-import { pgTable, serial, text, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { entitiesUser } from "./entities-user";
 
-export const entitiesUserConfig = pgTable("users", {
-  id: serial("id").primaryKey(),
-  userId: uuid("userId"),
+export const entitiesUserConfig = pgTable("users_config", {
+  id: uuid().defaultRandom().primaryKey(),
+  userId: uuid().references(() => entitiesUser.id),
   email: text("email").notNull(),
   password: text("password").notNull(),
 });
