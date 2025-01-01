@@ -3,8 +3,14 @@ import { envConfig } from "./env";
 import { userRouter } from "./routes/user/user-router";
 import { checkRequestBody, errorMiddleware } from "./middleware/error";
 import { authRouter } from "./routes/auth/auth-router";
+import cors from "@fastify/cors";
+
 const app = fastify();
 app.setErrorHandler(errorMiddleware);
+app.register(cors, {
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+});
 const start = async () => {
   try {
     const authRouterInstance = authRouter(app);
