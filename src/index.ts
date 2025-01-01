@@ -7,10 +7,7 @@ import cors from "@fastify/cors";
 
 const app = fastify();
 app.setErrorHandler(errorMiddleware);
-app.register(cors, {
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-});
+app.register(cors);
 const start = async () => {
   try {
     const authRouterInstance = authRouter(app);
