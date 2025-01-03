@@ -22,7 +22,7 @@ const start = async () => {
     authRouterInstance.register();
     await app.listen({
       port: Number(envConfig.PORT) || 5000,
-      host: "127.0.0.2",
+      host: "127.0.0.1",
     });
     console.log(`Server is running on port ${envConfig.PORT}`);
   } catch (error) {
