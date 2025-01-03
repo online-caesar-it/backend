@@ -6,6 +6,7 @@ import {
   loginHandler,
 } from "../../handlers/auth/auth-handler";
 import { checkRequestBody } from "../../middleware/error";
+import { setRole } from "middleware/role";
 
 export const authRouter = (routers: FastifyInstance) => {
   return {
@@ -14,7 +15,7 @@ export const authRouter = (routers: FastifyInstance) => {
         path: `/${entities.AUTH}/register`,
         handler: async (req, reply) => await registerHandler(req, reply),
         routers,
-        options: { preHandler: checkRequestBody },
+        options: { preHandler: [checkRequestBody, setRole] },
       });
     },
     login: () => {

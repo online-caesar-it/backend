@@ -76,21 +76,21 @@ export const createAccessToken = async (id: string) => {
 };
 
 export const registerService = async (user: IUserDto) => {
-  const existingUser = await findUserByEmail(user.email);
-  const passwordHash = await bcrypt.hash(user.password, 10);
+  const existingUser = await findUserByEmail(user.email || "");
+  const passwordHash = await bcrypt.hash(user.password || "", 10);
   if (existingUser) {
     throw new Error(error.USER_EXIST);
   }
   const { userCreating, userCreatingConfig } = await createUser({
     ...user,
-    password: passwordHash,
+    password: passwordHash || "",
   });
   const token = await createAccessToken(userCreating.id);
 
   return { userCreating, token, userCreatingConfig };
 };
 export const loginService = async (user: IUserDto) => {
-  const findUserConfig = await findUserByEmail(user.email);
+  const findUserConfig = await findUserByEmail(user.email || "");
 
   if (!findUserConfig) {
     throw new Error(error.USER_NOT_EXIST);
@@ -98,8 +98,8 @@ export const loginService = async (user: IUserDto) => {
   const findUser = await findUserById(findUserConfig.userId || "");
   console.log(findUserConfig);
   const isValidPassword = await bcrypt.compare(
-    user.password,
-    findUserConfig.password
+    user.password || "",
+    findUserConfig.password || ""
   );
 
   if (!isValidPassword) {

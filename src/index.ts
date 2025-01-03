@@ -1,7 +1,7 @@
 import fastify from "fastify";
 import { envConfig } from "./env";
 import { userRouter } from "./routes/user/user-router";
-import { checkRequestBody, errorMiddleware } from "./middleware/error";
+import { errorMiddleware } from "./middleware/error";
 import { authRouter } from "./routes/auth/auth-router";
 import cors from "@fastify/cors";
 
@@ -13,6 +13,7 @@ const start = async () => {
     const authRouterInstance = authRouter(app);
     const userRouterInstance = userRouter(app);
     userRouterInstance.getSelf();
+    userRouterInstance.getAll();
     authRouterInstance.login();
     authRouterInstance.register();
     await app.listen({

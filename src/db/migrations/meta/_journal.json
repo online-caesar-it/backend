@@ -57,6 +57,13 @@
       "when": 1735581807960,
       "tag": "0007_condemned_matthew_murdock",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1735899537647,
+      "tag": "0008_jittery_rockslide",
+      "breakpoints": true
     }
   ]
 }
