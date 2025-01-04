@@ -1,7 +1,7 @@
-import { entitiesUser } from "./user/entities-user";
-import { entitiesUserConfig } from "./user/entities-user-config";
+import { userEntity } from "./user/user.entity";
+import { userConfigEntity } from "./user/user-config.entity";
 
 export const entities = {
-  ...entitiesUser,
-  ...entitiesUserConfig,
+  ...userEntity,
+  ...userConfigEntity,
 };

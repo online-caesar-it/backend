@@ -4,16 +4,16 @@ import { error } from "../../enums/error/error";
 import { envConfig } from "../../env";
 import { eq } from "drizzle-orm";
 import jwt from "jsonwebtoken";
-import { entitiesUserConfig } from "../../db/entities/user/entities-user-config";
+import { userConfigEntity } from "../../db/entities/user/user-config.entity";
 import { db } from "../../db";
-import { entitiesUser } from "../../db/entities/user/entities-user";
+import { userEntity } from "../../db/entities/user/user.entity";
 import { USER_NOT_FOUND } from "../../consts/response-status/response-message";
 export const findUserConfigByUserId = async (userId: string) => {
   try {
     const [user] = await db
       .select()
-      .from(entitiesUserConfig)
-      .where(eq(entitiesUserConfig.userId, userId));
+      .from(userConfigEntity)
+      .where(eq(userConfigEntity.userId, userId));
     return user;
   } catch (error) {
     console.error("Произошла ошибка в методе findUserByConfigByUserId", error);
@@ -23,8 +23,8 @@ export const findUserByEmail = async (email: string) => {
   try {
     const [user] = await db
       .select()
-      .from(entitiesUserConfig)
-      .where(eq(entitiesUserConfig.email, email));
+      .from(userConfigEntity)
+      .where(eq(userConfigEntity.email, email));
     return user;
   } catch (error) {
     console.error("Произошла ошибка в методе findUserByEmail", error);
@@ -34,8 +34,8 @@ export const findUserById = async (id: string) => {
   try {
     const [user] = await db
       .select()
-      .from(entitiesUser)
-      .where(eq(entitiesUser.id, id));
+      .from(userEntity)
+      .where(eq(userEntity.id, id));
     if (!user) {
       throw new Error(USER_NOT_FOUND);
     }
@@ -47,7 +47,7 @@ export const findUserById = async (id: string) => {
 };
 export const createUser = async (user: IUserDto) => {
   const [userCreating] = await db
-    .insert(entitiesUser)
+    .insert(userEntity)
     .values({
       firstName: user.firstName,
       lastName: user.lastName,
@@ -57,7 +57,7 @@ export const createUser = async (user: IUserDto) => {
     })
     .returning();
   const [userCreatingConfig] = await db
-    .insert(entitiesUserConfig)
+    .insert(userConfigEntity)
     .values({
       email: user.email,
       userId: userCreating.id,

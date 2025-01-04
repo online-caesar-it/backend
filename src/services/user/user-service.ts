@@ -1,13 +1,13 @@
-import { entitiesUser } from "db/entities/user/entities-user";
+import { userEntity } from "db/entities/user/user.entity";
 import { db } from "../../db";
 import {
   findUserById,
   findUserConfigByUserId,
 } from "../../services/auth/auth-service";
-import { entitiesUserConfig } from "db/entities/user/entities-user-config";
+import { userConfigEntity } from "db/entities/user/user-config.entity";
 export const findAllUsers = async () => {
-  const users = await db.select().from(entitiesUser);
-  const usersConfig = await db.select().from(entitiesUserConfig);
+  const users = await db.select().from(userEntity);
+  const usersConfig = await db.select().from(userConfigEntity);
   return users
     .flatMap((user) => {
       const configs = usersConfig.map((config) => {
