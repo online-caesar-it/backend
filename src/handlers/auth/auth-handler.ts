@@ -1,3 +1,4 @@
+import { authService } from './../../services/auth/auth-service';
 import { USER_SUCCESS_REGISTER } from "../../consts/response-status/response-message";
 import {
   CLIENT_ERROR,
@@ -6,16 +7,13 @@ import {
 } from "../../consts/response-status/response-status";
 import { IUserDto } from "../../dto/user-dto";
 import { FastifyReply, FastifyRequest } from "fastify";
-import {
-  loginService,
-  registerService,
-} from "../../services/auth/auth-service";
+
 export const registerHandler = async (
   req: FastifyRequest,
   reply: FastifyReply
 ) => {
   try {
-    const { token, userCreating, userCreatingConfig } = await registerService(
+    const { token, userCreating, userCreatingConfig } = await authService.registerService(
       req.body as IUserDto
     );
 
@@ -33,12 +31,14 @@ export const registerHandler = async (
     }
   }
 };
+
+
 export const loginHandler = async (
   req: FastifyRequest,
   reply: FastifyReply
 ) => {
   try {
-    const { token, findUser, findUserConfig } = await loginService(
+    const { token, findUser, findUserConfig } = await authService.loginService(
       req.body as IUserDto
     );
     reply
