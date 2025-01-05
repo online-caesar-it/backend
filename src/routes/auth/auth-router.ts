@@ -11,7 +11,7 @@ export const authRouter = (routers: FastifyInstance) => {
     signUp: () => {
       post({
         path: `${path}/sign-up/by-email`,
-        handler: authHandlers.initiateSignInHandler,
+        handler: authHandlers.initiateSignUpHandler,
         routers,
         options: { preHandler: [checkRequestBody, setRole] },
       });
