@@ -1,26 +1,24 @@
 import { entities } from "../../enums/entities/entities";
 import { get } from "..";
 import { FastifyInstance } from "fastify";
-import {
-  getAllHandler,
-  getSelfHandler,
-} from "../../handlers/user/user-handler";
+import { userHandlers } from "../../handlers/user/user-handler";
 import { checkToken } from "../../middleware/auth";
 
 export const userRouter = (routers: FastifyInstance) => {
+  const path = `/${entities.USER}`;
   return {
     getSelf: () => {
       get({
-        path: `/${entities.USER}/getSelf`,
-        handler: async (req, reply) => await getSelfHandler(req, reply),
+        path: `${path}/getSelf`,
+        handler: userHandlers.getSelfHandler,
         routers,
         options: { preHandler: checkToken },
       });
     },
     getAll: () => {
       get({
-        path: `/${entities.USER}/getAll`,
-        handler: async (req, reply) => await getAllHandler(req, reply),
+        path: `${path}/getAll`,
+        handler: userHandlers.getAllHandler,
         routers,
       });
     },

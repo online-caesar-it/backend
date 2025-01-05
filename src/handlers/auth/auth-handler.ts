@@ -11,7 +11,7 @@ import {
 } from "../../consts/response-status/response-status";
 import { FastifyReply, FastifyRequest } from "fastify";
 
-export const initiateSignUpHandler = async (
+const initiateSignUpHandler = async (
   req: FastifyRequest,
   reply: FastifyReply
 ) => {
@@ -32,7 +32,7 @@ export const initiateSignUpHandler = async (
   }
 };
 
-export const verifySignUpHandler = async (
+const verifySignUpHandler = async (
   req: FastifyRequest,
   reply: FastifyReply
 ) => {
@@ -56,7 +56,7 @@ export const verifySignUpHandler = async (
   }
 };
 
-export const initiateSignInHandler = async (
+const initiateSignInHandler = async (
   req: FastifyRequest,
   reply: FastifyReply
 ) => {
@@ -77,12 +77,12 @@ export const initiateSignInHandler = async (
   }
 };
 
-export const verifySignInHandler = async (
+const verifySignInHandler = async (
   req: FastifyRequest,
   reply: FastifyReply
 ) => {
   try {
-    const { token } = req.query as { token: string };
+    const { token } = req.body as { token: string };
     const { user, accessToken } = await authService.verifyLoginToken(token);
 
     reply.status(SUCCESS).send({
@@ -96,4 +96,10 @@ export const verifySignInHandler = async (
       reply.status(CLIENT_ERROR).send({ message: "An unknown error occurred" });
     }
   }
+};
+export const authHandlers = {
+  verifySignInHandler,
+  verifySignUpHandler,
+  initiateSignInHandler,
+  initiateSignUpHandler,
 };

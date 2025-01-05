@@ -1,9 +1,10 @@
 import { userService } from "../../services/user/user-service";
 import { CLIENT_ERROR } from "../../consts/response-status/response-status";
 import { FastifyReply, FastifyRequest } from "fastify";
+import { IAuthenticatedRequest } from "types/req-type";
 
-export const getSelfHandler = async (
-  req: FastifyRequest,
+const getSelfHandler = async (
+  req: IAuthenticatedRequest,
   reply: FastifyReply
 ) => {
   try {
@@ -24,10 +25,11 @@ export const getSelfHandler = async (
   }
 };
 
-export const getAllHandler = async (
-  req: FastifyRequest,
-  reply: FastifyReply
-) => {
+const getAllHandler = async (req: FastifyRequest, reply: FastifyReply) => {
   const users = await userService.getAllService();
   return users;
+};
+export const userHandlers = {
+  getAllHandler,
+  getSelfHandler,
 };

@@ -2,43 +2,39 @@ import { FastifyInstance } from "fastify";
 import { post } from "..";
 import { entities } from "../../enums/entities/entities";
 import { checkRequestBody } from "../../middleware/error";
-import { setRole } from "middleware/role";
-import {
-  initiateSignInHandler,
-  initiateSignUpHandler,
-  verifySignInHandler,
-  verifySignUpHandler,
-} from "handlers/auth/auth-handler";
+import { setRole } from "../../middleware/role";
+import { authHandlers } from "../../handlers/auth/auth-handler";
 
 export const authRouter = (routers: FastifyInstance) => {
+  const path = `/${entities.AUTH}`;
   return {
     signUp: () => {
       post({
-        path: `/${entities.AUTH}/sign-up/by-email`,
-        handler: async (req, reply) => await initiateSignUpHandler(req, reply),
+        path: `${path}/sign-up/by-email`,
+        handler: authHandlers.initiateSignInHandler,
         routers,
         options: { preHandler: [checkRequestBody, setRole] },
       });
     },
     verifySignUp: () => {
       post({
-        path: `/${entities.AUTH}/sign-up/verify`,
-        handler: async (req, reply) => await verifySignUpHandler(req, reply),
+        path: `${path}/sign-up/verify`,
+        handler: authHandlers.verifySignUpHandler,
         routers,
       });
     },
     signIn: () => {
       post({
-        path: `/${entities.AUTH}/sign-in/by-email`,
-        handler: async (req, reply) => await initiateSignInHandler(req, reply),
+        path: `${path}/sign-in/by-email`,
+        handler: authHandlers.initiateSignInHandler,
         routers,
         options: { preHandler: checkRequestBody },
       });
     },
     verifySignIn: () => {
       post({
-        path: `/${entities.AUTH}/sign-in/verify`,
-        handler: async (req, reply) => await verifySignInHandler(req, reply),
+        path: `${path}/sign-in/verify`,
+        handler: authHandlers.verifySignInHandler,
         routers,
       });
     },

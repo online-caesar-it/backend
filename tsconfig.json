@@ -15,6 +15,6 @@
     "typeRoots": ["./node_modules/@types", "./src/types"]
   },
   "include": ["src/**/*", "src/types/**/*.d.ts"],
-  "files": ["src/types/fastify.d.ts"],
+  "files": ["src/types/req-type.ts"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
 }
