@@ -1,9 +1,6 @@
+import { userService } from "../../services/user/user-service";
 import { CLIENT_ERROR } from "../../consts/response-status/response-status";
 import { FastifyReply, FastifyRequest } from "fastify";
-import {
-  getAllService,
-  getSelfService,
-} from "../../services/user/user-service";
 
 export const getSelfHandler = async (
   req: FastifyRequest,
@@ -15,7 +12,7 @@ export const getSelfHandler = async (
       reply.status(CLIENT_ERROR).send({ message: "User ID not found" });
       return;
     }
-    const user = await getSelfService(userId);
+    const user = await userService.getSelfService(userId);
     console.log(user);
     return user;
   } catch (err) {
@@ -32,6 +29,6 @@ export const getAllHandler = async (
   req: FastifyRequest,
   reply: FastifyReply
 ) => {
-  const users = await getAllService();
+  const users = await userService.getAllService();
   return users;
 };
