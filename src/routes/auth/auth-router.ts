@@ -22,14 +22,14 @@ export const authRouter = (routers: FastifyInstance) => {
     },
     verifySignUp: () => {
       post({
-        path: `/${entities.AUTH}/signUp/verify`,
+        path: `/${entities.AUTH}/sign-up/verify`,
         handler: async (req, reply) => await verifySignUpHandler(req, reply),
         routers,
       });
     },
     signIn: () => {
       post({
-        path: `/${entities.AUTH}/signIn/by-email`,
+        path: `/${entities.AUTH}/sign-in/by-email`,
         handler: async (req, reply) => await initiateSignInHandler(req, reply),
         routers,
         options: { preHandler: checkRequestBody },
@@ -37,7 +37,7 @@ export const authRouter = (routers: FastifyInstance) => {
     },
     verifySignIn: () => {
       post({
-        path: `/${entities.AUTH}/signIn/verify`,
+        path: `/${entities.AUTH}/sign-in/verify`,
         handler: async (req, reply) => await verifySignInHandler(req, reply),
         routers,
       });

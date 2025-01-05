@@ -72,19 +72,24 @@ const verifyRegistrationToken = async (token: string) => {
   return { user: newUser, accessToken };
 };
 
-// Авторизация: отправка подтверждающего письма
-// const initiateLogin = async (email: string) => {
-//   const user = await userService.findUserByEmail(email);
+const initiateLogin = async (email: string) => {
+  const user = await userService.findUserByEmail(email);
 
-//   if (!user) {
-//     throw new Error(error.USER_NOT_EXIST);
-//   }
+  if (!user) {
+    throw new Error(error.USER_NOT_EXIST);
+  }
+  const userObj = {
+    email: user.email ?? "",
+    firstName: user.firstName ?? "",
+    surname: user.surname ?? "",
+    patronymic: user.patronymic ?? "",
+    phone: user.phone_number ?? "",
+  };
+  const token = createTemporaryToken(userObj);
+  await sendEmailWithToken(email, token);
 
-//   const token = createTemporaryToken(user);
-//   await sendEmailWithToken(email, token);
-
-//   return { message: "Confirmation email sent", token };
-// };
+  return { message: "Confirmation email sent", token };
+};
 
 const verifyLoginToken = async (token: string) => {
   const { email } = await validateToken(token);
@@ -104,6 +109,6 @@ const verifyLoginToken = async (token: string) => {
 export const authService = {
   initiateRegistration,
   verifyRegistrationToken,
-  // initiateLogin,
+  initiateLogin,
   verifyLoginToken,
 };

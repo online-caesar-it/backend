@@ -1,6 +1,9 @@
 import { IUserDto } from "../../dto/user-dto";
 import { authService } from "./../../services/auth/auth-service";
-import { USER_SUCCESS_REGISTER } from "../../consts/response-status/response-message";
+import {
+  SEND_EMAIL_SUCCESS,
+  USER_SUCCESS_REGISTER,
+} from "../../consts/response-status/response-message";
 import {
   CLIENT_ERROR,
   CREATE_SUCCESS,
@@ -18,7 +21,7 @@ export const initiateSignUpHandler = async (
     await authService.initiateRegistration(userData);
 
     reply.status(CREATE_SUCCESS).send({
-      message: "",
+      message: SEND_EMAIL_SUCCESS,
     });
   } catch (err) {
     if (err instanceof Error) {
@@ -60,10 +63,10 @@ export const initiateSignInHandler = async (
   try {
     const { email } = req.body as { email: string };
 
-    // await authService.initiateLogin(email);
+    await authService.initiateLogin(email);
 
     reply.status(SUCCESS).send({
-      message: "Успешно",
+      message: SEND_EMAIL_SUCCESS,
     });
   } catch (err) {
     if (err instanceof Error) {
@@ -74,7 +77,6 @@ export const initiateSignInHandler = async (
   }
 };
 
-// Хендлер для подтверждения входа
 export const verifySignInHandler = async (
   req: FastifyRequest,
   reply: FastifyReply

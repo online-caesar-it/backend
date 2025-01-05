@@ -19,7 +19,7 @@ const findUserByEmail = async (email: string) => {
     .from(userEntity)
     .where(eq(userEntity.id, userConfig.userId || ""));
 
-  return user ? { ...user, email: userConfig.email } : null;
+  return user ? { ...user, ...userConfig } : null;
 };
 
 const findUserById = async (id: string) => {
@@ -58,7 +58,7 @@ const createUser = async (user: IUserDto) => {
 
   return {
     ...userCreating,
-    email: userConfigCreating.email,
+    ...userConfigCreating,
   };
 };
 
