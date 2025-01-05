@@ -5,6 +5,5 @@ export const userConfigEntity = pgTable("users_config", {
   id: uuid().defaultRandom().primaryKey(),
   userId: uuid().references(() => userEntity.id),
   email: text("email"),
-  password: text("password"),
   phone_number: text("phone_number"),
 });

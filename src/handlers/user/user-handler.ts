@@ -13,7 +13,6 @@ export const getSelfHandler = async (
       return;
     }
     const user = await userService.getSelfService(userId);
-    console.log(user);
     return user;
   } catch (err) {
     if (err instanceof Error) {
