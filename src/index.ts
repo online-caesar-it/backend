@@ -18,8 +18,10 @@ const start = async () => {
     const userRouterInstance = userRouter(app);
     userRouterInstance.getSelf();
     userRouterInstance.getAll();
-    authRouterInstance.login();
-    authRouterInstance.register();
+    authRouterInstance.signIn();
+    authRouterInstance.signUp();
+    authRouterInstance.verifySignUp();
+    authRouterInstance.verifySignIn();
     await app.listen({
       port: Number(envConfig.PORT) || 5000,
       host: "127.0.0.1",

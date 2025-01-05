@@ -4,7 +4,7 @@ export const userEntity = pgTable("users", {
   id: uuid().defaultRandom().primaryKey(),
   role: text("role").notNull(),
   firstName: text("firstName"),
-  secondName: text("secondName"),
-  lastName: text("lastName"),
+  surname: text("surname"),
+  patronymic: text("patronymic"),
   avatar: text("avatar"),
 });
