@@ -3,7 +3,7 @@ services:
 
   caesar-db:
     container_name: caesar-db
-    image: postgres:13
+    image: postgres:15.4-alpine3.18
     env_file:
       - .env
     ports:
