@@ -2,6 +2,7 @@ version: '3.8'
 services:
 
   caesar-db:
+    container_name: caesar-db
     image: postgres:13
     env_file:
       - .env
