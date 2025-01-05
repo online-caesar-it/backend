@@ -20,7 +20,11 @@ const validateToken = async (token: string) => {
   }
 };
 
-const sendEmailWithToken = async (email: string, token: string) => {
+const sendEmailWithToken = async (
+  email: string,
+  token: string,
+  type: "sign-in" | "sign-up"
+) => {
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT),
@@ -31,7 +35,7 @@ const sendEmailWithToken = async (email: string, token: string) => {
     },
   });
 
-  const link = `${process.env.FRONTEND_URL}/auth/confirm?token=${token}&method=by-email&type=sign-up`;
+  const link = `${process.env.FRONTEND_URL}/auth/confirm?token=${token}&method=by-email&type=${type}`;
 
   await transporter.sendMail({
     from: process.env.SMTP_FROM,
@@ -51,7 +55,7 @@ const initiateRegistration = async (user: IUserDto) => {
   }
 
   const token = createTemporaryToken(user);
-  await sendEmailWithToken(email, token);
+  await sendEmailWithToken(email, token, "sign-up");
 
   return { message: "Confirmation email sent", token };
 };
@@ -79,14 +83,14 @@ const initiateLogin = async (email: string) => {
     throw new Error(error.USER_NOT_EXIST);
   }
   const userObj = {
-    email: user.email ?? "",
+    email: user.config.email ?? "",
     firstName: user.firstName ?? "",
     surname: user.surname ?? "",
     patronymic: user.patronymic ?? "",
-    phone: user.phone_number ?? "",
+    phone: user.config.phone_number ?? "",
   };
   const token = createTemporaryToken(userObj);
-  await sendEmailWithToken(email, token);
+  await sendEmailWithToken(email, token, "sign-in");
 
   return { message: "Confirmation email sent", token };
 };
