@@ -1,8 +1,26 @@
 import { config } from "dotenv";
+import { z } from "zod";
+
 config();
 
-export const envConfig = {
-  PORT: process.env.PORT,
-  DATABASE_URL: process.env.DATABASE_URL,
-  SECRET_KEY: process.env.SECRET_KEY,
-};
+const envSchema = z.object({
+  PORT: z.string().nonempty("PORT is required"),
+  DATABASE_URL: z.string().nonempty("DATABASE_URL is required"),
+  SECRET_KEY: z.string().nonempty("SECRET_KEY is required"),
+  NODE_ENV: z.string().nonempty("NODE_ENV is required").default("production"),
+  SMTP_HOST: z.string().nonempty("SMTP_HOST is required"),
+  SMTP_PORT: z.string().nonempty("SMTP_PORT is required"),
+  SMTP_USER: z.string().nonempty("SMTP_USER is required"),
+  SMTP_PASS: z.string().nonempty("SMTP_PASS is required"),
+  SMTP_FROM: z.string().nonempty("SMTP_FROM is required"),
+  FRONTEND_URL: z.string().nonempty("FRONTEND_URL is required"),
+});
+
+const parsedEnv = envSchema.safeParse(process.env);
+
+if (!parsedEnv.success) {
+  console.error(" Invalid environment variables:", parsedEnv.error.format());
+  process.exit(1);
+}
+
+export const envConfig = parsedEnv.data;
