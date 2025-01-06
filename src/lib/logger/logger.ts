@@ -17,7 +17,7 @@ export const log = pino({
       {
         target: "pino/file",
         options: {
-          destination: envConfig.LOG_PATH ?? "./logs.log",
+          destination: envConfig.LOG_PATH,
         },
       },
     ],
@@ -30,23 +30,32 @@ const dbLog = async (
   tag: string,
   type: "info" | "error" | "warn" | "debug"
 ) => {
-  await db.insert(logEntity).values({ tag, type, obj });
+  if (envConfig.NODE_ENV !== "development") {
+    await db.insert(logEntity).values({ tag, type, obj });
+  }
 };
 
 const info = (obj: unknown, tag: string) => {
   void dbLog(obj, tag, "info");
+
+  log.info(obj, tag);
 };
 
 const error = (obj: unknown, tag: string) => {
   void dbLog(obj, tag, "error");
+  log.error(obj, tag);
 };
 
 const warn = (obj: unknown, tag: string) => {
   void dbLog(obj, tag, "warn");
+
+  log.warn(obj, tag);
 };
 
 const debug = (obj: unknown, tag: string) => {
   void dbLog(obj, tag, "debug");
+
+  log.debug(obj, tag);
 };
 
 export const logger = {

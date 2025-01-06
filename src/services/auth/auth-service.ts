@@ -3,22 +3,8 @@ import nodemailer from "nodemailer";
 import { IUserDto } from "../../dto/user-dto";
 import { error } from "../../enums/error/error";
 import { userService } from "services/user/user-service";
-
-const JWT_SECRET = process.env.JWT_SECRET || "ARCH_LINUX";
-const TOKEN_EXPIRATION = "15m";
-
-const createTemporaryToken = (userData: IUserDto) => {
-  return jwt.sign(userData, JWT_SECRET, { expiresIn: TOKEN_EXPIRATION });
-};
-
-const validateToken = async (token: string) => {
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    return decoded as Omit<IUserDto, "password">;
-  } catch (err) {
-    throw new Error("Invalid or expired token");
-  }
-};
+import { jwtService } from "services/jwt/jwt-service";
+import { envConfig } from "env";
 
 const sendEmailWithToken = async (
   email: string,
@@ -50,20 +36,16 @@ const initiateRegistration = async (user: IUserDto) => {
   const { email } = user;
   console.log("before email user");
   const existingUser = await userService.findUserByEmail(email);
-  console.log("before existingUser");
   if (existingUser) {
     throw new Error(error.USER_EXIST);
   }
-  console.log("before if");
-  const token = createTemporaryToken(user);
-  console.log("before createTemporaryToken");
+  const token = jwtService.createTemporaryToken(user);
   await sendEmailWithToken(email, token, "sign-up");
-  console.log("before sendEmailWithToken");
   return { message: "Confirmation email sent", token };
 };
 
 const verifyRegistrationToken = async (token: string) => {
-  const userData = await validateToken(token);
+  const userData = await jwtService.validateToken(token);
   const existingUser = await userService.findUserByEmail(userData.email);
 
   if (existingUser) {
@@ -71,7 +53,7 @@ const verifyRegistrationToken = async (token: string) => {
   }
 
   const newUser = await userService.createUser(userData);
-  const accessToken = jwt.sign({ id: newUser.id }, JWT_SECRET, {
+  const accessToken = jwt.sign({ id: newUser.id }, envConfig.SECRET_KEY, {
     expiresIn: "7d",
   });
 
@@ -91,21 +73,21 @@ const initiateLogin = async (email: string) => {
     patronymic: user.patronymic ?? "",
     phone: user.config.phone_number ?? "",
   };
-  const token = createTemporaryToken(userObj);
+  const token = jwtService.createTemporaryToken(userObj);
   await sendEmailWithToken(email, token, "sign-in");
 
   return { message: "Confirmation email sent", token };
 };
 
 const verifyLoginToken = async (token: string) => {
-  const { email } = await validateToken(token);
+  const { email } = await jwtService.validateToken(token);
   const user = await userService.findUserByEmail(email);
 
   if (!user) {
     throw new Error("User not found");
   }
 
-  const accessToken = jwt.sign({ id: user.id }, JWT_SECRET, {
+  const accessToken = jwt.sign({ id: user.id }, envConfig.SECRET_KEY, {
     expiresIn: "7d",
   });
 
