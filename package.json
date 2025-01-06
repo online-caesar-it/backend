@@ -3,7 +3,7 @@
   "scripts": {
     "build": "cross-env SKIP_ENV_VALIDATION=true tsc --build --clean && tsc && tsc-alias",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "cross-env NODE_ENV=development nodemon --watch src --exec ts-node  -r tsconfig-paths/register src/index.ts",
+    "dev": "cross-env NODE_ENV=development nodemon --watch src --exec ts-node -r tsconfig-paths/register src/index.ts",
     "db:push": "drizzle-kit push",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",

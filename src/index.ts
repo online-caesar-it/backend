@@ -4,6 +4,7 @@ import { userRouter } from "./routes/user/user-router";
 import { errorMiddleware } from "./middleware/error";
 import { authRouter } from "./routes/auth/auth-router";
 import cors from "@fastify/cors";
+import { logger } from "lib/logger/logger";
 
 const app = fastify();
 app.setErrorHandler(errorMiddleware);
