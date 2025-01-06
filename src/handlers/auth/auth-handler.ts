@@ -10,6 +10,7 @@ import {
   SUCCESS,
 } from "../../consts/response-status/response-status";
 import { FastifyReply, FastifyRequest } from "fastify";
+import { jwtService } from "services/jwt/jwt-service";
 
 const initiateSignUpHandler = async (
   req: FastifyRequest,
@@ -24,7 +25,7 @@ const initiateSignUpHandler = async (
       message: SEND_EMAIL_SUCCESS,
     });
   } catch (err) {
-    console.error(err, 'err');
+    console.error(err, "err");
     if (err instanceof Error) {
       reply.status(CLIENT_ERROR).send({ message: err.message });
     } else {
@@ -98,9 +99,35 @@ const verifySignInHandler = async (
     }
   }
 };
+const refreshTokenHandler = async (
+  req: FastifyRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const { refreshToken } = req?.body as {
+      refreshToken: string;
+    };
+    const tokens = await jwtService.refreshTokens(refreshToken);
+    reply.status(SUCCESS).send({
+      tokens,
+      message: "Токены успешно обновлены",
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      reply.status(CLIENT_ERROR).send({
+        message: error.message,
+      });
+    } else {
+      reply.status(CLIENT_ERROR).send({
+        message: "Неизвестная ошибка",
+      });
+    }
+  }
+};
 export const authHandlers = {
   verifySignInHandler,
   verifySignUpHandler,
   initiateSignInHandler,
   initiateSignUpHandler,
+  refreshTokenHandler,
 };

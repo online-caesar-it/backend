@@ -38,5 +38,12 @@ export const authRouter = (routers: FastifyInstance) => {
         routers,
       });
     },
+    refreshToken: () => {
+      post({
+        path: `${path}/refresh`,
+        handler: authHandlers.refreshTokenHandler,
+        routers,
+      });
+    },
   };
 };

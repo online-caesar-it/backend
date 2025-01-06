@@ -5,7 +5,7 @@ import { error } from "../../enums/error/error";
 import { userService } from "services/user/user-service";
 import { jwtService } from "services/jwt/jwt-service";
 import { envConfig } from "env";
-
+const TOKEN_EXPIRIES = "7d";
 const sendEmailWithToken = async (
   email: string,
   token: string,
@@ -34,7 +34,6 @@ const sendEmailWithToken = async (
 
 const initiateRegistration = async (user: IUserDto) => {
   const { email } = user;
-  console.log("before email user");
   const existingUser = await userService.findUserByEmail(email);
   if (existingUser) {
     throw new Error(error.USER_EXIST);
@@ -51,10 +50,10 @@ const verifyRegistrationToken = async (token: string) => {
   if (existingUser) {
     throw new Error(error.USER_EXIST);
   }
-
   const newUser = await userService.createUser(userData);
+
   const accessToken = jwt.sign({ id: newUser.id }, envConfig.SECRET_KEY, {
-    expiresIn: "7d",
+    expiresIn: TOKEN_EXPIRIES,
   });
 
   return { user: newUser, accessToken };
@@ -88,7 +87,7 @@ const verifyLoginToken = async (token: string) => {
   }
 
   const accessToken = jwt.sign({ id: user.id }, envConfig.SECRET_KEY, {
-    expiresIn: "7d",
+    expiresIn: TOKEN_EXPIRIES,
   });
 
   return { user, accessToken };

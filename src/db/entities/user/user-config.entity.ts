@@ -6,4 +6,5 @@ export const userConfigEntity = pgTable("users_config", {
   userId: uuid().references(() => userEntity.id),
   email: text("email"),
   phone_number: text("phone_number"),
+  refresh_token: text("refresh_token"),
 });

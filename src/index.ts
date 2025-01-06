@@ -23,13 +23,14 @@ const start = async () => {
     authRouterInstance.signUp();
     authRouterInstance.verifySignUp();
     authRouterInstance.verifySignIn();
+    authRouterInstance.refreshToken();
     await app.listen({
       port: Number(envConfig.PORT) || 5000,
       host: "127.0.0.1",
     });
-    console.log(`Server is running on port ${envConfig.PORT}`);
+    logger.info("server start", `Server is running on port ${envConfig.PORT}`);
   } catch (error) {
-    console.error("Errorr:", error);
+    logger.error("server error", error as string);
     process.exit(1);
   }
 };

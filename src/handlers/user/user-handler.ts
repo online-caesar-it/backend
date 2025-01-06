@@ -2,6 +2,7 @@ import { userService } from "../../services/user/user-service";
 import { CLIENT_ERROR } from "../../consts/response-status/response-status";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { IAuthenticatedRequest } from "types/req-type";
+import { logger } from "lib/logger/logger";
 
 const getSelfHandler = async (
   req: IAuthenticatedRequest,
@@ -19,7 +20,7 @@ const getSelfHandler = async (
     if (err instanceof Error) {
       reply.status(CLIENT_ERROR).send({ message: err.message });
     } else {
-      console.log("Unknown error:", err);
+      logger.error("error get self", err as string);
       reply.status(CLIENT_ERROR).send({ message: "An unknown error occurred" });
     }
   }
