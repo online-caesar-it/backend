@@ -85,8 +85,8 @@ const getSelfService = async (userId: string) => {
   }
 
   return {
+    config: userConfig,
     ...user,
-    ...userConfig,
   };
 };
 

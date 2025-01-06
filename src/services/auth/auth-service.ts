@@ -48,7 +48,6 @@ const sendEmailWithToken = async (
 
 const initiateRegistration = async (user: IUserDto) => {
   const { email } = user;
-  console.log("before email user");
   const existingUser = await userService.findUserByEmail(email);
   console.log("before existingUser");
   if (existingUser) {

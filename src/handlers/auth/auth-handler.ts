@@ -24,6 +24,7 @@ const initiateSignUpHandler = async (
       message: SEND_EMAIL_SUCCESS,
     });
   } catch (err) {
+    console.error(err, 'err');
     if (err instanceof Error) {
       reply.status(CLIENT_ERROR).send({ message: err.message });
     } else {

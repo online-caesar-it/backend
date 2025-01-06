@@ -17,6 +17,7 @@ export const checkToken = async (req: FastifyRequest, reply: FastifyReply) => {
     const decoded = jwt.verify(token, String(envConfig.SECRET_KEY));
     (req as any).user = decoded;
   } catch (err) {
+    console.error(err, "ERR IN AUTH MIDDLEWARE");
     reply.status(UNAUTHORIZED).send({ message: "Invalid token" });
   }
 };
