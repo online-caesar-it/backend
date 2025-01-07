@@ -2,7 +2,7 @@ import { entities } from "../../enums/entities/entities";
 import { get } from "..";
 import { FastifyInstance } from "fastify";
 import { userHandlers } from "../../handlers/user/user-handler";
-import { checkToken } from "../../middleware/auth";
+import { authMiddleWare } from "../../middleware/auth";
 
 export const userRouter = (routers: FastifyInstance) => {
   const path = `/${entities.USER}`;
@@ -12,7 +12,7 @@ export const userRouter = (routers: FastifyInstance) => {
         path: `${path}/getSelf`,
         handler: userHandlers.getSelfHandler,
         routers,
-        options: { preHandler: checkToken },
+        options: { preHandler: authMiddleWare.jwtCheck },
       });
     },
     getAll: () => {

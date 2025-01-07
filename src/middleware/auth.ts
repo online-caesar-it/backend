@@ -2,7 +2,8 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { envConfig } from "../env";
 import { UNAUTHORIZED } from "../consts/response-status/response-status";
 import jwt from "jsonwebtoken";
-export const checkToken = async (req: FastifyRequest, reply: FastifyReply) => {
+import { logger } from "../lib/logger/logger";
+const jwtCheck = async (req: FastifyRequest, reply: FastifyReply) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
@@ -17,7 +18,11 @@ export const checkToken = async (req: FastifyRequest, reply: FastifyReply) => {
     const decoded = jwt.verify(token, String(envConfig.SECRET_KEY));
     (req as any).user = decoded;
   } catch (err) {
-    console.error(err, "ERR IN AUTH MIDDLEWARE");
+    logger.error(err, "ERR IN AUTH MIDDLEWARE");
     reply.status(UNAUTHORIZED).send({ message: "Invalid token" });
   }
+};
+
+export const authMiddleWare = {
+  jwtCheck,
 };
