@@ -1,9 +1,9 @@
 import { FastifyInstance } from "fastify";
 import { post } from "..";
 import { entities } from "../../enums/entities/entities";
-import { checkRequestBody } from "../../middleware/error";
 import { setRole } from "../../middleware/role";
 import { authHandlers } from "../../handlers/auth/auth-handler";
+import { errorMiddlewares } from "middleware/error";
 
 export const authRouter = (routers: FastifyInstance) => {
   const path = `/${entities.AUTH}`;
@@ -13,7 +13,7 @@ export const authRouter = (routers: FastifyInstance) => {
         path: `${path}/sign-up/by-email`,
         handler: authHandlers.initiateSignUpHandler,
         routers,
-        options: { preHandler: [checkRequestBody, setRole] },
+        options: { preHandler: [errorMiddlewares.checkRequestBody, setRole] },
       });
     },
     verifySignUp: () => {
@@ -28,7 +28,7 @@ export const authRouter = (routers: FastifyInstance) => {
         path: `${path}/sign-in/by-email`,
         handler: authHandlers.initiateSignInHandler,
         routers,
-        options: { preHandler: checkRequestBody },
+        options: { preHandler: errorMiddlewares.checkRequestBody },
       });
     },
     verifySignIn: () => {

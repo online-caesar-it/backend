@@ -2,16 +2,13 @@ import { CLIENT_ERROR } from "../consts/response-status/response-status";
 import { error } from "../enums/error/error";
 import { FastifyReply, FastifyRequest } from "fastify";
 
-export const checkRequestBody = async (
-  req: FastifyRequest,
-  reply: FastifyReply
-) => {
+const checkRequestBody = async (req: FastifyRequest, reply: FastifyReply) => {
   if (!req.body) {
     return reply.status(CLIENT_ERROR).send({ message: error.REQUIRED });
   }
 };
 
-export const errorMiddleware = async (
+const errorMiddleware = async (
   error: Error,
   req: FastifyRequest,
   reply: FastifyReply
@@ -19,4 +16,9 @@ export const errorMiddleware = async (
   console.error(error);
 
   reply.status(500).send({ message: "Internal Server Error" });
+};
+
+export const errorMiddlewares = {
+  checkRequestBody,
+  errorMiddleware,
 };
