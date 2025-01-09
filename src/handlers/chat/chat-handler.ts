@@ -44,7 +44,54 @@ const createChat = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
     }
   }
 };
+const sendMessage = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
+  try {
+    const { chatId, text } = req.body as {
+      chatId: string;
+      text: string;
+    };
+    const userId = req?.user?.id as string;
+    const message = await chatService.sendMessage(userId, text, chatId);
+    return message;
+  } catch (error) {
+    if (error instanceof Error) {
+      logger.error("error in createChatHandler", error.message);
+      reply.status(CLIENT_ERROR).send({
+        message: error,
+      });
+    } else {
+      logger.error("error in createChatHandler", UNKNOW_ERROR);
+    }
+  }
+};
+const getMessages = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
+  const {
+    chatId,
+    page = 1,
+    pageSize = 10,
+  } = req.query as {
+    chatId: string;
+    page: number;
+    pageSize: number;
+  };
+
+  try {
+    const messages = await chatService.getMessages(chatId, page, pageSize);
+    return reply.send({ messages });
+  } catch (err) {
+    if (err instanceof Error) {
+      logger.error("error in createChatHandler", err.message);
+      reply.status(CLIENT_ERROR).send({
+        message: err,
+      });
+    } else {
+      logger.error("error in createChatHandler", UNKNOW_ERROR);
+    }
+  }
+};
 export const chatHandlers = {
   getMyChatsHandler,
   createChat,
+  sendMessage,
+  getMessages,
 };

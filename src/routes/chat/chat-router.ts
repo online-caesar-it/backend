@@ -16,7 +16,7 @@ export const chatRouter = (routers: FastifyInstance) => {
         options: { preHandler: authMiddleWare.jwtCheck },
       });
     },
-    create: () => {
+    createChat: () => {
       post({
         path: `${path}/create`,
         handler: chatHandlers.createChat,
@@ -26,6 +26,29 @@ export const chatRouter = (routers: FastifyInstance) => {
             authMiddleWare.jwtCheck,
             errorMiddlewares.checkRequestBody,
           ],
+        },
+      });
+    },
+    sendMessage: () => {
+      post({
+        path: `${path}/messages/send`,
+        handler: chatHandlers.sendMessage,
+        routers,
+        options: {
+          preHandler: [
+            authMiddleWare.jwtCheck,
+            errorMiddlewares.checkRequestBody,
+          ],
+        },
+      });
+    },
+    getMessages: () => {
+      get({
+        path: `${path}/messages/get`,
+        handler: chatHandlers.getMessages,
+        routers,
+        options: {
+          preHandler: authMiddleWare.jwtCheck,
         },
       });
     },

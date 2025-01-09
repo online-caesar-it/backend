@@ -1,21 +1,67 @@
-import { eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { db } from "../../db";
 import { chatToUserEntity } from "../../db/entities/chat/chat-to-users.entity";
 import { chatEntity } from "db/entities/chat/chat.entity";
+import { messageEntity } from "db/entities/chat/message.entity";
+import {
+  CHAT_NOT_FOUND,
+  MESSAGES_NOT_FOUND,
+  PARAMS_IS_REQUIRED,
+} from "consts/response-status/response-message";
 
 const getMyChats = async (userId: string) => {
-  const chats = await db
+  const chatsToUser = await db
     .select()
     .from(chatToUserEntity)
     .where(eq(chatToUserEntity.userId, userId));
-  return chats;
+
+  const chatsToUserIds = chatsToUser
+    .map((it) => it.chatId)
+    .filter((i) => i !== null);
+
+  if (!chatsToUser || chatsToUser.length === 0) {
+    throw new Error(CHAT_NOT_FOUND);
+  }
+  const chats = await db
+    .select()
+    .from(chatEntity)
+    .where(inArray(chatEntity.id, chatsToUserIds));
+  const chatIds = chats.map((it) => it.id);
+  const messages = await db
+    .select()
+    .from(messageEntity)
+    .where(inArray(messageEntity.chatId, chatIds))
+    .limit(1)
+    .orderBy(desc(messageEntity.createdAt));
+
+  const chatsWithMessage = chats.map((chat) => {
+    const message = messages.find((msg) => msg.chatId === chat.id) || null;
+    return { ...chat, message };
+  });
+
+  return chatsWithMessage;
 };
 
-const sendMessage = () => {};
-
-const getMessages = () => {};
-
-const getChatUsers = () => {};
+const getMessages = async (
+  chatId: string,
+  page: number = 1,
+  pageSize: number = 10
+) => {
+  const offset = (page - 1) * pageSize;
+  if (!chatId || !page || !pageSize) {
+    throw new Error(PARAMS_IS_REQUIRED);
+  }
+  const messages = await db
+    .select()
+    .from(messageEntity)
+    .where(eq(messageEntity.chatId, chatId))
+    .limit(pageSize)
+    .offset(offset);
+  if (!messages) {
+    throw new Error(MESSAGES_NOT_FOUND);
+  }
+  return messages;
+};
 
 const createChat = async (
   userIds: string[],
@@ -38,8 +84,20 @@ const createChat = async (
     chatToUser,
   };
 };
-
+const sendMessage = async (ownerId: string, text: string, chatId: string) => {
+  const [message] = await db
+    .insert(messageEntity)
+    .values({
+      ownerId,
+      chatId,
+      text,
+    })
+    .returning();
+  return message;
+};
 export const chatService = {
   getMyChats,
   createChat,
+  sendMessage,
+  getMessages,
 };

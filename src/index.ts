@@ -25,7 +25,9 @@ const start = async () => {
     authRouterInstance.verifySignIn();
     authRouterInstance.refreshToken();
     chatRouterInstance.getMyChats();
-    chatRouterInstance.create();
+    chatRouterInstance.createChat();
+    chatRouterInstance.sendMessage();
+    chatRouterInstance.getMessages();
     await app.listen({
       port: Number(envConfig.PORT) || 5000,
       host: "127.0.0.1",
