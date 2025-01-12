@@ -8,7 +8,8 @@ import {
   MESSAGES_NOT_FOUND,
   PARAMS_IS_REQUIRED,
 } from "consts/response-status/response-message";
-
+import { clients } from "../../ws/chat-ws";
+import { ChatEvents } from "enums/chat/events";
 const getMyChats = async (userId: string) => {
   const chatsToUser = await db
     .select()
@@ -85,6 +86,7 @@ const createChat = async (
   };
 };
 const sendMessage = async (ownerId: string, text: string, chatId: string) => {
+  console.log(ownerId, text, chatId, "MESSAGE ");
   const [message] = await db
     .insert(messageEntity)
     .values({
@@ -93,6 +95,7 @@ const sendMessage = async (ownerId: string, text: string, chatId: string) => {
       text,
     })
     .returning();
+  console.log(message, "mESSAGE IN SEND MESSAGE");
   return message;
 };
 export const chatService = {

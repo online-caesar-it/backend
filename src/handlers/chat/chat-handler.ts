@@ -35,10 +35,15 @@ const createChat = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
       description: string;
     };
     const chat = await chatService.createChat(userIds, name, description);
-    return chat;
+    reply.status(SUCCESS).send({
+      chat,
+    });
   } catch (error) {
     if (error instanceof Error) {
       logger.error("error in createChatHandler", error.message);
+      reply.status(CLIENT_ERROR).send({
+        message: error,
+      });
     } else {
       logger.error("error in createChatHandler", UNKNOW_ERROR);
     }

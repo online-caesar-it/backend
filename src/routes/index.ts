@@ -1,3 +1,4 @@
+import { WebsocketHandler } from "@fastify/websocket";
 import fastify, {
   FastifyInstance,
   RouteHandlerMethod,
