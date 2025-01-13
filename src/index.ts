@@ -1,4 +1,4 @@
-import fastify, { FastifyInstance } from "fastify";
+import fastify from "fastify";
 import { envConfig } from "./env";
 import { userRouter } from "./routes/user/user-router";
 import { authRouter } from "./routes/auth/auth-router";
@@ -6,16 +6,12 @@ import cors from "@fastify/cors";
 import { logger } from "lib/logger/logger";
 import { chatRouter } from "./routes/chat/chat-router";
 import websocket from "@fastify/websocket";
-import { chatWebSocket } from "ws/chat-ws";
-import { authMiddleWare } from "middleware/auth";
-import { IAuthenticatedRequest } from "types/req-type";
 const app = fastify();
 app.register(cors, {
   origin: ["*"],
   allowedHeaders: ["*"],
   methods: ["*"],
 });
-
 app.register(websocket);
 const start = async () => {
   try {

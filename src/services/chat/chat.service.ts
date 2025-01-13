@@ -8,7 +8,6 @@ import {
   MESSAGES_NOT_FOUND,
   PARAMS_IS_REQUIRED,
 } from "consts/response-status/response-message";
-import { clients } from "../../ws/chat-ws";
 import { ChatEvents } from "enums/chat/events";
 const getMyChats = async (userId: string) => {
   const chatsToUser = await db
