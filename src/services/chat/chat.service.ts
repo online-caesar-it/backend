@@ -1,14 +1,13 @@
+import { chatToUserEntity } from "./../../db/entities/chat/chat-to-users.entity";
 import { desc, eq, inArray } from "drizzle-orm";
 import { db } from "../../db";
-import { chatToUserEntity } from "../../db/entities/chat/chat-to-users.entity";
 import { chatEntity } from "db/entities/chat/chat.entity";
 import { messageEntity } from "db/entities/chat/message.entity";
 import {
-  CHAT_NOT_FOUND,
   MESSAGES_NOT_FOUND,
   PARAMS_IS_REQUIRED,
 } from "consts/response-status/response-message";
-import { ChatEvents } from "enums/chat/events";
+import { userEntity } from "db/entities/user/user.entity";
 const getMyChats = async (userId: string) => {
   const chatsToUser = await db
     .select()
@@ -20,7 +19,7 @@ const getMyChats = async (userId: string) => {
     .filter((i) => i !== null);
 
   if (!chatsToUser || chatsToUser.length === 0) {
-    throw new Error(CHAT_NOT_FOUND);
+    return [];
   }
   const chats = await db
     .select()
@@ -33,10 +32,16 @@ const getMyChats = async (userId: string) => {
     .where(inArray(messageEntity.chatId, chatIds))
     .limit(1)
     .orderBy(desc(messageEntity.createdAt));
-
+  const chatUserIds = chatsToUser
+    .map((it) => it.userId)
+    .filter((i) => i !== null);
+  const interlocutors = await db
+    .select()
+    .from(userEntity)
+    .where(inArray(userEntity.id, chatUserIds));
   const chatsWithMessage = chats.map((chat) => {
     const message = messages.find((msg) => msg.chatId === chat.id) || null;
-    return { ...chat, message };
+    return { ...chat, message, interlocutors };
   });
 
   return chatsWithMessage;
@@ -80,7 +85,7 @@ const createChat = async (
     chatId: chat.id,
   });
   return {
-    chat,
+    ...chat,
     chatToUser,
   };
 };

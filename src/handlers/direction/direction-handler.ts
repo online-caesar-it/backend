@@ -129,7 +129,6 @@ const getStudentsByEducatorId = async (
 ) => {
   try {
     const educatorId = req?.user?.id;
-    console.log(educatorId, "EDUCATORID");
     const students = await directionService.getStudentsByEducatorId(
       educatorId || ""
     );

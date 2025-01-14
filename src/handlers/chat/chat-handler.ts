@@ -13,9 +13,7 @@ const getMyChatsHandler = async (
     const userId = req?.user?.id;
 
     const chats = await chatService.getMyChats(userId || "");
-    reply.status(SUCCESS).send({
-      chats,
-    });
+    reply.status(SUCCESS).send(chats);
   } catch (error) {
     if (error instanceof Error) {
       logger.error("error in getMyChatsHandler", error.message);
@@ -28,7 +26,6 @@ const getMyChatsHandler = async (
   }
 };
 const createChat = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
-  console.log(req.user);
   try {
     const { userIds, name, description } = req.body as {
       userIds: string[];
@@ -36,9 +33,7 @@ const createChat = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
       description: string;
     };
     const chat = await chatService.createChat(userIds, name, description);
-    reply.status(SUCCESS).send({
-      chat,
-    });
+    reply.status(SUCCESS).send(chat);
   } catch (error) {
     if (error instanceof Error) {
       logger.error("error in createChatHandler", error.message);

@@ -3,8 +3,8 @@ import { db } from "db";
 import {
   directionEntity,
   directionsToGroupsEntity,
-  groupEntity,
 } from "db/entities/direction/direction.entity";
+import { groupEntity } from "db/entities/group/group.entity";
 import { userEntity } from "db/entities/user/user.entity";
 import { eq, inArray } from "drizzle-orm";
 
@@ -22,7 +22,6 @@ const createDirection = async (name: string, description: string) => {
   return direction;
 };
 
-// Создание группы
 const createGroup = async (educatorId: string) => {
   const [group] = await db
     .insert(groupEntity)

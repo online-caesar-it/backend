@@ -1,18 +1,12 @@
 import { pgTable, uuid, varchar, text } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { userEntity } from "../user/user.entity";
+import { groupEntity } from "../group/group.entity";
 
 export const directionEntity = pgTable("direction", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
-});
-
-export const groupEntity = pgTable("group", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  educatorId: uuid("educator_id")
-    .notNull()
-    .references(() => userEntity.id),
 });
 
 export const directionsToGroupsEntity = pgTable("directions_to_groups", {
@@ -27,12 +21,6 @@ export const directionsToGroupsEntity = pgTable("directions_to_groups", {
 
 export const directionRelations = relations(directionEntity, ({ many }) => ({
   groups: many(directionsToGroupsEntity),
-}));
-
-export const groupRelations = relations(groupEntity, ({ one, many }) => ({
-  educator: one(userEntity),
-  directions: many(directionsToGroupsEntity),
-  users: many(userEntity),
 }));
 
 export const directionsToGroupsRelations = relations(
