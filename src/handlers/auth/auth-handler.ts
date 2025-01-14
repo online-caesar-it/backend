@@ -18,7 +18,6 @@ const initiateSignUpHandler = async (
 ) => {
   try {
     const userData = req.body as IUserDto;
-
     await authService.initiateRegistration(userData);
 
     reply.status(CREATE_SUCCESS).send({
@@ -63,9 +62,12 @@ const initiateSignInHandler = async (
   reply: FastifyReply
 ) => {
   try {
-    const { email } = req.body as { email: string };
+    const { email, isPortal } = req.body as {
+      email: string;
+      isPortal: boolean;
+    };
 
-    await authService.initiateLogin(email);
+    await authService.initiateLogin(email, isPortal);
 
     reply.status(SUCCESS).send({
       message: SEND_EMAIL_SUCCESS,

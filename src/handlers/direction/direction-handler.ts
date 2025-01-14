@@ -1,0 +1,160 @@
+import { UNKNOW_ERROR } from "consts/response-status/response-message";
+import {
+  CLIENT_ERROR,
+  CREATE_SUCCESS,
+  SUCCESS,
+} from "consts/response-status/response-status";
+import { FastifyReply } from "fastify";
+import { logger } from "lib/logger/logger";
+import { directionService } from "services/direction/direction-service";
+import { IAuthenticatedRequest } from "types/req-type";
+
+const createDirection = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const { name, description } = req.body as {
+      name: string;
+      description: string;
+    };
+    const direction = await directionService.createDirection(name, description);
+    reply.status(CREATE_SUCCESS).send({
+      direction,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      logger.error("error in create direction handler", error.message);
+      reply.status(CLIENT_ERROR).send({ message: error.message });
+    } else {
+      logger.error("error in create direction handler", UNKNOW_ERROR);
+      reply.status(CLIENT_ERROR).send({ message: UNKNOW_ERROR });
+    }
+  }
+};
+
+// Создание группы
+const createGroup = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
+  try {
+    const educatorId = req?.user?.id;
+    const group = await directionService.createGroup(educatorId || "");
+    reply.status(CREATE_SUCCESS).send({
+      group,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      logger.error("error in create group handler", error.message);
+      reply.status(CLIENT_ERROR).send({ message: error.message });
+    } else {
+      logger.error("error in create group handler", UNKNOW_ERROR);
+      reply.status(CLIENT_ERROR).send({ message: UNKNOW_ERROR });
+    }
+  }
+};
+
+const addDirectionToGroup = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const { directionId, groupId } = req.body as {
+      directionId: string;
+      groupId: string;
+    };
+    const result = await directionService.addDirectionToGroup(
+      directionId,
+      groupId
+    );
+    reply.status(CREATE_SUCCESS).send({
+      result,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      logger.error("error in add direction to group handler", error.message);
+      reply.status(CLIENT_ERROR).send({ message: error.message });
+    } else {
+      logger.error("error in add direction to group handler", UNKNOW_ERROR);
+      reply.status(CLIENT_ERROR).send({ message: UNKNOW_ERROR });
+    }
+  }
+};
+const addStudentToGroup = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const { userId, groupId } = req.body as { userId: string; groupId: string };
+    const result = await directionService.addStudentToGroup(userId, groupId);
+    reply.status(CREATE_SUCCESS).send({
+      result,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      logger.error("error in add student to group handler", error.message);
+      reply.status(CLIENT_ERROR).send({ message: error.message });
+    } else {
+      logger.error("error in add student to group handler", UNKNOW_ERROR);
+      reply.status(CLIENT_ERROR).send({ message: UNKNOW_ERROR });
+    }
+  }
+};
+
+const getStudentsByDirectionAndGroup = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const { groupId } = req.query as {
+      groupId: string;
+    };
+    const students = await directionService.getStudentsByDirectionAndGroup(
+      groupId
+    );
+    reply.status(SUCCESS).send({
+      students,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      logger.error("error in get students handler", error.message);
+      reply.status(CLIENT_ERROR).send({ message: error.message });
+    } else {
+      logger.error("error in get students handler", UNKNOW_ERROR);
+      reply.status(CLIENT_ERROR).send({ message: UNKNOW_ERROR });
+    }
+  }
+};
+const getStudentsByEducatorId = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const educatorId = req?.user?.id;
+    console.log(educatorId, "EDUCATORID");
+    const students = await directionService.getStudentsByEducatorId(
+      educatorId || ""
+    );
+    return reply.status(SUCCESS).send(students);
+  } catch (error) {
+    if (error instanceof Error) {
+      logger.error(
+        "Error in get students by educatorId handler",
+        error.message
+      );
+      reply.status(CLIENT_ERROR).send({ message: error.message });
+    } else {
+      logger.error(
+        "Unknown error in get students by educatorId handler",
+        UNKNOW_ERROR
+      );
+      reply.status(CLIENT_ERROR).send({ message: UNKNOW_ERROR });
+    }
+  }
+};
+export const directionHandlers = {
+  createDirection,
+  createGroup,
+  addDirectionToGroup,
+  getStudentsByDirectionAndGroup,
+  addStudentToGroup,
+  getStudentsByEducatorId,
+};

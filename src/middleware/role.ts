@@ -1,10 +1,35 @@
-import { FastifyReply, FastifyRequest } from "fastify";
+import {
+  ROLE_NOT_AUTH_ADMIN,
+  ROLE_NOT_AUTH_EDUCATOR,
+} from "consts/response-status/response-message";
+import { CLIENT_ERROR } from "consts/response-status/response-status";
+import { ROLE_ADMIN, ROLE_EDUCATOR } from "consts/role/role";
+import { FastifyReply } from "fastify";
+import { IAuthenticatedRequest } from "types/req-type";
 
-export const setRole = (
-  req: FastifyRequest,
-  reply: FastifyReply,
-  done: Function
+const checkedRoleAdmin = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
 ) => {
-  (req as any).body.role = "user";
-  done();
+  const role = req.user?.role;
+  if (role !== ROLE_ADMIN) {
+    reply.status(CLIENT_ERROR).send({
+      message: ROLE_NOT_AUTH_ADMIN,
+    });
+  }
+};
+const checkedRoleEducator = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  const role = req?.user?.role;
+  if (role !== ROLE_EDUCATOR) {
+    reply.status(CLIENT_ERROR).send({
+      message: ROLE_NOT_AUTH_EDUCATOR,
+    });
+  }
+};
+export const roleMiddleWare = {
+  checkedRoleAdmin,
+  checkedRoleEducator,
 };

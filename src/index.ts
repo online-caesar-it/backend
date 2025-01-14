@@ -6,6 +6,7 @@ import cors from "@fastify/cors";
 import { logger } from "lib/logger/logger";
 import { chatRouter } from "./routes/chat/chat-router";
 import websocket from "@fastify/websocket";
+import { directionRouter } from "routes/direction/direction-router";
 const app = fastify();
 app.register(cors, {
   origin: ["*"],
@@ -18,6 +19,7 @@ const start = async () => {
     const authRouterInstance = authRouter(app);
     const userRouterInstance = userRouter(app);
     const chatRouterInstance = chatRouter(app);
+    const directionRouterInstance = directionRouter(app);
     userRouterInstance.getSelf();
     userRouterInstance.getAll();
     authRouterInstance.signIn();
@@ -30,6 +32,12 @@ const start = async () => {
     chatRouterInstance.sendMessage();
     chatRouterInstance.getMessages();
     app.register(() => chatRouterInstance.initWebSocket());
+    directionRouterInstance.create();
+    directionRouterInstance.createGroup();
+    directionRouterInstance.addDirectionToGroup();
+    directionRouterInstance.addStudentToGroup();
+    directionRouterInstance.getStudentsByDirectionAndGroup();
+    directionRouterInstance.getStudentsByEducatorId();
     await app.listen({
       port: Number(envConfig.PORT) || 5000,
       host: "127.0.0.1",

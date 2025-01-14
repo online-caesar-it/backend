@@ -14,6 +14,7 @@ const envSchema = z.object({
   SMTP_PASS: z.string().nonempty("SMTP_PASS is required"),
   SMTP_FROM: z.string().nonempty("SMTP_FROM is required"),
   FRONTEND_URL: z.string().nonempty("FRONTEND_URL is required"),
+  FRONTEND_PORTAL_URL: z.string().nonempty("FRONTEND_PORTAL_URL is required"),
   LOG_PATH: z.string().default("./logs.log"),
 });
 

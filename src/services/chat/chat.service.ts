@@ -85,7 +85,6 @@ const createChat = async (
   };
 };
 const sendMessage = async (ownerId: string, text: string, chatId: string) => {
-  console.log(ownerId, text, chatId, "MESSAGE ");
   const [message] = await db
     .insert(messageEntity)
     .values({
@@ -94,7 +93,6 @@ const sendMessage = async (ownerId: string, text: string, chatId: string) => {
       text,
     })
     .returning();
-  console.log(message, "mESSAGE IN SEND MESSAGE");
   return message;
 };
 export const chatService = {

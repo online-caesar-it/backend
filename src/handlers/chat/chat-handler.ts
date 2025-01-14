@@ -28,6 +28,7 @@ const getMyChatsHandler = async (
   }
 };
 const createChat = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
+  console.log(req.user);
   try {
     const { userIds, name, description } = req.body as {
       userIds: string[];

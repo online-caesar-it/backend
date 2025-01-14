@@ -7,4 +7,5 @@ export const userEntity = pgTable("users", {
   surname: text("surname"),
   patronymic: text("patronymic"),
   avatar: text("avatar"),
+  groupId: uuid("groupId"),
 });

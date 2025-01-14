@@ -9,8 +9,10 @@ const TOKEN_EXPIRIES = "7d";
 const sendEmailWithToken = async (
   email: string,
   token: string,
-  type: "sign-in" | "sign-up"
+  type: "sign-in" | "sign-up",
+  isPortal: boolean
 ) => {
+  let link: string = "";
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT),
@@ -20,8 +22,11 @@ const sendEmailWithToken = async (
       pass: process.env.SMTP_PASS,
     },
   });
-
-  const link = `${process.env.FRONTEND_URL}/auth/confirm?token=${token}&method=by-email&type=${type}`;
+  if (!isPortal) {
+    link = `${process.env.FRONTEND_URL}/auth/confirm?token=${token}&method=by-email&type=${type}`;
+  } else {
+    link = `${process.env.FRONTEND_PORTAL_URL}auth/confirm?token=${token}&method=by-email&type=${type}`;
+  }
 
   await transporter.sendMail({
     from: process.env.SMTP_FROM,
@@ -39,7 +44,7 @@ const initiateRegistration = async (user: IUserDto) => {
     throw new Error(error.USER_EXIST);
   }
   const token = jwtService.createTemporaryToken(user);
-  await sendEmailWithToken(email, token, "sign-up");
+  await sendEmailWithToken(email, token, "sign-up", false);
   return { message: "Confirmation email sent", token };
 };
 
@@ -51,17 +56,19 @@ const verifyRegistrationToken = async (token: string) => {
     throw new Error(error.USER_EXIST);
   }
   const newUser = await userService.createUser(userData);
-
-  const accessToken = jwt.sign({ id: newUser.id }, envConfig.SECRET_KEY, {
-    expiresIn: TOKEN_EXPIRIES,
-  });
+  const accessToken = jwt.sign(
+    { id: newUser.id, role: newUser.role },
+    envConfig.SECRET_KEY,
+    {
+      expiresIn: TOKEN_EXPIRIES,
+    }
+  );
 
   return { user: newUser, accessToken };
 };
 
-const initiateLogin = async (email: string) => {
+const initiateLogin = async (email: string, isPortal: boolean) => {
   const user = await userService.findUserByEmail(email);
-
   if (!user) {
     throw new Error(error.USER_NOT_EXIST);
   }
@@ -73,8 +80,8 @@ const initiateLogin = async (email: string) => {
     phone: user.config.phone_number ?? "",
   };
   const token = jwtService.createTemporaryToken(userObj);
-  await sendEmailWithToken(email, token, "sign-in");
 
+  await sendEmailWithToken(email, token, "sign-in", isPortal);
   return { message: "Confirmation email sent", token };
 };
 
@@ -86,9 +93,13 @@ const verifyLoginToken = async (token: string) => {
     throw new Error("User not found");
   }
 
-  const accessToken = jwt.sign({ id: user.id }, envConfig.SECRET_KEY, {
-    expiresIn: TOKEN_EXPIRIES,
-  });
+  const accessToken = jwt.sign(
+    { id: user.id, role: user.role },
+    envConfig.SECRET_KEY,
+    {
+      expiresIn: TOKEN_EXPIRIES,
+    }
+  );
 
   return { user, accessToken };
 };
