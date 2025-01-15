@@ -12,5 +12,7 @@ export type TChatGetMessagesWs = {
   payload: {
     chatId: string;
     text: string;
+    page: number;
+    limit: number;
   };
 };

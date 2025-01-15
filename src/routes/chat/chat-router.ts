@@ -57,7 +57,7 @@ export const chatRouter = (routers: FastifyInstance) => {
     initWebSocket: () => {
       routers.get(
         `${path}/ws`,
-        { websocket: true, preHandler: authMiddleWare.jwtCheck },
+        { websocket: true, preHandler: authMiddleWare.jwtCheckWebSocket },
         (socket, req: IAuthenticatedRequest) => {
           chatWebSocketService.chatWebSocket(socket, req);
         }

@@ -31,15 +31,19 @@ const getMessages = async (socket: WebSocket, parsed: TChatGetMessagesWs) => {
     throw new Error("Invalid payload: 'chatId' is required");
   }
 
-  const { chatId: requestedChatId } = parsed.payload;
+  const { chatId: requestedChatId, page, limit } = parsed.payload;
   logger.info("Processing getMessages", requestedChatId);
 
   try {
-    const messages = await chatService.getMessages(requestedChatId);
+    const messages = await chatService.getMessages(
+      requestedChatId,
+      page,
+      limit
+    );
 
     socket.send(
       JSON.stringify({
-        event: ChatEvents.GET_MESSAGES,
+        event: ChatEvents.NEW_MESSAGE,
         payload: messages,
       })
     );
@@ -69,7 +73,7 @@ const chatWebSocket = (socket: WebSocket, req: IAuthenticatedRequest) => {
         case ChatEvents.SEND_MESSAGES:
           sendMessage(parsed, userId);
           break;
-        case ChatEvents.GET_MESSAGES:
+        case ChatEvents.NEW_MESSAGE:
           getMessages(socket, parsed);
           break;
 

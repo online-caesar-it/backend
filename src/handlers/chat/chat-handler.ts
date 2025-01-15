@@ -68,17 +68,24 @@ const sendMessage = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
 const getMessages = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
   const {
     chatId,
-    page = 1,
-    pageSize = 10,
+    cursor = 1,
+    limit = 10,
+    offset,
   } = req.query as {
     chatId: string;
-    page: number;
-    pageSize: number;
+    cursor: number;
+    limit: number;
+    offset: number;
   };
 
   try {
-    const messages = await chatService.getMessages(chatId, page, pageSize);
-    return reply.send({ messages });
+    const messages = await chatService.getMessages(
+      chatId,
+      cursor,
+      limit,
+      offset
+    );
+    return reply.send(messages);
   } catch (err) {
     if (err instanceof Error) {
       logger.error("error in createChatHandler", err.message);
