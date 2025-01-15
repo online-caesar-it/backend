@@ -8,7 +8,7 @@ export type TChatSendMessagesWs = {
   };
 };
 export type TChatGetMessagesWs = {
-  event: ChatEvents.GET_MESSAGES;
+  event: ChatEvents.NEW_MESSAGE;
   payload: {
     chatId: string;
     text: string;
