@@ -1,5 +1,5 @@
 {
-  "version": "0.0.2",
+  "version": "0.0.3",
   "scripts": {
     "build": "cross-env SKIP_ENV_VALIDATION=true tsc --build --clean && tsc && tsc-alias",
     "test": "echo \"Error: no test specified\" && exit 1",
