@@ -1,12 +1,9 @@
 import fastify from "fastify";
 import { envConfig } from "./env";
-import { userRouter } from "./routes/user/user-router";
-import { authRouter } from "./routes/auth/auth-router";
 import cors from "@fastify/cors";
 import { logger } from "lib/logger/logger";
-import { chatRouter } from "./routes/chat/chat-router";
 import websocket from "@fastify/websocket";
-import { directionRouter } from "routes/direction/direction-router";
+import { init } from "init";
 const app = fastify();
 app.register(cors, {
   origin: ["*"],
@@ -16,31 +13,10 @@ app.register(cors, {
 app.register(websocket);
 const start = async () => {
   try {
-    const authRouterInstance = authRouter(app);
-    const userRouterInstance = userRouter(app);
-    const chatRouterInstance = chatRouter(app);
-    const directionRouterInstance = directionRouter(app);
-    userRouterInstance.getSelf();
-    userRouterInstance.getAll();
-    authRouterInstance.signIn();
-    authRouterInstance.signUp();
-    authRouterInstance.verifySignUp();
-    authRouterInstance.verifySignIn();
-    authRouterInstance.refreshToken();
-    chatRouterInstance.getMyChats();
-    chatRouterInstance.createChat();
-    chatRouterInstance.sendMessage();
-    chatRouterInstance.getMessages();
-    app.register(() => chatRouterInstance.initWebSocket());
-    directionRouterInstance.create();
-    directionRouterInstance.createGroup();
-    directionRouterInstance.addDirectionToGroup();
-    directionRouterInstance.addStudentToGroup();
-    directionRouterInstance.getStudentsByDirectionAndGroup();
-    directionRouterInstance.getStudentsByEducatorId();
+    init.registerRoutes(app);
     await app.listen({
-      port: Number(envConfig.PORT) || 5000,
-      host: "127.0.0.1",
+      port: Number(envConfig.PORT),
+      host: envConfig.HOST,
     });
     logger.info("server start", `Server is running on port ${envConfig.PORT}`);
   } catch (error) {

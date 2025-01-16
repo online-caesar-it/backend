@@ -2,6 +2,7 @@ import { pgTable, uuid, varchar, text } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { userEntity } from "../user/user.entity";
 import { groupEntity } from "../group/group.entity";
+import { moduleEntity } from "../module/module.entity";
 
 export const directionEntity = pgTable("direction", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -21,6 +22,7 @@ export const directionsToGroupsEntity = pgTable("directions_to_groups", {
 
 export const directionRelations = relations(directionEntity, ({ many }) => ({
   groups: many(directionsToGroupsEntity),
+  modules: many(moduleEntity),
 }));
 
 export const directionsToGroupsRelations = relations(

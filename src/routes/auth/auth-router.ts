@@ -6,7 +6,7 @@ import { errorMiddlewares } from "middleware/error";
 
 export const authRouter = (routers: FastifyInstance) => {
   const path = `/${entities.AUTH}`;
-  return {
+  const routes = {
     signUp: () => {
       post({
         path: `${path}/sign-up/by-email`,
@@ -44,5 +44,9 @@ export const authRouter = (routers: FastifyInstance) => {
         routers,
       });
     },
+  };
+  return {
+    ...routes,
+    init: () => Object.values(routes).forEach((route) => route()),
   };
 };

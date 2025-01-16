@@ -8,7 +8,7 @@ import { roleMiddleWare } from "middleware/role";
 
 export const directionRouter = (routers: FastifyInstance) => {
   const path = `/${entities.DIRECTION}`;
-  return {
+  const routes = {
     create: () => {
       post({
         path: `${path}/create`,
@@ -31,7 +31,7 @@ export const directionRouter = (routers: FastifyInstance) => {
         options: {
           preHandler: [
             authMiddleWare.jwtCheck,
-            roleMiddleWare.checkedRoleEducator,
+            roleMiddleWare.checkedRoleAdmin,
           ],
         },
       });
@@ -59,7 +59,7 @@ export const directionRouter = (routers: FastifyInstance) => {
           preHandler: [
             errorMiddlewares.checkRequestBody,
             authMiddleWare.jwtCheck,
-            roleMiddleWare.checkedRoleEducator,
+            roleMiddleWare.checkedRoleAdmin,
           ],
         },
       });
@@ -90,5 +90,9 @@ export const directionRouter = (routers: FastifyInstance) => {
         },
       });
     },
+  };
+  return {
+    ...routes,
+    init: () => Object.values(routes).forEach((route) => route()),
   };
 };

@@ -6,10 +6,12 @@ import { chatHandlers } from "handlers/chat/chat-handler";
 import { errorMiddlewares } from "middleware/error";
 import { IAuthenticatedRequest } from "types/req-type";
 import { chatWebSocketService } from "services/ws/chat-ws";
+import { roleMiddleWare } from "middleware/role";
+import { object } from "zod";
 
 export const chatRouter = (routers: FastifyInstance) => {
   const path = `/${entities.CHAT}`;
-  return {
+  const routes = {
     getMyChats: () => {
       get({
         path: `${path}/getMyChats`,
@@ -27,6 +29,8 @@ export const chatRouter = (routers: FastifyInstance) => {
           preHandler: [
             authMiddleWare.jwtCheck,
             errorMiddlewares.checkRequestBody,
+            roleMiddleWare.checkedRoleAdmin,
+            roleMiddleWare.checkedRoleEducator,
           ],
         },
       });
@@ -55,13 +59,19 @@ export const chatRouter = (routers: FastifyInstance) => {
       });
     },
     initWebSocket: () => {
-      routers.get(
-        `${path}/ws`,
-        { websocket: true, preHandler: authMiddleWare.jwtCheckWebSocket },
-        (socket, req: IAuthenticatedRequest) => {
-          chatWebSocketService.chatWebSocket(socket, req);
-        }
+      routers.register(() =>
+        routers.get(
+          `${path}/ws`,
+          { websocket: true, preHandler: authMiddleWare.jwtCheckWebSocket },
+          (socket, req: IAuthenticatedRequest) => {
+            chatWebSocketService.chatWebSocket(socket, req);
+          }
+        )
       );
     },
+  };
+  return {
+    ...routes,
+    init: () => Object.values(routes).forEach((route) => route()),
   };
 };
