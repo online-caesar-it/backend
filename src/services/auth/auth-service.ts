@@ -56,13 +56,9 @@ const verifyRegistrationToken = async (token: string) => {
     throw new Error(error.USER_EXIST);
   }
   const newUser = await userService.createUser(userData);
-  const accessToken = jwt.sign(
-    { id: newUser.id, role: newUser.role },
-    envConfig.SECRET_KEY,
-    {
-      expiresIn: TOKEN_EXPIRIES,
-    }
-  );
+  const accessToken = jwt.sign({ id: newUser.id }, envConfig.SECRET_KEY, {
+    expiresIn: TOKEN_EXPIRIES,
+  });
 
   return { user: newUser, accessToken };
 };
@@ -93,13 +89,9 @@ const verifyLoginToken = async (token: string) => {
     throw new Error("User not found");
   }
 
-  const accessToken = jwt.sign(
-    { id: user.id, role: user.role },
-    envConfig.SECRET_KEY,
-    {
-      expiresIn: TOKEN_EXPIRIES,
-    }
-  );
+  const accessToken = jwt.sign({ id: user.id }, envConfig.SECRET_KEY, {
+    expiresIn: TOKEN_EXPIRIES,
+  });
 
   return { user, accessToken };
 };

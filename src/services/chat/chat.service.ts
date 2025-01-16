@@ -1,14 +1,12 @@
 import { chatToUserEntity } from "./../../db/entities/chat/chat-to-users.entity";
-import { desc, eq, inArray, and, notInArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, or, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { chatEntity } from "db/entities/chat/chat.entity";
 import { messageEntity } from "db/entities/chat/message.entity";
-import {
-  MESSAGES_NOT_FOUND,
-  PARAMS_IS_REQUIRED,
-} from "consts/response-status/response-message";
+import { PARAMS_IS_REQUIRED } from "consts/response-status/response-message";
 import { userEntity } from "db/entities/user/user.entity";
-const getMyChats = async (userId: string) => {
+import { ChatType } from "enums/chat/events";
+const getMyChats = async (userId: string, search: string = "") => {
   const chatsToUser = await db
     .select()
     .from(chatToUserEntity)
@@ -50,15 +48,29 @@ const getMyChats = async (userId: string) => {
     const interlocutors = await db
       .select()
       .from(userEntity)
-      .where(notInArray(userEntity.id, [userId]));
+      .where(
+        and(
+          inArray(userEntity.id, chatUserIds),
+          search
+            ? or(
+                sql`LOWER(${
+                  userEntity.firstName
+                }) LIKE LOWER(${`%${search}%`})`,
+                sql`LOWER(${userEntity.surname}) LIKE LOWER(${`%${search}%`})`
+              )
+            : undefined
+        )
+      );
 
     const message = messages.find((msg) => msg.chatId === chat.id) || null;
 
-    chatsWithMessage.push({
-      ...chat,
-      message,
-      interlocutors,
-    });
+    if (interlocutors.length > 0) {
+      chatsWithMessage.push({
+        ...chat,
+        message,
+        interlocutors: interlocutors.filter((it) => it.id !== userId),
+      });
+    }
   }
 
   return chatsWithMessage;
@@ -82,7 +94,7 @@ const getMessages = async (
     },
     orderBy: (it) => desc(it.createdAt),
   });
-  const owner = await db.query.userEntity.findFirst({
+  const interlocutor = await db.query.userEntity.findFirst({
     where: (it) =>
       inArray(
         it.id,
@@ -92,7 +104,7 @@ const getMessages = async (
   const messagesWithOwners = messages.map((message) => {
     return {
       ...message,
-      owner,
+      interlocutor,
     };
   });
   const totalItems = parseInt(messages[0]?.full_count) ?? 0;
@@ -106,6 +118,7 @@ const getMessages = async (
 const createChat = async (
   userIds: string[],
   name: string,
+  chatType: ChatType,
   description?: string
 ) => {
   const [chat] = await db
@@ -113,6 +126,7 @@ const createChat = async (
     .values({
       name,
       description,
+      type: chatType,
     })
     .returning();
   for (let user of userIds) {

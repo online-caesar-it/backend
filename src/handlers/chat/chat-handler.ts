@@ -1,5 +1,6 @@
 import { UNKNOW_ERROR } from "consts/response-status/response-message";
 import { CLIENT_ERROR, SUCCESS } from "consts/response-status/response-status";
+import { ChatType } from "enums/chat/events";
 import { FastifyReply } from "fastify";
 import { logger } from "lib/logger/logger";
 import { chatService } from "services/chat/chat.service";
@@ -11,8 +12,10 @@ const getMyChatsHandler = async (
 ) => {
   try {
     const userId = req?.user?.id;
-
-    const chats = await chatService.getMyChats(userId || "");
+    const { search } = req.query as {
+      search: string;
+    };
+    const chats = await chatService.getMyChats(userId || "", search);
     reply.status(SUCCESS).send(chats);
   } catch (error) {
     if (error instanceof Error) {
@@ -27,12 +30,13 @@ const getMyChatsHandler = async (
 };
 const createChat = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
   try {
-    const { userIds, name, description } = req.body as {
+    const { userIds, name, description, type } = req.body as {
       userIds: string[];
       name: string;
       description: string;
+      type: ChatType;
     };
-    const chat = await chatService.createChat(userIds, name, description);
+    const chat = await chatService.createChat(userIds, name, type, description);
     reply.status(SUCCESS).send(chat);
   } catch (error) {
     if (error instanceof Error) {

@@ -129,8 +129,12 @@ const getStudentsByEducatorId = async (
 ) => {
   try {
     const educatorId = req?.user?.id;
+    const { search } = req.query as {
+      search: string;
+    };
     const students = await directionService.getStudentsByEducatorId(
-      educatorId || ""
+      educatorId || "",
+      search
     );
     return reply.status(SUCCESS).send(students);
   } catch (error) {

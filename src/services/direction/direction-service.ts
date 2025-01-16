@@ -6,7 +6,7 @@ import {
 } from "db/entities/direction/direction.entity";
 import { groupEntity } from "db/entities/group/group.entity";
 import { userEntity } from "db/entities/user/user.entity";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, or, sql } from "drizzle-orm";
 
 const createDirection = async (name: string, description: string) => {
   const [direction] = await db
@@ -99,7 +99,7 @@ const getStudentsByDirectionAndGroup = async (groupId: string) => {
 
   return students;
 };
-const getStudentsByEducatorId = async (educatorId: string) => {
+const getStudentsByEducatorId = async (educatorId: string, search: string) => {
   const groups = await db
     .select()
     .from(groupEntity)
@@ -112,7 +112,17 @@ const getStudentsByEducatorId = async (educatorId: string) => {
   const students = await db
     .select()
     .from(userEntity)
-    .where(inArray(userEntity.groupId, groupIds));
+    .where(
+      and(
+        inArray(userEntity.groupId, groupIds),
+        search
+          ? or(
+              sql`LOWER(${userEntity.firstName}) LIKE LOWER(${`%${search}%`})`,
+              sql`LOWER(${userEntity.surname}) LIKE LOWER(${`%${search}%`})`
+            )
+          : undefined
+      )
+    );
   return students;
 };
 export const directionService = {

@@ -19,7 +19,7 @@ const sendMessage = async (parsed: TChatSendMessagesWs, userId: string) => {
 
     for (const [id, client] of clients.entries()) {
       client.socket.send(
-        JSON.stringify({ event: "newMessage", payload: newMessage })
+        JSON.stringify({ event: ChatEvents.NEW_MESSAGE, payload: newMessage })
       );
     }
   } catch (sendError) {
