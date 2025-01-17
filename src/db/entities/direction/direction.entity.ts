@@ -3,6 +3,7 @@ import { relations } from "drizzle-orm";
 import { userEntity } from "../user/user.entity";
 import { groupEntity } from "../group/group.entity";
 import { moduleEntity } from "../module/module.entity";
+import { paymentEntity } from "../payment/payment.entity";
 
 export const directionEntity = pgTable("direction", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -20,10 +21,13 @@ export const directionsToGroupsEntity = pgTable("directions_to_groups", {
     .references(() => groupEntity.id),
 });
 
-export const directionRelations = relations(directionEntity, ({ many }) => ({
-  groups: many(directionsToGroupsEntity),
-  modules: many(moduleEntity),
-}));
+export const directionGroupsRelations = relations(
+  directionEntity,
+  ({ many }) => ({
+    groups: many(directionsToGroupsEntity),
+    modules: many(moduleEntity),
+  })
+);
 
 export const directionsToGroupsRelations = relations(
   directionsToGroupsEntity,
@@ -38,10 +42,9 @@ export const directionsToGroupsRelations = relations(
     }),
   })
 );
-
-export const userRelations = relations(userEntity, ({ one }) => ({
-  group: one(groupEntity, {
-    fields: [userEntity.groupId],
-    references: [groupEntity.id],
-  }),
-}));
+export const directionPaymentRelations = relations(
+  directionEntity,
+  ({ many }) => ({
+    payments: many(paymentEntity),
+  })
+);

@@ -73,6 +73,7 @@ export const directionRouter = (routers: FastifyInstance) => {
           preHandler: [
             authMiddleWare.jwtCheck,
             roleMiddleWare.checkedRoleEducator,
+            roleMiddleWare.checkedRoleAdmin,
           ],
         },
       });
@@ -86,6 +87,7 @@ export const directionRouter = (routers: FastifyInstance) => {
           preHandler: [
             authMiddleWare.jwtCheck,
             roleMiddleWare.checkedRoleEducator,
+            roleMiddleWare.checkedRoleAdmin,
           ],
         },
       });

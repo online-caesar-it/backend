@@ -8,6 +8,7 @@ import { FastifyReply } from "fastify";
 import { logger } from "lib/logger/logger";
 import { directionService } from "services/direction/direction-service";
 import { IAuthenticatedRequest } from "types/req-type";
+import { errorUtils } from "utils/error";
 
 const createDirection = async (
   req: IAuthenticatedRequest,
@@ -19,28 +20,17 @@ const createDirection = async (
       description: string;
     };
     const direction = await directionService.createDirection(name, description);
-    reply.status(CREATE_SUCCESS).send({
-      direction,
-    });
+    reply.status(CREATE_SUCCESS).send(direction);
   } catch (error) {
-    if (error instanceof Error) {
-      logger.error("error in create direction handler", error.message);
-      reply.status(CLIENT_ERROR).send({ message: error.message });
-    } else {
-      logger.error("error in create direction handler", UNKNOW_ERROR);
-      reply.status(CLIENT_ERROR).send({ message: UNKNOW_ERROR });
-    }
+    errorUtils.replyError("error in create direction", error, reply);
   }
 };
 
-// Создание группы
 const createGroup = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
   try {
     const educatorId = req?.user?.id;
     const group = await directionService.createGroup(educatorId || "");
-    reply.status(CREATE_SUCCESS).send({
-      group,
-    });
+    reply.status(CREATE_SUCCESS).send(group);
   } catch (error) {
     if (error instanceof Error) {
       logger.error("error in create group handler", error.message);
@@ -65,9 +55,7 @@ const addDirectionToGroup = async (
       directionId,
       groupId
     );
-    reply.status(CREATE_SUCCESS).send({
-      result,
-    });
+    reply.status(CREATE_SUCCESS).send(result);
   } catch (error) {
     if (error instanceof Error) {
       logger.error("error in add direction to group handler", error.message);
@@ -85,9 +73,7 @@ const addStudentToGroup = async (
   try {
     const { userId, groupId } = req.body as { userId: string; groupId: string };
     const result = await directionService.addStudentToGroup(userId, groupId);
-    reply.status(CREATE_SUCCESS).send({
-      result,
-    });
+    reply.status(CREATE_SUCCESS).send(result);
   } catch (error) {
     if (error instanceof Error) {
       logger.error("error in add student to group handler", error.message);
@@ -110,9 +96,7 @@ const getStudentsByDirectionAndGroup = async (
     const students = await directionService.getStudentsByDirectionAndGroup(
       groupId
     );
-    reply.status(SUCCESS).send({
-      students,
-    });
+    reply.status(SUCCESS).send(students);
   } catch (error) {
     if (error instanceof Error) {
       logger.error("error in get students handler", error.message);

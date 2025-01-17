@@ -1,9 +1,4 @@
-import { WebsocketHandler } from "@fastify/websocket";
-import fastify, {
-  FastifyInstance,
-  RouteHandlerMethod,
-  RouteOptions,
-} from "fastify";
+import { FastifyInstance, RouteHandlerMethod, RouteOptions } from "fastify";
 
 type ArgumentsRouterType = {
   path: string;
@@ -29,7 +24,14 @@ export const get = ({
 }: ArgumentsRouterType) => {
   routers.get(path, { ...options, handler });
 };
-
+export const put = ({
+  path,
+  handler,
+  routers,
+  options,
+}: ArgumentsRouterType) => {
+  routers.put(path, { ...options, handler });
+};
 export const remove = ({
   path,
   handler,

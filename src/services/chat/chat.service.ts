@@ -78,39 +78,34 @@ const getMyChats = async (userId: string, search: string = "") => {
 
 const getMessages = async (
   chatId: string,
-  cursor: number = 0,
+  cursor: number | string = 0,
   limit: number = 10,
   offset: number = 0
 ) => {
-  if (!chatId || !cursor || !limit) {
+  if (!chatId) {
     throw new Error(PARAMS_IS_REQUIRED);
   }
+
+  cursor = Number(cursor) || 0;
+
+  const currentOffset = limit * cursor;
+
   const messages = await db.query.messageEntity.findMany({
     where: (it) => eq(it.chatId, chatId),
     limit,
-    offset: limit * cursor + offset,
+    offset: currentOffset,
     extras: {
       full_count: sql<string>`COUNT(*) OVER()`.as("full_count"),
     },
     orderBy: (it) => desc(it.createdAt),
   });
-  const interlocutor = await db.query.userEntity.findFirst({
-    where: (it) =>
-      inArray(
-        it.id,
-        messages.map((item) => item.ownerId).filter((k) => k !== null)
-      ),
-  });
-  const messagesWithOwners = messages.map((message) => {
-    return {
-      ...message,
-      interlocutor,
-    };
-  });
-  const totalItems = parseInt(messages[0]?.full_count) ?? 0;
-  const nextCursor = totalItems > limit * cursor + offset ? cursor + 1 : null;
+
+  const totalItems = parseInt(messages[0]?.full_count || "0", 10);
+
+  const nextCursor = totalItems > currentOffset + limit ? cursor + 1 : null;
+
   return {
-    items: messagesWithOwners,
+    items: messages,
     nextCursor,
   };
 };
@@ -150,7 +145,6 @@ const sendMessage = async (ownerId: string, text: string, chatId: string) => {
   const owner = await db.query.userEntity.findFirst({
     where: eq(userEntity.id, message.ownerId || ""),
   });
-
   return {
     ...message,
     owner,

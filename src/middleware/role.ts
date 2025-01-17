@@ -32,7 +32,20 @@ const checkedRoleEducator = async (
     });
   }
 };
+const checkedRoleAdminAndEducator = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  const userId = req.user?.id;
+  const { role } = await userService.findUserById(userId || "");
+  if (role !== ROLE_ADMIN && role !== ROLE_EDUCATOR) {
+    reply.status(CLIENT_ERROR).send({
+      message: ROLE_NOT_AUTH_ADMIN,
+    });
+  }
+};
 export const roleMiddleWare = {
   checkedRoleAdmin,
   checkedRoleEducator,
+  checkedRoleAdminAndEducator,
 };

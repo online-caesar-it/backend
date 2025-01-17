@@ -4,8 +4,12 @@ import { WebSocket } from "ws";
 import { ChatEvents } from "enums/chat/events";
 import { chatService } from "services/chat/chat.service";
 import { TChatGetMessagesWs, TChatSendMessagesWs } from "types/ws-type";
-export const clients = new Map<string, { socket: WebSocket; userId: string }>();
-const sendMessage = async (parsed: TChatSendMessagesWs, userId: string) => {
+
+const sendMessage = async (
+  parsed: TChatSendMessagesWs,
+  userId: string,
+  clients: Map<string, { socket: WebSocket; userId: string }>
+) => {
   if (!parsed.payload || !parsed.payload.chatId || !parsed.payload.text) {
     throw new Error("Invalid payload: 'chatId' and 'text' are required");
   }
@@ -52,51 +56,31 @@ const getMessages = async (socket: WebSocket, parsed: TChatGetMessagesWs) => {
   }
 };
 
-const chatWebSocket = (socket: WebSocket, req: IAuthenticatedRequest) => {
-  const clientId = req.headers["sec-websocket-key"] || Date.now().toString();
-  const userId = req.user?.id as string;
-  clients.set(clientId, { socket, userId });
+const chatWebSocket = async (
+  message: string,
+  userId: string,
+  socket: WebSocket,
+  clients: Map<string, { socket: WebSocket; userId: string }>
+) => {
+  const messageStr = message.toString();
+  try {
+    const parsed = JSON.parse(messageStr);
 
-  logger.info("Client connected:", `${clientId}, ${userId}`);
+    switch (parsed.event) {
+      case ChatEvents.SEND_MESSAGES:
+        sendMessage(parsed, userId, clients);
+        break;
+      case ChatEvents.NEW_MESSAGE:
+        getMessages(socket, parsed);
+        break;
 
-  socket.on("message", async (message: string) => {
-    const messageStr = message.toString();
-    try {
-      const parsed = JSON.parse(messageStr);
-      logger.info(`Message from ${clientId}:`, parsed);
-
-      if (!parsed.event) {
-        throw new Error("Missing 'event' field in message");
-      }
-
-      switch (parsed.event) {
-        case ChatEvents.SEND_MESSAGES:
-          sendMessage(parsed, userId);
-          break;
-        case ChatEvents.NEW_MESSAGE:
-          getMessages(socket, parsed);
-          break;
-
-        default:
-          logger.warn("Unknown event type", parsed.event);
-      }
-    } catch (error) {
-      logger.error("Error processing WebSocket message:", error as string);
-      socket.send(
-        JSON.stringify({
-          event: "error",
-          message: "Invalid message format or payload",
-        })
-      );
+      default:
+        logger.warn("Unknown event type", parsed.event);
     }
-  });
-
-  socket.on("close", () => {
-    clients.delete(clientId);
-    logger.info("Client disconnected:", clientId);
-  });
+  } catch (error) {
+    logger.error("Error processing WebSocket message:", error as string);
+  }
 };
-
 export const chatWebSocketService = {
   chatWebSocket,
 };

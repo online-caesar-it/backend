@@ -3,4 +3,6 @@ export enum entities {
   AUTH = "auth",
   CHAT = "chat",
   DIRECTION = "direction",
+  MODULE = "module",
+  LESSON = "lesson",
 }

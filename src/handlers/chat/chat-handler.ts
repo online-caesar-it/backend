@@ -92,12 +92,12 @@ const getMessages = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
     return reply.send(messages);
   } catch (err) {
     if (err instanceof Error) {
-      logger.error("error in createChatHandler", err.message);
+      logger.error("error in getMessagesHandler", err.message);
       reply.status(CLIENT_ERROR).send({
         message: err,
       });
     } else {
-      logger.error("error in createChatHandler", UNKNOW_ERROR);
+      logger.error("error in getMessagesHandler", UNKNOW_ERROR);
     }
   }
 };

@@ -5,9 +5,8 @@ import { authMiddleWare } from "../../middleware/auth";
 import { chatHandlers } from "handlers/chat/chat-handler";
 import { errorMiddlewares } from "middleware/error";
 import { IAuthenticatedRequest } from "types/req-type";
-import { chatWebSocketService } from "services/ws/chat-ws";
 import { roleMiddleWare } from "middleware/role";
-import { object } from "zod";
+import { wsHandler } from "handlers/ws/ws-handler";
 
 export const chatRouter = (routers: FastifyInstance) => {
   const path = `/${entities.CHAT}`;
@@ -58,13 +57,14 @@ export const chatRouter = (routers: FastifyInstance) => {
         },
       });
     },
-    initWebSocket: () => {
+    chatWebSocket: () => {
       routers.register(() =>
         routers.get(
           `${path}/ws`,
           { websocket: true, preHandler: authMiddleWare.jwtCheckWebSocket },
           (socket, req: IAuthenticatedRequest) => {
-            chatWebSocketService.chatWebSocket(socket, req);
+            (req?.query as any).service = "chat";
+            wsHandler.wsConnect(socket, req);
           }
         )
       );
