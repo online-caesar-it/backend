@@ -23,6 +23,13 @@ export const directionRouter = (routers: FastifyInstance) => {
         },
       });
     },
+    getDirections: () => {
+      get({
+        path: `${path}/get-all`,
+        handler: directionHandlers.getDirections,
+        routers,
+      });
+    },
     createGroup: () => {
       post({
         path: `${path}/group/create`,

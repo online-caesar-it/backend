@@ -125,6 +125,13 @@ const getStudentsByEducatorId = async (educatorId: string, search: string) => {
     );
   return students;
 };
+const getDirections = async () => {
+  const directions = await db.select().from(directionEntity);
+  if (!directions) {
+    throw new Error("Directions not found");
+  }
+  return directions;
+};
 export const directionService = {
   createDirection,
   createGroup,
@@ -132,4 +139,5 @@ export const directionService = {
   addStudentToGroup,
   getStudentsByDirectionAndGroup,
   getStudentsByEducatorId,
+  getDirections,
 };

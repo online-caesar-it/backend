@@ -42,6 +42,7 @@ export const directionsToGroupsRelations = relations(
     }),
   })
 );
+
 export const directionPaymentRelations = relations(
   directionEntity,
   ({ many }) => ({

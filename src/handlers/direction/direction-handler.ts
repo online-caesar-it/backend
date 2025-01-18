@@ -4,7 +4,7 @@ import {
   CREATE_SUCCESS,
   SUCCESS,
 } from "consts/response-status/response-status";
-import { FastifyReply } from "fastify";
+import { FastifyReply, FastifyRequest } from "fastify";
 import { logger } from "lib/logger/logger";
 import { directionService } from "services/direction/direction-service";
 import { IAuthenticatedRequest } from "types/req-type";
@@ -137,6 +137,14 @@ const getStudentsByEducatorId = async (
     }
   }
 };
+const getDirections = async (req: FastifyRequest, reply: FastifyReply) => {
+  try {
+    const directions = await directionService.getDirections();
+    reply.status(SUCCESS).send(directions);
+  } catch (error) {
+    errorUtils.replyError("error in get directions", error, reply);
+  }
+};
 export const directionHandlers = {
   createDirection,
   createGroup,
@@ -144,4 +152,5 @@ export const directionHandlers = {
   getStudentsByDirectionAndGroup,
   addStudentToGroup,
   getStudentsByEducatorId,
+  getDirections,
 };

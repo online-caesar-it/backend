@@ -101,11 +101,23 @@ const getMessages = async (
   });
 
   const totalItems = parseInt(messages[0]?.full_count || "0", 10);
-
+  const interlocutor = await db.query.userEntity.findFirst({
+    where: (it) =>
+      inArray(
+        it.id,
+        messages.map((item) => item.ownerId).filter((k) => k !== null)
+      ),
+  });
+  const messagesWithOwners = messages.map((message) => {
+    return {
+      ...message,
+      interlocutor,
+    };
+  });
   const nextCursor = totalItems > currentOffset + limit ? cursor + 1 : null;
 
   return {
-    items: messages,
+    items: messagesWithOwners,
     nextCursor,
   };
 };

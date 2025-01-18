@@ -9,12 +9,18 @@ export const paymentEntity = pgTable("payment", {
     .notNull()
     .references(() => userEntity.id),
   directionId: uuid("direction_id")
-    .references(() => directionEntity.id)
-    .notNull(),
+    .notNull()
+    .references(() => directionEntity.id),
   payment: text("payment").notNull(),
 });
 
 export const paymentRelations = relations(paymentEntity, ({ one }) => ({
-  user: one(userEntity),
-  direction: one(directionEntity),
+  user: one(userEntity, {
+    fields: [paymentEntity.userId],
+    references: [userEntity.id],
+  }),
+  direction: one(directionEntity, {
+    fields: [paymentEntity.directionId],
+    references: [directionEntity.id],
+  }),
 }));
