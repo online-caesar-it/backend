@@ -145,6 +145,40 @@ const getDirections = async (req: FastifyRequest, reply: FastifyReply) => {
     errorUtils.replyError("error in get directions", error, reply);
   }
 };
+const editDirection = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const { name, description, id } = req.body as {
+      id: string;
+      name: string;
+      description: string;
+    };
+    const direction = await directionService.updateDirection(
+      id,
+      name,
+      description
+    );
+    reply.status(SUCCESS).send(direction);
+  } catch (error) {
+    errorUtils.replyError("error in update direction", error, reply);
+  }
+};
+const deleteDirection = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const { id } = req.body as {
+      id: string;
+    };
+    const directionDeleted = await directionService.deleteDirection(id);
+    reply.status(SUCCESS).send(directionDeleted);
+  } catch (error) {
+    errorUtils.replyError("error in delete direction", error, reply);
+  }
+};
 export const directionHandlers = {
   createDirection,
   createGroup,
@@ -153,4 +187,5 @@ export const directionHandlers = {
   addStudentToGroup,
   getStudentsByEducatorId,
   getDirections,
+  editDirection,
 };

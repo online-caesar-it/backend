@@ -36,10 +36,10 @@ const getModuleByDirectionId = async (
   reply: FastifyReply
 ) => {
   try {
-    const { directionId } = req.query as {
-      directionId: string;
+    const { id } = req.query as {
+      id: string;
     };
-    const modules = await moduleService.getModuleByDirectionId(directionId);
+    const modules = await moduleService.getModuleByDirectionId(id);
     return modules;
   } catch (error) {
     if (error instanceof Error) {

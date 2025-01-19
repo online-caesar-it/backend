@@ -25,7 +25,7 @@ export const moduleRouter = (routers: FastifyInstance) => {
     },
     getModuleByDirectionId: () => {
       get({
-        path: `${path}/getModule`,
+        path: `${path}/get-module`,
         handler: moduleHandler.getModuleByDirectionId,
         routers,
       });

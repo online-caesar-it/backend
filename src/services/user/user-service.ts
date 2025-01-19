@@ -70,13 +70,9 @@ const createUser = async (user: IUserDto) => {
       role: user.role || "",
     })
     .returning();
-  const refreshToken = jwt.sign(
-    { id: userCreating.id, role: user.role },
-    envConfig.SECRET_KEY,
-    {
-      expiresIn: "30d",
-    }
-  );
+  const refreshToken = jwt.sign({ id: userCreating.id }, envConfig.SECRET_KEY, {
+    expiresIn: "30d",
+  });
   const [userConfigCreating] = await db
     .insert(userConfigEntity)
     .values({

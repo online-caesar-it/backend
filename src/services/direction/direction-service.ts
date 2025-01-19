@@ -132,6 +132,41 @@ const getDirections = async () => {
   }
   return directions;
 };
+const updateDirection = async (
+  id: string,
+  name: string,
+  description: string
+) => {
+  const direction = await db
+    .select()
+    .from(directionEntity)
+    .where(eq(directionEntity.id, id));
+  if (direction) {
+    throw new Error("Direction not found");
+  }
+  const [updatedDirection] = await db
+    .update(directionEntity)
+    .set({
+      name,
+      description,
+    })
+    .where(eq(directionEntity.id, id))
+    .returning();
+  return updatedDirection;
+};
+const deleteDirection = async (id: string) => {
+  const existingDirection = await db.query.directionEntity.findFirst({
+    where: (it) => eq(it.id, id),
+  });
+  if (existingDirection) {
+    throw new Error("Direction not found");
+  }
+  const [direction] = await db
+    .delete(directionEntity)
+    .where(eq(directionEntity.id, id))
+    .returning();
+  return direction;
+};
 export const directionService = {
   createDirection,
   createGroup,
@@ -140,4 +175,6 @@ export const directionService = {
   getStudentsByDirectionAndGroup,
   getStudentsByEducatorId,
   getDirections,
+  updateDirection,
+  deleteDirection,
 };

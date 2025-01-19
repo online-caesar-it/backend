@@ -24,10 +24,17 @@ const getModuleByDirectionId = async (directionId: string) => {
   const modules = await db.query.moduleEntity.findMany({
     where: (it) => eq(it.directionId, directionId),
   });
+
   if (!modules) {
     throw new Error("Not found module by this direction id");
   }
-  return modules;
+  const direction = await db.query.directionEntity.findFirst({
+    where: (it) => eq(it.id, directionId),
+  });
+  return {
+    modules,
+    direction,
+  };
 };
 const editModule = async (id: string, name?: string, description?: string) => {
   const existingModule = await db.query.moduleEntity.findFirst({

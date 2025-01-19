@@ -1,6 +1,6 @@
 import { directionHandlers } from "../../handlers/direction/direction-handler";
 import { entities } from "enums/entities/entities";
-import { get, post } from "..";
+import { get, post, put, remove } from "..";
 import { FastifyInstance } from "fastify";
 import { errorMiddlewares } from "middleware/error";
 import { authMiddleWare } from "middleware/auth";
@@ -13,6 +13,34 @@ export const directionRouter = (routers: FastifyInstance) => {
       post({
         path: `${path}/create`,
         handler: directionHandlers.createDirection,
+        routers,
+        options: {
+          preHandler: [
+            errorMiddlewares.checkRequestBody,
+            authMiddleWare.jwtCheck,
+            roleMiddleWare.checkedRoleAdmin,
+          ],
+        },
+      });
+    },
+    deleteDirection: () => {
+      remove({
+        path: `${path}/delete`,
+        handler: directionHandlers.addDirectionToGroup,
+        routers,
+        options: {
+          preHandler: [
+            errorMiddlewares.checkRequestBody,
+            authMiddleWare.jwtCheck,
+            roleMiddleWare.checkedRoleAdmin,
+          ],
+        },
+      });
+    },
+    editDirection: () => {
+      put({
+        path: `${path}/update`,
+        handler: directionHandlers.editDirection,
         routers,
         options: {
           preHandler: [
