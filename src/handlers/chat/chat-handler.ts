@@ -1,5 +1,6 @@
 import { UNKNOW_ERROR } from "consts/response-status/response-message";
 import { CLIENT_ERROR, SUCCESS } from "consts/response-status/response-status";
+import { IChatDto, IMessageDto } from "dto/chat-dto";
 import { ChatType } from "enums/chat/events";
 import { FastifyReply } from "fastify";
 import { logger } from "lib/logger/logger";
@@ -30,13 +31,8 @@ const getMyChatsHandler = async (
 };
 const createChat = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
   try {
-    const { userIds, name, description, type } = req.body as {
-      userIds: string[];
-      name: string;
-      description: string;
-      type: ChatType;
-    };
-    const chat = await chatService.createChat(userIds, name, type, description);
+    const data = req.body as IChatDto;
+    const chat = await chatService.createChat(data);
     reply.status(SUCCESS).send(chat);
   } catch (error) {
     if (error instanceof Error) {
@@ -51,12 +47,9 @@ const createChat = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
 };
 const sendMessage = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
   try {
-    const { chatId, text } = req.body as {
-      chatId: string;
-      text: string;
-    };
+    const data = req.body as IMessageDto;
     const userId = req?.user?.id as string;
-    const message = await chatService.sendMessage(userId, text, chatId);
+    const message = await chatService.sendMessage(data, userId);
     return message;
   } catch (error) {
     if (error instanceof Error) {

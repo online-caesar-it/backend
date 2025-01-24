@@ -7,15 +7,10 @@ import {
 import { groupEntity } from "db/entities/group/group.entity";
 import { userEntity } from "db/entities/user/user.entity";
 import { and, eq, inArray, or, sql } from "drizzle-orm";
+import { IDirectionDto } from "dto/direction-dto";
 
-const createDirection = async (name: string, description: string) => {
-  const [direction] = await db
-    .insert(directionEntity)
-    .values({
-      name,
-      description,
-    })
-    .returning();
+const createDirection = async (data: IDirectionDto) => {
+  const [direction] = await db.insert(directionEntity).values(data).returning();
   if (!direction) {
     throw new Error("Error creating direction");
   }

@@ -4,6 +4,7 @@ import {
   CREATE_SUCCESS,
   SUCCESS,
 } from "consts/response-status/response-status";
+import { IDirectionDto } from "dto/direction-dto";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { logger } from "lib/logger/logger";
 import { directionService } from "services/direction/direction-service";
@@ -15,11 +16,8 @@ const createDirection = async (
   reply: FastifyReply
 ) => {
   try {
-    const { name, description } = req.body as {
-      name: string;
-      description: string;
-    };
-    const direction = await directionService.createDirection(name, description);
+    const data = req.body as IDirectionDto;
+    const direction = await directionService.createDirection(data);
     reply.status(CREATE_SUCCESS).send(direction);
   } catch (error) {
     errorUtils.replyError("error in create direction", error, reply);

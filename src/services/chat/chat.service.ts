@@ -6,6 +6,7 @@ import { messageEntity } from "db/entities/chat/message.entity";
 import { PARAMS_IS_REQUIRED } from "consts/response-status/response-message";
 import { userEntity } from "db/entities/user/user.entity";
 import { ChatType } from "enums/chat/events";
+import { IChatDto, IMessageDto } from "dto/chat-dto";
 const getMyChats = async (userId: string, search: string = "") => {
   const chatsToUser = await db
     .select()
@@ -122,18 +123,14 @@ const getMessages = async (
   };
 };
 
-const createChat = async (
-  userIds: string[],
-  name: string,
-  chatType: ChatType,
-  description?: string
-) => {
+const createChat = async (data: IChatDto) => {
+  const { name, description, type, userIds } = data;
   const [chat] = await db
     .insert(chatEntity)
     .values({
       name,
       description,
-      type: chatType,
+      type,
     })
     .returning();
   for (let user of userIds) {
@@ -144,7 +141,8 @@ const createChat = async (
   }
   return chat;
 };
-const sendMessage = async (ownerId: string, text: string, chatId: string) => {
+const sendMessage = async (data: IMessageDto, ownerId: string) => {
+  const { chatId, text } = data;
   const [message] = await db
     .insert(messageEntity)
     .values({

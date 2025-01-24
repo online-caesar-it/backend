@@ -14,11 +14,11 @@ const sendMessage = async (
     throw new Error("Invalid payload: 'chatId' and 'text' are required");
   }
 
-  const { chatId, text } = parsed.payload;
-  logger.info("Processing sendMessage", chatId);
+  const data = parsed.payload;
+  logger.info("Processing sendMessage", data.chatId);
 
   try {
-    const newMessage = await chatService.sendMessage(userId, text, chatId);
+    const newMessage = await chatService.sendMessage(data, userId);
     logger.info("Message successfully sent:", newMessage.text);
 
     for (const [id, client] of clients.entries()) {
