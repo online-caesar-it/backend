@@ -1,20 +1,10 @@
 import { db } from "db";
 import { moduleEntity } from "db/entities/module/module.entity";
 import { eq } from "drizzle-orm";
+import { IModuleDto } from "dto/direction-dto";
 
-const createModule = async (
-  name: string,
-  description: string,
-  directionId: string
-) => {
-  const [module] = await db
-    .insert(moduleEntity)
-    .values({
-      name,
-      description,
-      directionId,
-    })
-    .returning();
+const createModule = async (data: IModuleDto) => {
+  const [module] = await db.insert(moduleEntity).values(data).returning();
   if (!module) {
     throw new Error("Error in create module");
   }

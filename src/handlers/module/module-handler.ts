@@ -1,34 +1,21 @@
+import { IModuleDto } from "./../../dto/direction-dto";
 import { CLIENT_ERROR, SUCCESS } from "consts/response-status/response-status";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { logger } from "lib/logger/logger";
 import { moduleService } from "services/module/module-service";
 import { IAuthenticatedRequest } from "types/req-type";
+import { errorUtils } from "utils/error";
 
 const createModule = async (
   req: IAuthenticatedRequest,
   reply: FastifyReply
 ) => {
   try {
-    const { name, description, directionId } = req.body as {
-      name: string;
-      description: string;
-      directionId: string;
-    };
-    const module = await moduleService.createModule(
-      name,
-      description,
-      directionId
-    );
+    const data = req.body as IModuleDto;
+    const module = await moduleService.createModule(data);
     reply.status(SUCCESS).send(module);
   } catch (error) {
-    if (error instanceof Error) {
-      reply.status(CLIENT_ERROR).send({
-        message: error.message,
-      });
-      logger.error("error in create module handler", error.message);
-    } else {
-      logger.error("error in create module handler", "unknow error");
-    }
+    errorUtils.replyError("error in create module", error, reply);
   }
 };
 const getModuleByDirectionId = async (
@@ -42,14 +29,7 @@ const getModuleByDirectionId = async (
     const modules = await moduleService.getModuleByDirectionId(id);
     return modules;
   } catch (error) {
-    if (error instanceof Error) {
-      reply.status(CLIENT_ERROR).send({
-        message: error.message,
-      });
-      logger.error("error in get module handler", error.message);
-    } else {
-      logger.error("error in get module handler", "unknow error");
-    }
+    errorUtils.replyError("error in get module", error, reply);
   }
 };
 const editModule = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
@@ -64,14 +44,7 @@ const editModule = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
 
     reply.status(SUCCESS).send(updatedModule);
   } catch (error) {
-    if (error instanceof Error) {
-      reply.status(CLIENT_ERROR).send({
-        message: error.message,
-      });
-      logger.error("Error in edit module handler", error.message);
-    } else {
-      logger.error("Error in edit module handler", "unknown error");
-    }
+    errorUtils.replyError("error in edit module", error, reply);
   }
 };
 const deleteModule = async (
@@ -85,14 +58,7 @@ const deleteModule = async (
     const module = await moduleService.deleteModule(id);
     return module;
   } catch (error) {
-    if (error instanceof Error) {
-      reply.status(CLIENT_ERROR).send({
-        message: error.message,
-      });
-      logger.error("Error in delete module handler", error.message);
-    } else {
-      logger.error("Error in delete module handler", "unknown error");
-    }
+    errorUtils.replyError("error in delete module", error, reply);
   }
 };
 export const moduleHandler = {

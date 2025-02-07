@@ -30,9 +30,7 @@ const dbLog = async (
   tag: string,
   type: "info" | "error" | "warn" | "debug"
 ) => {
-  if (envConfig.NODE_ENV !== "development") {
-    await db.insert(logEntity).values({ tag, type, obj });
-  }
+  await db.insert(logEntity).values({ tag, type, obj });
 };
 
 const info = (obj: unknown, tag: string) => {

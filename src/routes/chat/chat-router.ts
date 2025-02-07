@@ -57,6 +57,16 @@ export const chatRouter = (routers: FastifyInstance) => {
         },
       });
     },
+    searchMessages: () => {
+      get({
+        path: `${path}/messages/search`,
+        handler: chatHandlers.searchMessages,
+        routers,
+        options: {
+          preHandler: authMiddleWare.jwtCheck,
+        },
+      });
+    },
     chatWebSocket: () => {
       routers.register(() =>
         routers.get(

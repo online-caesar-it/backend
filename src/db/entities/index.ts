@@ -18,6 +18,15 @@ import { messageEntity } from "./chat/message.entity";
 import { moduleEntity, moduleRelations } from "./module/module.entity";
 import { lessonEntity, lessonRelations } from "./lesson/lesson.entity";
 import { paymentEntity, paymentRelations } from "./payment/payment.entity";
+import {
+  scheduleCanceledEntity,
+  scheduleCanceledRelations,
+  scheduleEntity,
+  scheduleRelations,
+  scheduleTransferEntity,
+  scheduleTransferRelations,
+} from "./schedule/schedule.entity";
+import { scheduleToUsersEntity } from "./schedule/schedule-to-users.entity";
 
 export const entities = {
   userEntity,
@@ -39,4 +48,11 @@ export const entities = {
   paymentRelations,
   directionPaymentRelations,
   userPaymentRelations,
+  scheduleCanceledEntity,
+  scheduleCanceledRelations,
+  scheduleEntity,
+  scheduleToUsersEntity,
+  scheduleTransferEntity,
+  scheduleTransferRelations,
+  scheduleRelations,
 };

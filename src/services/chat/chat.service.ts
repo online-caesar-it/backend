@@ -90,7 +90,6 @@ const getMessages = async (
   cursor = Number(cursor) || 0;
 
   const currentOffset = limit * cursor;
-
   const messages = await db.query.messageEntity.findMany({
     where: (it) => eq(it.chatId, chatId),
     limit,
@@ -160,9 +159,25 @@ const sendMessage = async (data: IMessageDto, ownerId: string) => {
     owner,
   };
 };
+const searchMessages = async (chatId: string, search: string = "") => {
+  if (!chatId) {
+    throw new Error("chatId is required");
+  }
+
+  const messageFilter = search
+    ? sql`LOWER(${messageEntity.text}) ILIKE LOWER(${`%${search}%`})`
+    : undefined;
+
+  const messages = await db.query.messageEntity.findMany({
+    where: (it) => and(eq(it.chatId, chatId), messageFilter),
+    orderBy: (it) => it.createdAt,
+  });
+  return messages;
+};
 export const chatService = {
   getMyChats,
   createChat,
   sendMessage,
   getMessages,
+  searchMessages,
 };

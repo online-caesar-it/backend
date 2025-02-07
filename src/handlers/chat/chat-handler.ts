@@ -6,6 +6,7 @@ import { FastifyReply } from "fastify";
 import { logger } from "lib/logger/logger";
 import { chatService } from "services/chat/chat.service";
 import { IAuthenticatedRequest } from "types/req-type";
+import { errorUtils } from "utils/error";
 
 const getMyChatsHandler = async (
   req: IAuthenticatedRequest,
@@ -19,14 +20,7 @@ const getMyChatsHandler = async (
     const chats = await chatService.getMyChats(userId || "", search);
     reply.status(SUCCESS).send(chats);
   } catch (error) {
-    if (error instanceof Error) {
-      logger.error("error in getMyChatsHandler", error.message);
-      reply.status(CLIENT_ERROR).send({
-        message: error,
-      });
-    } else {
-      logger.error("error in getMyChatsHandler", UNKNOW_ERROR);
-    }
+    errorUtils.replyError("error in get chats", error, reply);
   }
 };
 const createChat = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
@@ -52,14 +46,7 @@ const sendMessage = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
     const message = await chatService.sendMessage(data, userId);
     return message;
   } catch (error) {
-    if (error instanceof Error) {
-      logger.error("error in createChatHandler", error.message);
-      reply.status(CLIENT_ERROR).send({
-        message: error,
-      });
-    } else {
-      logger.error("error in createChatHandler", UNKNOW_ERROR);
-    }
+    errorUtils.replyError("error in send message", error, reply);
   }
 };
 const getMessages = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
@@ -68,11 +55,13 @@ const getMessages = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
     cursor = 1,
     limit = 10,
     offset,
+    search,
   } = req.query as {
     chatId: string;
     cursor: number;
     limit: number;
     offset: number;
+    search: string;
   };
 
   try {
@@ -82,16 +71,24 @@ const getMessages = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
       limit,
       offset
     );
-    return reply.send(messages);
+    reply.status(SUCCESS).send(messages);
   } catch (err) {
-    if (err instanceof Error) {
-      logger.error("error in getMessagesHandler", err.message);
-      reply.status(CLIENT_ERROR).send({
-        message: err,
-      });
-    } else {
-      logger.error("error in getMessagesHandler", UNKNOW_ERROR);
-    }
+    errorUtils.replyError("error in get message", err, reply);
+  }
+};
+const searchMessages = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const { chatId, search } = req.query as {
+      search: string;
+      chatId: string;
+    };
+    const messages = await chatService.searchMessages(chatId, search);
+    reply.status(SUCCESS).send(messages);
+  } catch (error) {
+    errorUtils.replyError("error in searchMessages", error, reply);
   }
 };
 export const chatHandlers = {
@@ -99,4 +96,5 @@ export const chatHandlers = {
   createChat,
   sendMessage,
   getMessages,
+  searchMessages,
 };

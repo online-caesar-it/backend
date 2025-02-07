@@ -1,6 +1,5 @@
 import { pgTable, uuid, varchar, text } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { userEntity } from "../user/user.entity";
 import { groupEntity } from "../group/group.entity";
 import { moduleEntity } from "../module/module.entity";
 import { paymentEntity } from "../payment/payment.entity";

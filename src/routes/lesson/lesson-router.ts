@@ -23,6 +23,44 @@ export const lessonRouter = (routers: FastifyInstance) => {
         },
       });
     },
+    getLessonByModuleId: () => {
+      get({
+        path: `${path}/get-lesson-by-module`,
+        handler: lessonHandler.getLessonByModuleId,
+        routers,
+        options: {
+          preHandler: [authMiddleWare.jwtCheck],
+        },
+      });
+    },
+    updateLesson: () => {
+      get({
+        path: `${path}/update`,
+        handler: lessonHandler.updateLesson,
+        routers,
+        options: {
+          preHandler: [
+            authMiddleWare.jwtCheck,
+            errorMiddlewares.checkRequestBody,
+            roleMiddleWare.checkedRoleAdmin,
+          ],
+        },
+      });
+    },
+    deleteLesson: () => {
+      get({
+        path: `${path}/delete`,
+        handler: lessonHandler.deleteLesson,
+        routers,
+        options: {
+          preHandler: [
+            authMiddleWare.jwtCheck,
+            errorMiddlewares.checkRequestBody,
+            roleMiddleWare.checkedRoleAdmin,
+          ],
+        },
+      });
+    },
   };
   return {
     ...routes,
