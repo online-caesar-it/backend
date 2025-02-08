@@ -172,7 +172,20 @@ const searchMessages = async (chatId: string, search: string = "") => {
     where: (it) => and(eq(it.chatId, chatId), messageFilter),
     orderBy: (it) => it.createdAt,
   });
-  return messages;
+  const interlocutor = await db.query.userEntity.findFirst({
+    where: (it) =>
+      inArray(
+        it.id,
+        messages.map((item) => item.ownerId).filter((k) => k !== null)
+      ),
+  });
+  const messagesWithOwners = messages.map((message) => {
+    return {
+      ...message,
+      interlocutor,
+    };
+  });
+  return messagesWithOwners;
 };
 export const chatService = {
   getMyChats,
