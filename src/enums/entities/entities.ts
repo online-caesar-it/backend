@@ -5,4 +5,5 @@ export enum entities {
   DIRECTION = "direction",
   MODULE = "module",
   LESSON = "lesson",
+  SCHEDULE = "schedule",
 }

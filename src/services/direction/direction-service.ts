@@ -10,7 +10,13 @@ import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { IDirectionDto } from "dto/direction-dto";
 
 const createDirection = async (data: IDirectionDto) => {
-  const [direction] = await db.insert(directionEntity).values(data).returning();
+  const [direction] = await db
+    .insert(directionEntity)
+    .values({
+      ...data,
+      duration: Number(data.duration),
+    })
+    .returning();
   if (!direction) {
     throw new Error("Error creating direction");
   }

@@ -27,6 +27,8 @@ import {
   scheduleTransferRelations,
 } from "./schedule/schedule.entity";
 import { scheduleToUsersEntity } from "./schedule/schedule-to-users.entity";
+import { workingDayEntity } from "./working/working-day.entity";
+import { userToWorkingDaysEntity } from "./user/user-to-working.entity";
 
 export const entities = {
   userEntity,
@@ -55,4 +57,6 @@ export const entities = {
   scheduleTransferEntity,
   scheduleTransferRelations,
   scheduleRelations,
+  userToWorkingDaysEntity,
+  workingDayEntity,
 };

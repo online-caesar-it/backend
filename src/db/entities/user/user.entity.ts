@@ -12,6 +12,7 @@ export const userEntity = pgTable("users", {
   avatar: text("avatar"),
   groupId: uuid("groupId"),
 });
+
 export const userGroupRelations = relations(userEntity, ({ one }) => ({
   group: one(groupEntity, {
     fields: [userEntity.groupId],

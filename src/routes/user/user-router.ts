@@ -1,8 +1,10 @@
 import { entities } from "../../enums/entities/entities";
-import { get } from "..";
+import { get, post } from "..";
 import { FastifyInstance } from "fastify";
 import { userHandlers } from "../../handlers/user/user-handler";
 import { authMiddleWare } from "../../middleware/auth";
+import { errorMiddlewares } from "middleware/error";
+import { roleMiddleWare } from "middleware/role";
 
 export const userRouter = (routers: FastifyInstance) => {
   const path = `/${entities.USER}`;
@@ -20,6 +22,20 @@ export const userRouter = (routers: FastifyInstance) => {
         handler: userHandlers.getAllHandler,
         routers,
       }),
+    createEducator: () => {
+      post({
+        path: `${path}/educator/create`,
+        handler: userHandlers.createEducator,
+        routers,
+        options: {
+          preHandler: [
+            authMiddleWare.jwtCheck,
+            errorMiddlewares.checkRequestBody,
+            roleMiddleWare.checkedRoleAdmin,
+          ],
+        },
+      });
+    },
   };
 
   return {

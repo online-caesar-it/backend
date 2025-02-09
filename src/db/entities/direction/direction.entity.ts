@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, integer } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { groupEntity } from "../group/group.entity";
 import { moduleEntity } from "../module/module.entity";
@@ -8,6 +8,8 @@ export const directionEntity = pgTable("direction", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
+  price: text("price").notNull(),
+  duration: integer("duration").notNull(),
 });
 
 export const directionsToGroupsEntity = pgTable("directions_to_groups", {

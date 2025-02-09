@@ -1,11 +1,17 @@
 import { userEntity } from "../../db/entities/user/user.entity";
 import { db } from "../../db";
 import { userConfigEntity } from "../../db/entities/user/user-config.entity";
-import { IUserDto } from "../../dto/user-dto";
-import { USER_NOT_FOUND } from "../../consts/response-status/response-message";
-import { eq } from "drizzle-orm";
+import { IUserDto, IWorkingDaysDto } from "../../dto/user-dto";
+import {
+  USER_EXISTING,
+  USER_NOT_FOUND,
+} from "../../consts/response-status/response-message";
+import { eq, inArray } from "drizzle-orm";
 import jwt from "jsonwebtoken";
 import { envConfig } from "env";
+import { workingDayEntity } from "db/entities/working/working-day.entity";
+import { userToWorkingDaysEntity } from "db/entities/user/user-to-working.entity";
+import { log } from "lib/logger/logger";
 const findUserByEmail = async (email: string) => {
   const [userConfig] = await db
     .select()
@@ -60,6 +66,10 @@ const findUserById = async (id: string) => {
 };
 
 const createUser = async (user: IUserDto) => {
+  const findUser = await findUserByEmail(user.email);
+  if (findUser) {
+    throw new Error(USER_EXISTING);
+  }
   const [userCreating] = await db
     .insert(userEntity)
     .values({
@@ -88,7 +98,24 @@ const createUser = async (user: IUserDto) => {
     ...userCreating,
   };
 };
+const setWorkingDayToUser = async (
+  userId: string,
+  workingDays: IWorkingDaysDto
+) => {
+  const workingDaysData = await db.query.workingDayEntity.findMany({
+    where: (it) => inArray(it.dayNumber, workingDays.dayNumber),
+  });
 
+  const workingDaysToInsert = workingDaysData.map((workingDay) => ({
+    userId: userId,
+    workingDayId: workingDay.id,
+  }));
+  const data = await db
+    .insert(userToWorkingDaysEntity)
+    .values(workingDaysToInsert)
+    .returning();
+  return data;
+};
 const findAllUsers = async () => {
   const users = await db.select().from(userEntity);
   const usersConfig = await db.select().from(userConfigEntity);
@@ -131,4 +158,5 @@ export const userService = {
   getAllService,
   findUserByRefresh,
   updateUserRefreshToken,
+  setWorkingDayToUser,
 };

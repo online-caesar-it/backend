@@ -1,6 +1,8 @@
 export interface IDirectionDto {
   name: string;
   description: string;
+  price: string;
+  duration: string;
 }
 export interface ILessonDto {
   name: string;
