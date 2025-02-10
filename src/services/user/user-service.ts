@@ -98,13 +98,38 @@ const createUser = async (user: IUserDto) => {
     ...userCreating,
   };
 };
+const findWorkingDayUser = async (userId: string) => {
+  const workingDaysUser = await db.query.userToWorkingDaysEntity.findMany({
+    where: (it) => eq(it.userId, userId),
+  });
+  if (!workingDaysUser) {
+    throw new Error("Working days user does not exist");
+  }
+  const workingIds = workingDaysUser
+    .map((it) => it.workingDayId)
+    .filter((it) => it !== null);
+
+  const workingDays = await db.query.workingDayEntity.findMany({
+    where: (it) => inArray(it.id, workingIds),
+  });
+  if (!workingDays) {
+    throw new Error("Working days  does not exist");
+  }
+  return workingDays;
+};
+const findWorkingDayByNumber = async (
+  workingDays: IWorkingDaysDto["dayNumber"]
+) => {
+  const workingDaysData = await db.query.workingDayEntity.findMany({
+    where: (it) => inArray(it.dayNumber, workingDays),
+  });
+  return workingDaysData;
+};
 const setWorkingDayToUser = async (
   userId: string,
   workingDays: IWorkingDaysDto
 ) => {
-  const workingDaysData = await db.query.workingDayEntity.findMany({
-    where: (it) => inArray(it.dayNumber, workingDays.dayNumber),
-  });
+  const workingDaysData = await findWorkingDayByNumber(workingDays.dayNumber);
 
   const workingDaysToInsert = workingDaysData.map((workingDay) => ({
     userId: userId,
@@ -143,7 +168,6 @@ const getSelfService = async (userId: string) => {
     ...user,
   };
 };
-
 const getAllService = async () => {
   const users = await findAllUsers();
   return users;
@@ -159,4 +183,6 @@ export const userService = {
   findUserByRefresh,
   updateUserRefreshToken,
   setWorkingDayToUser,
+  findWorkingDayByNumber,
+  findWorkingDayUser,
 };

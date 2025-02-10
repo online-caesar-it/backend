@@ -22,7 +22,15 @@ const createDirection = async (data: IDirectionDto) => {
   }
   return direction;
 };
-
+const getDirectionById = async (directionId: string) => {
+  const direction = await db.query.directionEntity.findFirst({
+    where: (it) => eq(it.id, directionId),
+  });
+  if (!direction) {
+    throw new Error("Direction does not exist");
+  }
+  return direction;
+};
 const createGroup = async (educatorId: string) => {
   const [group] = await db
     .insert(groupEntity)
@@ -178,4 +186,5 @@ export const directionService = {
   getDirections,
   updateDirection,
   deleteDirection,
+  getDirectionById,
 };
