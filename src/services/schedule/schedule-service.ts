@@ -1,15 +1,10 @@
+import { db } from "db";
+import { scheduleEntity } from "db/entities/schedule/schedule.entity";
 import { IScheduleDto } from "dto/schedule.dto";
+import { EScheduleStatus } from "enums/schedule/schedule-status";
 import { log } from "lib/logger/logger";
 import { directionService } from "services/direction/direction-service";
 import { userService } from "services/user/user-service";
-const getNextAvailableDay = (
-  currentDate: Date,
-  workingDays: number[]
-): Date => {
-  let date = new Date(currentDate);
-  date.setDate(date.getDate() + ((workingDays[0] - date.getDay() + 7) % 7));
-  return date;
-};
 
 const createSchedule = async (data: IScheduleDto) => {
   const teacher = await userService.findUserById(data.teacherId);
@@ -29,27 +24,28 @@ const createSchedule = async (data: IScheduleDto) => {
   const duration = direction.duration;
   let currentDate = new Date();
   const lessonDates: string[] = [];
-
-  const monthsToCover = Math.ceil(duration / 4);
-
-  for (let month = 0; month < monthsToCover; month++) {
+  for (let month = 0; month < duration; month++) {
     currentDate.setMonth(currentDate.getMonth() + 1);
     currentDate.setDate(1);
 
     data.workingDays.forEach((workingDay) => {
       let lessonDate = new Date(currentDate);
-      let diff = (workingDay - currentDate.getDay() + 7) % 7;
-      lessonDate.setDate(currentDate.getDate() + diff);
+      let diff = (workingDay - lessonDate.getDay() + 7) % 7;
+      lessonDate.setDate(lessonDate.getDate() + diff);
 
       if (!lessonDates.includes(lessonDate.toISOString().split("T")[0])) {
         lessonDates.push(lessonDate.toISOString().split("T")[0]);
       }
     });
-
-    if (lessonDates.length >= duration) break;
   }
-
-  log.info(`${lessonDates} LESSON`);
+  const scheduledData = lessonDates.map((it) => ({
+    startTime: data.startTime,
+    endTime: data.endTime,
+    dateLesson: new Date(it),
+    teacherId: teacher.id,
+    status: EScheduleStatus.SCHEDULED,
+  }));
+  await db.insert(scheduleEntity).values(scheduledData);
 };
 
 export const scheduleService = {
