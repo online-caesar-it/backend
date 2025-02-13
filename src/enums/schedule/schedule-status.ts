@@ -8,3 +8,8 @@ export enum EScheduleTransferStatus {
   APPROVED = "approved",
   REJECTED = "rejected",
 }
+export enum EScheduleDuration {
+  MONTH = "month",
+  WEEK = "week",
+  day = "day",
+}
