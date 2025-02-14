@@ -53,13 +53,13 @@ const getMessages = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
   const {
     chatId,
     cursor = 1,
-    limit = 10,
+    limit,
     offset,
     search,
   } = req.query as {
     chatId: string;
     cursor: number;
-    limit: number;
+    limit: string;
     offset: number;
     search: string;
   };
@@ -68,7 +68,7 @@ const getMessages = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
     const messages = await chatService.getMessages(
       chatId,
       cursor,
-      limit,
+      parseInt(limit),
       offset
     );
     reply.status(SUCCESS).send(messages);

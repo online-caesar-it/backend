@@ -7,6 +7,7 @@ import { PARAMS_IS_REQUIRED } from "consts/response-status/response-message";
 import { userEntity } from "db/entities/user/user.entity";
 import { ChatType } from "enums/chat/events";
 import { IChatDto, IMessageDto } from "dto/chat-dto";
+import { log } from "lib/logger/logger";
 const getMyChats = async (userId: string, search: string = "") => {
   const chatsToUser = await db
     .select()
@@ -80,7 +81,7 @@ const getMyChats = async (userId: string, search: string = "") => {
 const getMessages = async (
   chatId: string,
   cursor: number | string = 0,
-  limit: number = 10,
+  limit: number = 30,
   offset: number = 0
 ) => {
   if (!chatId) {
@@ -95,12 +96,12 @@ const getMessages = async (
     limit,
     offset: currentOffset,
     extras: {
-      full_count: sql<string>`COUNT(*) OVER()`.as("full_count"),
+      full_count: sql<number>`COUNT(*) OVER()`.mapWith(Number).as("full_count"),
     },
     orderBy: (it) => desc(it.createdAt),
   });
 
-  const totalItems = parseInt(messages[0]?.full_count || "0", 10);
+  const totalItems = messages[0]?.full_count;
   const interlocutor = await db.query.userEntity.findFirst({
     where: (it) =>
       inArray(
@@ -108,6 +109,9 @@ const getMessages = async (
         messages.map((item) => item.ownerId).filter((k) => k !== null)
       ),
   });
+  log.info(`${messages.length} MESSAGES LENGTH`);
+  log.info(`${limit} LIMIT`);
+  log.info(`${typeof limit} TYPEOF LIMIT`);
   const messagesWithOwners = messages.map((message) => {
     return {
       ...message,
