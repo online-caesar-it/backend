@@ -1,17 +1,18 @@
 import { userEntity } from "../../db/entities/user/user.entity";
 import { db } from "../../db";
 import { userConfigEntity } from "../../db/entities/user/user-config.entity";
-import { IUserDto, IWorkingDaysDto } from "../../dto/user-dto";
+import { IUserDto, IUserWithWorkingDaysDto } from "../../dto/user-dto";
 import {
   USER_EXISTING,
   USER_NOT_FOUND,
 } from "../../consts/response-status/response-message";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import jwt from "jsonwebtoken";
 import { envConfig } from "env";
 import { workingDayEntity } from "db/entities/working/working-day.entity";
 import { userToWorkingDaysEntity } from "db/entities/user/user-to-working.entity";
 import { log } from "lib/logger/logger";
+import { IScheduleEditWorkingDay } from "dto/schedule.dto";
 const findUserByEmail = async (email: string) => {
   const [userConfig] = await db
     .select()
@@ -118,7 +119,7 @@ const findWorkingDayUser = async (userId: string) => {
   return workingDays;
 };
 const findWorkingDayByNumber = async (
-  workingDays: IWorkingDaysDto["dayNumber"]
+  workingDays: IUserWithWorkingDaysDto["workingDays"]
 ) => {
   const workingDaysData = await db.query.workingDayEntity.findMany({
     where: (it) => inArray(it.dayNumber, workingDays),
@@ -127,20 +128,54 @@ const findWorkingDayByNumber = async (
 };
 const setWorkingDayToUser = async (
   userId: string,
-  workingDays: IWorkingDaysDto
+  workingDays: IUserWithWorkingDaysDto["workingDays"]
 ) => {
-  const workingDaysData = await findWorkingDayByNumber(workingDays.dayNumber);
+  const workingDaysData = await findWorkingDayByNumber(workingDays);
 
-  const workingDaysToInsert = workingDaysData.map((workingDay) => ({
-    userId: userId,
-    workingDayId: workingDay.id,
-  }));
-  const data = await db
-    .insert(userToWorkingDaysEntity)
-    .values(workingDaysToInsert)
-    .returning();
-  return data;
+  const newWorkingDaysIds = new Set(workingDaysData.map((day) => day.id));
+
+  return await db.transaction(async (trx) => {
+    const existingDays = await trx
+      .select()
+      .from(userToWorkingDaysEntity)
+      .where(eq(userToWorkingDaysEntity.userId, userId));
+    const existingWorkingDaysIds = new Set(
+      existingDays.map((day) => day.workingDayId)
+    );
+
+    const daysToDelete = [...existingWorkingDaysIds]
+      .filter((id) => !newWorkingDaysIds.has(id ?? ""))
+      .map((id) => String(id));
+
+    if (daysToDelete.length) {
+      await trx
+        .delete(userToWorkingDaysEntity)
+        .where(
+          and(
+            eq(userToWorkingDaysEntity.userId, userId),
+            inArray(userToWorkingDaysEntity.workingDayId, daysToDelete)
+          )
+        );
+    }
+
+    const daysToInsert = workingDaysData
+      .filter((day) => !existingWorkingDaysIds.has(day.id))
+      .map((day) => ({
+        userId: userId,
+        workingDayId: day.id,
+      }));
+
+    if (daysToInsert.length) {
+      await trx
+        .insert(userToWorkingDaysEntity)
+        .values(daysToInsert)
+        .returning();
+    }
+
+    return daysToInsert;
+  });
 };
+
 const findAllUsers = async () => {
   const users = await db.select().from(userEntity);
   const usersConfig = await db.select().from(userConfigEntity);
@@ -172,7 +207,15 @@ const getAllService = async () => {
   const users = await findAllUsers();
   return users;
 };
-
+const deleteUserByEmail = async (email: string) => {
+  const userConfig = await db.query.userConfigEntity.findFirst({
+    where: (it) => eq(it.email, email),
+  });
+  if (!userConfig) {
+    throw new Error("Пользователь с такой почтой не найден");
+  }
+  await db.delete(userEntity).where(eq(userEntity.id, userConfig.userId ?? ""));
+};
 export const userService = {
   findUserByEmail,
   findUserById,
@@ -185,4 +228,5 @@ export const userService = {
   setWorkingDayToUser,
   findWorkingDayByNumber,
   findWorkingDayUser,
+  deleteUserByEmail,
 };

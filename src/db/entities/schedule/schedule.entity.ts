@@ -3,6 +3,7 @@ import { lessonEntity } from "../lesson/lesson.entity";
 import { groupEntity } from "../group/group.entity";
 import { relations } from "drizzle-orm";
 import { userEntity } from "../user/user.entity";
+import { directionEntity } from "../direction/direction.entity";
 
 export const scheduleEntity = pgTable("schedule", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -12,8 +13,9 @@ export const scheduleEntity = pgTable("schedule", {
   startTime: text("start_time").notNull(),
   endTime: text("end_time").notNull(),
   status: text("status").default("scheduled"),
-  teacherId: uuid("teacher_id").references(() => userEntity.id),
+  userId: uuid("user_id").references(() => userEntity.id),
   createdAt: timestamp("created_at").defaultNow(),
+  directionId: uuid("direction_id").references(() => directionEntity.id),
 });
 export const scheduleTransferEntity = pgTable("schedule_transfers", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -41,6 +43,10 @@ export const scheduleRelations = relations(scheduleEntity, ({ one }) => ({
   group: one(groupEntity, {
     fields: [scheduleEntity.groupId],
     references: [groupEntity.id],
+  }),
+  direction: one(directionEntity, {
+    fields: [scheduleEntity.directionId],
+    references: [directionEntity.id],
   }),
 }));
 export const scheduleTransferRelations = relations(

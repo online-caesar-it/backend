@@ -1,5 +1,5 @@
 import { entities } from "../../enums/entities/entities";
-import { get, post } from "..";
+import { get, post, put } from "..";
 import { FastifyInstance } from "fastify";
 import { userHandlers } from "../../handlers/user/user-handler";
 import { authMiddleWare } from "../../middleware/auth";

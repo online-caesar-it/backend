@@ -7,11 +7,7 @@ export interface IUserDto {
   avatar?: string;
   phone: string;
 }
-export interface IWorkingDaysDto {
-  dayNumber: number[];
-  dayName: string[];
-}
 export interface IUserWithWorkingDaysDto {
   user: IUserDto;
-  workingDays: IWorkingDaysDto;
+  workingDays: number[];
 }

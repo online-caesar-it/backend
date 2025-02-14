@@ -1,7 +1,11 @@
 import { db } from "db";
 import { scheduleEntity } from "db/entities/schedule/schedule.entity";
 import { and, eq, gte, lte } from "drizzle-orm";
-import { IScheduleDto } from "dto/schedule.dto";
+import {
+  IScheduleDto,
+  IScheduleFilter,
+  IScheduleGetByDate,
+} from "dto/schedule.dto";
 import { EScheduleStatus } from "enums/schedule/schedule-status";
 import { directionService } from "services/direction/direction-service";
 import { userService } from "services/user/user-service";
@@ -38,6 +42,9 @@ const createSchedule = async (data: IScheduleDto) => {
   }
 
   const direction = await directionService.getDirectionById(data.directionId);
+  if (!direction) {
+    throw new Error("Направления не найдено");
+  }
   const duration = direction.duration;
   let currentDate = new Date();
 
@@ -50,23 +57,20 @@ const createSchedule = async (data: IScheduleDto) => {
     startTime: data.startTime,
     endTime: data.endTime,
     dateLesson: it,
-    teacherId: teacher.id,
+    userId: teacher.id,
     status: EScheduleStatus.SCHEDULED,
+    directionId: direction.id,
   }));
 
   await db.insert(scheduleEntity).values(scheduledData);
 };
-const getScheduleByTeacher = async (
-  teacherId: string,
-  startDate: string,
-  endDate: string
-) => {
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+const getSchedule = async (data: IScheduleGetByDate, userId: string) => {
+  const start = new Date(data.startDate);
+  const end = new Date(data.endDate);
   const scheduled = await db.query.scheduleEntity.findMany({
     where: (it) =>
       and(
-        eq(it.teacherId, teacherId),
+        eq(it.userId, userId),
         gte(it.dateLesson, start),
         lte(it.dateLesson, end)
       ),
@@ -76,7 +80,23 @@ const getScheduleByTeacher = async (
   }
   return scheduled;
 };
-
+const getScheduleForAdmin = async (data: IScheduleFilter) => {
+  const { directionId, userId, startDate, endDate } = data;
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const schedules = await db.query.scheduleEntity.findMany({
+    where: (it) =>
+      and(
+        eq(it.directionId, directionId ?? ""),
+        eq(it.userId, userId ?? ""),
+        gte(it.dateLesson, start ?? ""),
+        lte(it.dateLesson, end ?? "")
+      ),
+  });
+  return schedules;
+};
 export const scheduleService = {
   createSchedule,
+  getSchedule,
+  getScheduleForAdmin,
 };

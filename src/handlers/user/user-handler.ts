@@ -41,8 +41,9 @@ const createEducator = async (
   req: IAuthenticatedRequest,
   reply: FastifyReply
 ) => {
+  const data = req.body as IUserWithWorkingDaysDto;
+
   try {
-    const data = req.body as IUserWithWorkingDaysDto;
     const user = await userService.createUser({
       ...data.user,
       role: ROLE_EDUCATOR,
@@ -53,10 +54,10 @@ const createEducator = async (
     );
     reply.status(SUCCESS).send(workingDaysWithUser);
   } catch (error) {
+    await userService.deleteUserByEmail(data.user.email);
     errorUtils.replyError("error in create educator", error, reply);
   }
 };
-
 export const userHandlers = {
   getAllHandler,
   getSelfHandler,
