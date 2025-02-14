@@ -4,6 +4,10 @@ import { groupEntity } from "../group/group.entity";
 import { relations } from "drizzle-orm";
 import { userEntity } from "../user/user.entity";
 import { directionEntity } from "../direction/direction.entity";
+import {
+  EScheduleStatus,
+  EScheduleTransferStatus,
+} from "enums/schedule/schedule-status";
 
 export const scheduleEntity = pgTable("schedule", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -12,7 +16,10 @@ export const scheduleEntity = pgTable("schedule", {
   groupId: uuid("groupId").references(() => groupEntity.id),
   startTime: text("start_time").notNull(),
   endTime: text("end_time").notNull(),
-  status: text("status").default("scheduled"),
+  status: text("status")
+    .default(EScheduleStatus.SCHEDULED)
+    .$type<EScheduleStatus>()
+    .notNull(),
   userId: uuid("user_id").references(() => userEntity.id),
   createdAt: timestamp("created_at").defaultNow(),
   directionId: uuid("direction_id").references(() => directionEntity.id),
@@ -22,9 +29,13 @@ export const scheduleTransferEntity = pgTable("schedule_transfers", {
   scheduleId: uuid("scheduled_id").references(() => scheduleEntity.id),
   requestByUserId: uuid("request_by_user_id").references(() => userEntity.id),
   reason: text("reason").notNull(),
-  status: text("status").notNull(),
-  newStartTime: timestamp("new_start_time").notNull(),
-  newEndTime: timestamp("new_end_time").notNull(),
+  status: text("status")
+    .default(EScheduleTransferStatus.PENDING)
+    .$type<EScheduleTransferStatus>()
+    .notNull(),
+  newStartTime: text("new_start_time").notNull(),
+  newEndTime: text("new_end_time").notNull(),
+  newDateLesson: timestamp("new_date_lesson").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 export const scheduleCanceledEntity = pgTable("schedule_canceled", {
@@ -32,7 +43,10 @@ export const scheduleCanceledEntity = pgTable("schedule_canceled", {
   scheduleId: uuid("scheduled_id").references(() => scheduleEntity.id),
   requestByUserId: uuid("request_by_user_id").references(() => userEntity.id),
   reason: text("reason").notNull(),
-  status: text("status").notNull(),
+  status: text("status")
+    .default(EScheduleTransferStatus.PENDING)
+    .$type<EScheduleTransferStatus>()
+    .notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 export const scheduleRelations = relations(scheduleEntity, ({ one }) => ({

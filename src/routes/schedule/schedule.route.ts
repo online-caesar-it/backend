@@ -60,6 +60,60 @@ export const scheduleRoute = (routers: FastifyInstance) => {
         },
       });
     },
+    createScheduleTransfer: () => {
+      post({
+        path: `${path}/transfer/create`,
+        handler: scheduleHandler.createScheduleTransfer,
+        routers,
+        options: {
+          preHandler: [
+            authMiddleWare.jwtCheck,
+            errorMiddlewares.checkRequestBody,
+          ],
+        },
+      });
+    },
+    createScheduleCancel: () => {
+      post({
+        path: `${path}/cancel/create`,
+        handler: scheduleHandler.createScheduleCancel,
+        routers,
+        options: {
+          preHandler: [
+            authMiddleWare.jwtCheck,
+            errorMiddlewares.checkRequestBody,
+          ],
+        },
+      });
+    },
+    updateScheduleCancel: () => {
+      put({
+        path: `${path}/cancel/update`,
+        handler: scheduleHandler.updateScheduleCancel,
+        routers,
+        options: {
+          preHandler: [
+            authMiddleWare.jwtCheck,
+            errorMiddlewares.checkRequestBody,
+            roleMiddleWare.checkedRoleAdmin,
+          ],
+        },
+      });
+    },
+    updateScheduleTransfer: () => {
+      put({
+        path: `${path}/transfer/update`,
+        handler: scheduleHandler.updateScheduleTransfer,
+        routers,
+        options: {
+          preHandler: [
+            authMiddleWare.jwtCheck,
+            errorMiddlewares.checkRequestBody,
+            roleMiddleWare.checkedRoleAdmin,
+          ],
+        },
+      });
+    },
   };
   return {
     ...routes,

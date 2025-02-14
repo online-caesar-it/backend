@@ -4,10 +4,13 @@ import {
   SUCCESS,
 } from "consts/response-status/response-status";
 import {
+  IScheduleCanceledDto,
   IScheduleDto,
   IScheduleEditWorkingDay,
   IScheduleFilter,
   IScheduleGetByDate,
+  IScheduleTransferDto,
+  IScheduleUpdateTransferCancelDto,
 } from "dto/schedule.dto";
 import { FastifyReply } from "fastify";
 import { scheduleService } from "services/schedule/schedule-service";
@@ -67,9 +70,63 @@ const getSchedulesFilter = async (
     errorUtils.replyError("error in getSchedulesFilter", error, reply);
   }
 };
+const createScheduleTransfer = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const data = req.body as IScheduleTransferDto;
+    const userId = req.user?.id as string;
+    const transfer = await scheduleService.createScheduleTransfer(data, userId);
+    reply.status(SUCCESS).send(transfer);
+  } catch (error) {
+    errorUtils.replyError("error in createScheduleTransfer", error, reply);
+  }
+};
+const createScheduleCancel = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const data = req.body as IScheduleCanceledDto;
+    const userId = req.user?.id as string;
+    const transfer = await scheduleService.createScheduleCancel(data, userId);
+    reply.status(SUCCESS).send(transfer);
+  } catch (error) {
+    errorUtils.replyError("error in createScheduleCancel", error, reply);
+  }
+};
+const updateScheduleTransfer = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const data = req.body as IScheduleUpdateTransferCancelDto;
+    const transfer = await scheduleService.updateScheduleTransfer(data);
+    reply.status(SUCCESS).send(transfer);
+  } catch (error) {
+    errorUtils.replyError("error in updateScheduleTransfer", error, reply);
+  }
+};
+const updateScheduleCancel = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const data = req.body as IScheduleUpdateTransferCancelDto;
+    const transfer = await scheduleService.updateScheduleCancel(data);
+    reply.status(SUCCESS).send(transfer);
+  } catch (error) {
+    errorUtils.replyError("error in updateScheduleCancel", error, reply);
+  }
+};
 export const scheduleHandler = {
   createSchedule,
   getSchedule,
   editWorkingDays,
   getSchedulesFilter,
+  createScheduleTransfer,
+  createScheduleCancel,
+  updateScheduleCancel,
+  updateScheduleTransfer,
 };
