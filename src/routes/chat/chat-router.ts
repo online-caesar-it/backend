@@ -73,7 +73,7 @@ export const chatRouter = (
     chatWebSocket: () => {
       wsRouters.register(() =>
         wsRouters.get(
-          `${path}/ws`,
+          `/ws${path}`,
           { websocket: true, preHandler: authMiddleWare.jwtCheckWebSocket },
           (socket, req: IAuthenticatedRequest) => {
             (req?.query as any).service = "chat";
