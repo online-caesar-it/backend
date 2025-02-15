@@ -5,10 +5,10 @@ import { IAuthenticatedRequest } from "types/req-type";
 
 export const wsRouter = (routers: FastifyInstance) => {
   const routes = {
-    chatWebSocket: () => {
+    ws: () => {
       routers.register(() =>
         routers.get(
-          "/",
+          "/ws",
           { websocket: true, preHandler: authMiddleWare.jwtCheckWebSocket },
           (socket, req: IAuthenticatedRequest) => {
             wsHandler.wsConnect(socket, req);

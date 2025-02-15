@@ -8,7 +8,10 @@ import { IAuthenticatedRequest } from "types/req-type";
 import { roleMiddleWare } from "middleware/role";
 import { wsHandler } from "handlers/ws/ws-handler";
 
-export const chatRouter = (routers: FastifyInstance) => {
+export const chatRouter = (
+  routers: FastifyInstance,
+  wsRouters: FastifyInstance
+) => {
   const path = `/${entities.CHAT}`;
   const routes = {
     getMyChats: () => {
@@ -68,8 +71,8 @@ export const chatRouter = (routers: FastifyInstance) => {
       });
     },
     chatWebSocket: () => {
-      routers.register(() =>
-        routers.get(
+      wsRouters.register(() =>
+        wsRouters.get(
           `${path}/ws`,
           { websocket: true, preHandler: authMiddleWare.jwtCheckWebSocket },
           (socket, req: IAuthenticatedRequest) => {

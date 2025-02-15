@@ -17,6 +17,7 @@ const envSchema = z.object({
   FRONTEND_PORTAL_URL: z.string().nonempty("FRONTEND_PORTAL_URL is required"),
   LOG_PATH: z.string().default("./logs.log"),
   HOST: z.string().nonempty("HOST is required"),
+  WS_PORT: z.string().nonempty("WS_PORT is required"),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
