@@ -12,7 +12,7 @@ import {
   IScheduleTransferDto,
   IScheduleUpdateTransferCancelDto,
 } from "dto/schedule.dto";
-import { FastifyReply } from "fastify";
+import { FastifyReply, FastifyRequest } from "fastify";
 import { scheduleService } from "services/schedule/schedule-service";
 import { userService } from "services/user/user-service";
 import { IAuthenticatedRequest } from "types/req-type";
@@ -120,6 +120,14 @@ const updateScheduleCancel = async (
     errorUtils.replyError("error in updateScheduleCancel", error, reply);
   }
 };
+const getWorkingDays = async (req: FastifyRequest, reply: FastifyReply) => {
+  try {
+    const data = await scheduleService.getWorkingDays();
+    reply.status(SUCCESS).send(data);
+  } catch (error) {
+    errorUtils.replyError("error in getWorkingDays", error, reply);
+  }
+};
 export const scheduleHandler = {
   createSchedule,
   getSchedule,
@@ -129,4 +137,5 @@ export const scheduleHandler = {
   createScheduleCancel,
   updateScheduleCancel,
   updateScheduleTransfer,
+  getWorkingDays,
 };

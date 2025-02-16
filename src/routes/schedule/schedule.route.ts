@@ -114,6 +114,13 @@ export const scheduleRoute = (routers: FastifyInstance) => {
         },
       });
     },
+    getWorkingDays: () => {
+      get({
+        path: `${path}/working-days/get`,
+        handler: scheduleHandler.getWorkingDays,
+        routers,
+      });
+    },
   };
   return {
     ...routes,

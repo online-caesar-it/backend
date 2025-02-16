@@ -245,6 +245,10 @@ const updateScheduleCancel = async (data: IScheduleUpdateTransferCancelDto) => {
     .returning();
   return cancel;
 };
+const getWorkingDays = async () => {
+  const data = await db.query.workingDayEntity.findMany();
+  return data;
+};
 export const scheduleService = {
   createSchedule,
   getSchedule,
@@ -257,4 +261,5 @@ export const scheduleService = {
   getScheduleById,
   getScheduleCancelById,
   updateSchedule,
+  getWorkingDays,
 };

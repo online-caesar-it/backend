@@ -60,7 +60,7 @@ const createEducator = async (
     await directionService.setEducatorToDirection(user.id, data.directionIds);
     reply.status(SUCCESS).send(workingDaysWithUser);
   } catch (error) {
-    await userService.deleteUserByEmail(data.user.email);
+    // await userService.deleteUserByEmail(data.user.email);
     errorUtils.replyError("error in create educator", error, reply);
   }
 };
