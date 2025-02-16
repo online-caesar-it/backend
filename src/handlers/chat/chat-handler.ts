@@ -55,7 +55,6 @@ const getMessages = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
     cursor = 1,
     limit,
     offset,
-    search,
   } = req.query as {
     chatId: string;
     cursor: number;

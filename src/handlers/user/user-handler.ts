@@ -6,9 +6,14 @@ import {
 import { FastifyReply, FastifyRequest } from "fastify";
 import { IAuthenticatedRequest } from "types/req-type";
 import { logger } from "lib/logger/logger";
-import { IUserDto, IUserWithWorkingDaysDto } from "dto/user-dto";
+import {
+  IUserDto,
+  IUserGetEducators,
+  IUserWithWorkingDaysDto,
+} from "dto/user-dto";
 import { errorUtils } from "utils/error";
 import { ROLE_EDUCATOR } from "consts/role/role";
+import { directionService } from "services/direction/direction-service";
 
 const getSelfHandler = async (
   req: IAuthenticatedRequest,
@@ -52,9 +57,22 @@ const createEducator = async (
       user.id,
       data.workingDays
     );
+    await directionService.setEducatorToDirection(user.id, data.directionIds);
     reply.status(SUCCESS).send(workingDaysWithUser);
   } catch (error) {
     await userService.deleteUserByEmail(data.user.email);
+    errorUtils.replyError("error in create educator", error, reply);
+  }
+};
+const getEducators = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const data = req.query as IUserGetEducators;
+    const educators = await userService.getEducators(data);
+    reply.status(SUCCESS).send(educators);
+  } catch (error) {
     errorUtils.replyError("error in create educator", error, reply);
   }
 };
@@ -62,4 +80,5 @@ export const userHandlers = {
   getAllHandler,
   getSelfHandler,
   createEducator,
+  getEducators,
 };

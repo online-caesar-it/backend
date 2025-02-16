@@ -1,7 +1,11 @@
 import { userEntity } from "../../db/entities/user/user.entity";
 import { db } from "../../db";
 import { userConfigEntity } from "../../db/entities/user/user-config.entity";
-import { IUserDto, IUserWithWorkingDaysDto } from "../../dto/user-dto";
+import {
+  IUserDto,
+  IUserGetEducators,
+  IUserWithWorkingDaysDto,
+} from "../../dto/user-dto";
 import {
   USER_EXISTING,
   USER_NOT_FOUND,
@@ -13,6 +17,7 @@ import { workingDayEntity } from "db/entities/working/working-day.entity";
 import { userToWorkingDaysEntity } from "db/entities/user/user-to-working.entity";
 import { log } from "lib/logger/logger";
 import { IScheduleEditWorkingDay } from "dto/schedule.dto";
+import { ROLE_EDUCATOR } from "consts/role/role";
 const findUserByEmail = async (email: string) => {
   const [userConfig] = await db
     .select()
@@ -214,7 +219,27 @@ const deleteUserByEmail = async (email: string) => {
   if (!userConfig) {
     throw new Error("Пользователь с такой почтой не найден");
   }
+  await db
+    .delete(userToWorkingDaysEntity)
+    .where(eq(userToWorkingDaysEntity.userId, userConfig.userId ?? ""));
+  await db
+    .delete(userConfigEntity)
+    .where(eq(userConfigEntity.id, userConfig.id));
   await db.delete(userEntity).where(eq(userEntity.id, userConfig.userId ?? ""));
+};
+const getEducators = async (data: IUserGetEducators) => {
+  const { limit = 10, offset = 0 } = data;
+
+  const educators = await db.query.userEntity.findMany({
+    where: (it) => eq(it.role, ROLE_EDUCATOR),
+    limit: Number(limit),
+    offset: Number(offset),
+    with: {
+      config: true,
+    },
+  });
+
+  return educators;
 };
 export const userService = {
   findUserByEmail,
@@ -229,4 +254,5 @@ export const userService = {
   findWorkingDayByNumber,
   findWorkingDayUser,
   deleteUserByEmail,
+  getEducators,
 };

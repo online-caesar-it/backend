@@ -1,5 +1,5 @@
 import { chatToUserEntity } from "./../../db/entities/chat/chat-to-users.entity";
-import { and, desc, eq, inArray, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, or, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { chatEntity } from "db/entities/chat/chat.entity";
 import { messageEntity } from "db/entities/chat/message.entity";
@@ -109,9 +109,7 @@ const getMessages = async (
         messages.map((item) => item.ownerId).filter((k) => k !== null)
       ),
   });
-  log.info(`${messages.length} MESSAGES LENGTH`);
-  log.info(`${limit} LIMIT`);
-  log.info(`${typeof limit} TYPEOF LIMIT`);
+
   const messagesWithOwners = messages.map((message) => {
     return {
       ...message,

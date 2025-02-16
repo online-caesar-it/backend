@@ -4,10 +4,12 @@ import {
   directionEntity,
   directionsToGroupsEntity,
 } from "db/entities/direction/direction.entity";
+import { educatorsToDirectionsEntity } from "db/entities/direction/educator-to-direction.entity";
 import { groupEntity } from "db/entities/group/group.entity";
 import { userEntity } from "db/entities/user/user.entity";
 import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { IDirectionDto } from "dto/direction-dto";
+import { userService } from "services/user/user-service";
 
 const createDirection = async (data: IDirectionDto) => {
   const [direction] = await db
@@ -176,6 +178,20 @@ const deleteDirection = async (id: string) => {
     .returning();
   return direction;
 };
+const setEducatorToDirection = async (
+  educatorId: string,
+  directionIds: string[]
+) => {
+  const user = await userService.findUserById(educatorId);
+  if (!directionIds || !Array.isArray(directionIds)) {
+    throw new Error("Direction ids does not exist");
+  }
+  const values = directionIds.map((it) => ({
+    directionId: it,
+    educatorId: user.id,
+  }));
+  await db.insert(educatorsToDirectionsEntity).values(values);
+};
 export const directionService = {
   createDirection,
   createGroup,
@@ -187,4 +203,5 @@ export const directionService = {
   updateDirection,
   deleteDirection,
   getDirectionById,
+  setEducatorToDirection,
 };

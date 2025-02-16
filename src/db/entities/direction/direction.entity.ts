@@ -3,6 +3,7 @@ import { relations } from "drizzle-orm";
 import { groupEntity } from "../group/group.entity";
 import { moduleEntity } from "../module/module.entity";
 import { paymentEntity } from "../payment/payment.entity";
+import { educatorsToDirectionsEntity } from "./educator-to-direction.entity";
 
 export const directionEntity = pgTable("direction", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -27,6 +28,7 @@ export const directionGroupsRelations = relations(
   ({ many }) => ({
     groups: many(directionsToGroupsEntity),
     modules: many(moduleEntity),
+    educators: many(educatorsToDirectionsEntity),
   })
 );
 

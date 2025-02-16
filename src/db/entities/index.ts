@@ -2,6 +2,7 @@ import {
   userEntity,
   userGroupRelations,
   userPaymentRelations,
+  userRelations,
 } from "./user/user.entity";
 import { userConfigEntity } from "./user/user-config.entity";
 import { logEntity } from "./log/log.entity";
@@ -29,6 +30,10 @@ import {
 import { scheduleToUsersEntity } from "./schedule/schedule-to-users.entity";
 import { workingDayEntity } from "./working/working-day.entity";
 import { userToWorkingDaysEntity } from "./user/user-to-working.entity";
+import {
+  educatorsToDirectionsEntity,
+  educatorsToDirectionsRelations,
+} from "./direction/educator-to-direction.entity";
 
 export const entities = {
   userEntity,
@@ -59,4 +64,7 @@ export const entities = {
   scheduleRelations,
   userToWorkingDaysEntity,
   workingDayEntity,
+  userRelations,
+  educatorsToDirectionsEntity,
+  educatorsToDirectionsRelations,
 };
