@@ -7,5 +7,7 @@ export const userConfigEntity = pgTable("users_config", {
   userId: uuid().references(() => userEntity.id),
   email: text("email"),
   phone_number: text("phone_number"),
+  telegram: text("telegram"),
+  vkontakte: text("vkontakte"),
   refresh_token: text("refresh_token"),
 });

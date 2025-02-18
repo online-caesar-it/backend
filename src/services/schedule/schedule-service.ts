@@ -79,6 +79,7 @@ const getSchedule = async (data: IScheduleGetByDate, userId: string) => {
   const start = new Date(data.startDate);
   const end = new Date(data.endDate);
   end.setHours(23, 59, 59, 999);
+
   const scheduled = await db.query.scheduleEntity.findMany({
     where: (it) =>
       and(
@@ -87,10 +88,34 @@ const getSchedule = async (data: IScheduleGetByDate, userId: string) => {
         lte(it.dateLesson, end)
       ),
   });
-  if (!scheduled) {
-    throw new Error("Scheduled not found");
-  }
-  return scheduled;
+  const uniqueGroupIds = scheduled
+    .map((lesson) => lesson.groupId)
+    .filter(Boolean);
+
+  const educator = await userService.findUserById(userId);
+
+  const studentsByGroup = await Promise.all(
+    uniqueGroupIds.map(async (groupId) => {
+      const students = await directionService.getStudentsByDirectionAndGroup(
+        groupId ?? ""
+      );
+      return { groupId, students };
+    })
+  );
+
+  const scheduleWithDetails = scheduled.map((lesson) => {
+    const groupStudents = studentsByGroup.find(
+      (group) => group.groupId === lesson.groupId
+    );
+
+    return {
+      ...lesson,
+      educator: educator || null,
+      students: groupStudents ? groupStudents.students : [],
+    };
+  });
+
+  return scheduleWithDetails;
 };
 const getScheduleForAdmin = async (data: IScheduleFilter) => {
   const { directionId, userId, startDate, endDate } = data;

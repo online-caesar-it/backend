@@ -6,6 +6,8 @@ import {
 import { FastifyReply, FastifyRequest } from "fastify";
 import { IAuthenticatedRequest } from "types/req-type";
 import { logger } from "lib/logger/logger";
+import { db } from "db";
+import { TClientUserUpdate } from "types/user-type";
 import {
   IUserDto,
   IUserGetEducators,
@@ -76,9 +78,38 @@ const getEducators = async (
     errorUtils.replyError("error in create educator", error, reply);
   }
 };
+
+const updateUserHandler = async (req: FastifyRequest, reply: FastifyReply) => {
+  try {
+    const clientUser = (await req.body) as TClientUserUpdate;
+
+    if (!clientUser) {
+      return reply.code(400).send({ message: "User data is required" });
+    }
+
+    const updateUserData = await userService.updateUserService(clientUser);
+    const updatedUserConfig = await userService.updateUserConfigService(
+      clientUser
+    );
+
+    return {
+      updatedUser: updateUserData,
+      updatedUserConfig: updatedUserConfig,
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      reply.status(CLIENT_ERROR).send({ message: error.message });
+    } else {
+      logger.error("Error while updating user", error as string);
+      reply.status(CLIENT_ERROR).send({ message: "An unknown error occurred" });
+    }
+  }
+};
+
 export const userHandlers = {
   getAllHandler,
   getSelfHandler,
   createEducator,
   getEducators,
+  updateUserHandler,
 };

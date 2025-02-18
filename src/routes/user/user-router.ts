@@ -1,5 +1,5 @@
 import { entities } from "../../enums/entities/entities";
-import { get, post, put } from "..";
+import { get, put, post } from "..";
 import { FastifyInstance } from "fastify";
 import { userHandlers } from "../../handlers/user/user-handler";
 import { authMiddleWare } from "../../middleware/auth";
@@ -20,6 +20,12 @@ export const userRouter = (routers: FastifyInstance) => {
       get({
         path: `${path}/getAll`,
         handler: userHandlers.getAllHandler,
+        routers,
+      }),
+    edit: () =>
+      put({
+        path: `${path}/update`,
+        handler: userHandlers.updateUserHandler,
         routers,
       }),
     createEducator: () => {

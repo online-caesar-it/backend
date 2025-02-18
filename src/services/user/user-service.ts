@@ -18,6 +18,7 @@ import { userToWorkingDaysEntity } from "db/entities/user/user-to-working.entity
 import { log } from "lib/logger/logger";
 import { IScheduleEditWorkingDay } from "dto/schedule.dto";
 import { ROLE_EDUCATOR } from "consts/role/role";
+import { TClientUserUpdate } from "types/user-type";
 const findUserByEmail = async (email: string) => {
   const [userConfig] = await db
     .select()
@@ -241,6 +242,27 @@ const getEducators = async (data: IUserGetEducators) => {
 
   return educators;
 };
+const updateUserService = async (data: TClientUserUpdate) => {
+  return await db
+    .update(userEntity)
+    .set({
+      firstName: data.firstName,
+      surname: data.surname,
+    })
+    .where(eq(userEntity.id, data.userId));
+};
+
+const updateUserConfigService = async (data: TClientUserUpdate) => {
+  return await db
+    .update(userConfigEntity)
+    .set({
+      email: data.email,
+      phone_number: data.phone_number,
+      telegram: data.telegram,
+      vkontakte: data.vkontakte,
+    })
+    .where(eq(userConfigEntity.userId, data.userId));
+};
 export const userService = {
   findUserByEmail,
   findUserById,
@@ -255,4 +277,6 @@ export const userService = {
   findWorkingDayUser,
   deleteUserByEmail,
   getEducators,
+  updateUserConfigService,
+  updateUserService,
 };
