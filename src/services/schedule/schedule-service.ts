@@ -4,6 +4,7 @@ import {
   scheduleEntity,
   scheduleTransferEntity,
 } from "db/entities/schedule/schedule.entity";
+import { workingDayEntity } from "db/entities/working/working-day.entity";
 import { and, eq, gte, lte } from "drizzle-orm";
 import {
   IScheduleCanceledDto,
@@ -249,6 +250,19 @@ const getWorkingDays = async () => {
   const data = await db.query.workingDayEntity.findMany();
   return data;
 };
+const createWorkingDays = async () => {
+  const data = [
+    { dayName: "Понедельник", dayNumber: 1 },
+    { dayName: "Вторник", dayNumber: 2 },
+    { dayName: "Среда", dayNumber: 3 },
+    { dayName: "Четверг", dayNumber: 4 },
+    { dayName: "Пятница", dayNumber: 5 },
+    { dayName: "Суббота", dayNumber: 6 },
+    { dayName: "Воскресенье", dayNumber: 0 },
+  ];
+
+  await db.insert(workingDayEntity).values(data);
+};
 export const scheduleService = {
   createSchedule,
   getSchedule,
@@ -262,4 +276,5 @@ export const scheduleService = {
   getScheduleCancelById,
   updateSchedule,
   getWorkingDays,
+  createWorkingDays,
 };

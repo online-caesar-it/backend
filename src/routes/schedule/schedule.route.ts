@@ -121,6 +121,19 @@ export const scheduleRoute = (routers: FastifyInstance) => {
         routers,
       });
     },
+    setWorkingDays: () => {
+      post({
+        path: `${path}/working-days/create`,
+        handler: scheduleHandler.createWorkingDays,
+        routers,
+        options: {
+          preHandler: [
+            authMiddleWare.jwtCheck,
+            roleMiddleWare.checkedRoleAdmin,
+          ],
+        },
+      });
+    },
   };
   return {
     ...routes,
