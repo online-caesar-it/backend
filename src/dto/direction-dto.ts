@@ -14,3 +14,11 @@ export interface IModuleDto {
   description: string;
   directionId: string;
 }
+export interface IGroupDto {
+  educatorId: string;
+  studentsIds: string[];
+}
+export interface IUserByDirection {
+  role: string;
+  directionId: string;
+}

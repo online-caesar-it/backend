@@ -3,9 +3,9 @@ import { userEntity } from "../user/user.entity";
 import { directionEntity } from "./direction.entity";
 import { relations } from "drizzle-orm";
 
-export const educatorsToDirectionsEntity = pgTable("educators_to_directions", {
+export const userToDirectionEntity = pgTable("user_to_direction", {
   id: uuid("id").primaryKey().defaultRandom(),
-  educatorId: uuid("educator_id")
+  userId: uuid("user_id")
     .notNull()
     .references(() => userEntity.id),
   directionId: uuid("direction_id")
@@ -13,14 +13,14 @@ export const educatorsToDirectionsEntity = pgTable("educators_to_directions", {
     .references(() => directionEntity.id),
 });
 export const educatorsToDirectionsRelations = relations(
-  educatorsToDirectionsEntity,
+  userToDirectionEntity,
   ({ one }) => ({
     educator: one(userEntity, {
-      fields: [educatorsToDirectionsEntity.educatorId],
+      fields: [userToDirectionEntity.userId],
       references: [userEntity.id],
     }),
     direction: one(directionEntity, {
-      fields: [educatorsToDirectionsEntity.directionId],
+      fields: [userToDirectionEntity.directionId],
       references: [directionEntity.id],
     }),
   })

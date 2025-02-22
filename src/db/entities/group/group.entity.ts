@@ -11,6 +11,6 @@ export const groupEntity = pgTable("group", {
 });
 export const groupRelations = relations(groupEntity, ({ one, many }) => ({
   educator: one(userEntity),
-  directions: many(directionsToGroupsEntity),
+  directions: one(directionsToGroupsEntity),
   users: many(userEntity),
 }));

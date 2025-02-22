@@ -55,12 +55,8 @@ const createEducator = async (
       ...data.user,
       role: ROLE_EDUCATOR,
     });
-    const workingDaysWithUser = await userService.setWorkingDayToUser(
-      user.id,
-      data.workingDays
-    );
-    await directionService.setEducatorToDirection(user.id, data.directionIds);
-    reply.status(SUCCESS).send(workingDaysWithUser);
+    await directionService.setUserToDirection(user.id, data.directionIds);
+    reply.status(SUCCESS).send(user);
   } catch (error) {
     // await userService.deleteUserByEmail(data.user.email);
     errorUtils.replyError("error in create educator", error, reply);

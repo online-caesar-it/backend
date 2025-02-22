@@ -26,7 +26,7 @@ export const directionRouter = (routers: FastifyInstance) => {
     deleteDirection: () => {
       remove({
         path: `${path}/delete`,
-        handler: directionHandlers.addDirectionToGroup,
+        handler: directionHandlers.deleteDirection,
         routers,
         options: {
           preHandler: [
@@ -124,6 +124,16 @@ export const directionRouter = (routers: FastifyInstance) => {
             roleMiddleWare.checkedRoleEducator,
             roleMiddleWare.checkedRoleAdmin,
           ],
+        },
+      });
+    },
+    getUsersByDirection: () => {
+      get({
+        path: `${path}/users`,
+        handler: directionHandlers.getUsersByDirection,
+        routers,
+        options: {
+          preHandler: [authMiddleWare.jwtCheck],
         },
       });
     },

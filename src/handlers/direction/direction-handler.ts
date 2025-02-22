@@ -4,7 +4,7 @@ import {
   CREATE_SUCCESS,
   SUCCESS,
 } from "consts/response-status/response-status";
-import { IDirectionDto } from "dto/direction-dto";
+import { IDirectionDto, IGroupDto, IUserByDirection } from "dto/direction-dto";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { logger } from "lib/logger/logger";
 import { directionService } from "services/direction/direction-service";
@@ -26,8 +26,8 @@ const createDirection = async (
 
 const createGroup = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
   try {
-    const educatorId = req?.user?.id;
-    const group = await directionService.createGroup(educatorId || "");
+    const data = req.body as IGroupDto;
+    const group = await directionService.createGroup(data);
     reply.status(CREATE_SUCCESS).send(group);
   } catch (error) {
     if (error instanceof Error) {
@@ -177,6 +177,18 @@ const deleteDirection = async (
     errorUtils.replyError("error in delete direction", error, reply);
   }
 };
+const getUsersByDirection = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const data = req.query as IUserByDirection;
+    const users = await directionService.getUserWithDirection(data);
+    reply.status(SUCCESS).send(users);
+  } catch (error) {
+    errorUtils.replyError("error in get users by direction", error, reply);
+  }
+};
 export const directionHandlers = {
   createDirection,
   createGroup,
@@ -186,4 +198,6 @@ export const directionHandlers = {
   getStudentsByEducatorId,
   getDirections,
   editDirection,
+  deleteDirection,
+  getUsersByDirection,
 };

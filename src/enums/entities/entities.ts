@@ -6,4 +6,5 @@ export enum entities {
   MODULE = "module",
   LESSON = "lesson",
   SCHEDULE = "schedule",
+  PAYMENT = "payment",
 }

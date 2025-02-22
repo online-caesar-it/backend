@@ -124,63 +124,63 @@ const findWorkingDayUser = async (userId: string) => {
   }
   return workingDays;
 };
-const findWorkingDayByNumber = async (
-  workingDays: IUserWithWorkingDaysDto["workingDays"]
-) => {
-  const workingDaysData = await db.query.workingDayEntity.findMany({
-    where: (it) => inArray(it.dayNumber, workingDays),
-  });
-  return workingDaysData;
-};
-const setWorkingDayToUser = async (
-  userId: string,
-  workingDays: IUserWithWorkingDaysDto["workingDays"]
-) => {
-  const workingDaysData = await findWorkingDayByNumber(workingDays);
+// const findWorkingDayByNumber = async (
+//   workingDays: IUserWithWorkingDaysDto["workingDays"]
+// ) => {
+//   const workingDaysData = await db.query.workingDayEntity.findMany({
+//     where: (it) => inArray(it.dayNumber, workingDays),
+//   });
+//   return workingDaysData;
+// };
+// const setWorkingDayToUser = async (
+//   userId: string,
+//   workingDays: IUserWithWorkingDaysDto["workingDays"]
+// ) => {
+//   const workingDaysData = await findWorkingDayByNumber(workingDays);
 
-  const newWorkingDaysIds = new Set(workingDaysData.map((day) => day.id));
+//   const newWorkingDaysIds = new Set(workingDaysData.map((day) => day.id));
 
-  return await db.transaction(async (trx) => {
-    const existingDays = await trx
-      .select()
-      .from(userToWorkingDaysEntity)
-      .where(eq(userToWorkingDaysEntity.userId, userId));
-    const existingWorkingDaysIds = new Set(
-      existingDays.map((day) => day.workingDayId)
-    );
+//   return await db.transaction(async (trx) => {
+//     const existingDays = await trx
+//       .select()
+//       .from(userToWorkingDaysEntity)
+//       .where(eq(userToWorkingDaysEntity.userId, userId));
+//     const existingWorkingDaysIds = new Set(
+//       existingDays.map((day) => day.workingDayId)
+//     );
 
-    const daysToDelete = [...existingWorkingDaysIds]
-      .filter((id) => !newWorkingDaysIds.has(id ?? ""))
-      .map((id) => String(id));
+//     const daysToDelete = [...existingWorkingDaysIds]
+//       .filter((id) => !newWorkingDaysIds.has(id ?? ""))
+//       .map((id) => String(id));
 
-    if (daysToDelete.length) {
-      await trx
-        .delete(userToWorkingDaysEntity)
-        .where(
-          and(
-            eq(userToWorkingDaysEntity.userId, userId),
-            inArray(userToWorkingDaysEntity.workingDayId, daysToDelete)
-          )
-        );
-    }
+//     if (daysToDelete.length) {
+//       await trx
+//         .delete(userToWorkingDaysEntity)
+//         .where(
+//           and(
+//             eq(userToWorkingDaysEntity.userId, userId),
+//             inArray(userToWorkingDaysEntity.workingDayId, daysToDelete)
+//           )
+//         );
+//     }
 
-    const daysToInsert = workingDaysData
-      .filter((day) => !existingWorkingDaysIds.has(day.id))
-      .map((day) => ({
-        userId: userId,
-        workingDayId: day.id,
-      }));
+//     const daysToInsert = workingDaysData
+//       .filter((day) => !existingWorkingDaysIds.has(day.id))
+//       .map((day) => ({
+//         userId: userId,
+//         workingDayId: day.id,
+//       }));
 
-    if (daysToInsert.length) {
-      await trx
-        .insert(userToWorkingDaysEntity)
-        .values(daysToInsert)
-        .returning();
-    }
+//     if (daysToInsert.length) {
+//       await trx
+//         .insert(userToWorkingDaysEntity)
+//         .values(daysToInsert)
+//         .returning();
+//     }
 
-    return daysToInsert;
-  });
-};
+//     return daysToInsert;
+//   });
+// };
 
 const findAllUsers = async () => {
   const users = await db.select().from(userEntity);
@@ -272,8 +272,8 @@ export const userService = {
   getAllService,
   findUserByRefresh,
   updateUserRefreshToken,
-  setWorkingDayToUser,
-  findWorkingDayByNumber,
+  // setWorkingDayToUser,
+  // findWorkingDayByNumber,
   findWorkingDayUser,
   deleteUserByEmail,
   getEducators,

@@ -19,7 +19,7 @@ export const scheduleRoute = (routers: FastifyInstance) => {
           preHandler: [
             authMiddleWare.jwtCheck,
             errorMiddlewares.checkRequestBody,
-            roleMiddleWare.checkedRoleAdmin,
+            roleMiddleWare.checkedRoleEducator,
           ],
         },
       });
@@ -31,19 +31,6 @@ export const scheduleRoute = (routers: FastifyInstance) => {
         routers,
         options: {
           preHandler: authMiddleWare.jwtCheck,
-        },
-      });
-    },
-    editWorkingDays: () => {
-      put({
-        path: `${path}/working/edit`,
-        handler: scheduleHandler.editWorkingDays,
-        routers,
-        options: {
-          preHandler: [
-            authMiddleWare.jwtCheck,
-            errorMiddlewares.checkRequestBody,
-          ],
         },
       });
     },
@@ -114,11 +101,14 @@ export const scheduleRoute = (routers: FastifyInstance) => {
         },
       });
     },
-    getWorkingDays: () => {
+    getScheduleByEducator: () => {
       get({
-        path: `${path}/working-days/get`,
-        handler: scheduleHandler.getWorkingDays,
+        path: `${path}/get-by-educator`,
+        handler: scheduleHandler.getScheduleEducator,
         routers,
+        options: {
+          preHandler: [authMiddleWare.jwtCheck],
+        },
       });
     },
     setWorkingDays: () => {

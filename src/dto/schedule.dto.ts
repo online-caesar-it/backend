@@ -1,12 +1,16 @@
-import { EScheduleTransferStatus } from "enums/schedule/schedule-status";
+import {
+  EScheduleStatus,
+  EScheduleTransferStatus,
+} from "enums/schedule/schedule-status";
 
 export interface IScheduleDto {
   workingDays: number[];
   directionId: string;
   dateLesson: string;
-  startTime: string;
-  endTime: string;
-  teacherId: string;
+  timeIntervals: {
+    startTime: string;
+    endTime: string;
+  }[];
 }
 export interface IScheduleGet {
   teacherId: string;
@@ -15,6 +19,11 @@ export interface IScheduleGet {
 export interface IScheduleGetByDate {
   startDate: string;
   endDate: string;
+}
+export interface IScheduleGetByEducatorId {
+  startDate: string;
+  endDate: string;
+  educatorId: string;
 }
 export interface IScheduleEditWorkingDay {
   workingDays: number[];
@@ -39,4 +48,11 @@ export interface IScheduleCanceledDto {
 export interface IScheduleUpdateTransferCancelDto {
   scheduleTransferId: string;
   status: EScheduleTransferStatus;
+}
+export interface IScheduleDataDto {
+  startTime: string;
+  endTime: string;
+  dateLesson: Date;
+  userId: string;
+  status: EScheduleStatus;
 }

@@ -9,7 +9,6 @@ export interface IUserDto {
 }
 export interface IUserWithWorkingDaysDto {
   user: IUserDto;
-  workingDays: number[];
   directionIds: string[];
 }
 export interface IUserGetEducators {

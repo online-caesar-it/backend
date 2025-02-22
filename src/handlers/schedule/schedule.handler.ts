@@ -9,6 +9,7 @@ import {
   IScheduleEditWorkingDay,
   IScheduleFilter,
   IScheduleGetByDate,
+  IScheduleGetByEducatorId,
   IScheduleTransferDto,
   IScheduleUpdateTransferCancelDto,
 } from "dto/schedule.dto";
@@ -25,9 +26,11 @@ const createSchedule = async (
 ) => {
   try {
     const data = req.body as IScheduleDto;
-    await scheduleService.createSchedule(data);
+    const userId = req.user?.id as string;
+    const schedules = await scheduleService.createSchedule(data, userId);
     reply.send(CREATE_SUCCESS).send({
       message: SCHEDULE_SUCCESS,
+      schedules,
     });
   } catch (error) {
     errorUtils.replyError("error in create schedule", error, reply);
@@ -43,6 +46,22 @@ const getSchedule = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
     errorUtils.replyError("error in get schedule", error, reply);
   }
 };
+const getScheduleEducator = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const data = req.query as IScheduleGetByEducatorId;
+    const dates = {
+      startDate: data.startDate,
+      endDate: data.endDate,
+    };
+    const schedule = await scheduleService.getSchedule(dates, data.educatorId);
+    reply.status(SUCCESS).send(schedule);
+  } catch (error) {
+    errorUtils.replyError("error in get schedule educator", error, reply);
+  }
+};
 const editWorkingDays = async (
   req: IAuthenticatedRequest,
   reply: FastifyReply
@@ -50,11 +69,11 @@ const editWorkingDays = async (
   try {
     const data = req.body as IScheduleEditWorkingDay;
     const userId = req.user?.id as string;
-    const workingDays = await userService.setWorkingDayToUser(
-      userId,
-      data.workingDays
-    );
-    reply.status(SUCCESS).send(workingDays);
+    // const workingDays = await userService.setWorkingDayToUser(
+    //   userId,
+    //   data.workingDays
+    // );
+    reply.status(SUCCESS).send();
   } catch (error) {
     errorUtils.replyError("error in edit working days", error, reply);
   }
@@ -148,4 +167,5 @@ export const scheduleHandler = {
   updateScheduleTransfer,
   getWorkingDays,
   createWorkingDays,
+  getScheduleEducator,
 };

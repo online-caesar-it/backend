@@ -31,7 +31,7 @@ import { scheduleToUsersEntity } from "./schedule/schedule-to-users.entity";
 import { workingDayEntity } from "./working/working-day.entity";
 import { userToWorkingDaysEntity } from "./user/user-to-working.entity";
 import {
-  educatorsToDirectionsEntity,
+  userToDirectionEntity,
   educatorsToDirectionsRelations,
 } from "./direction/educator-to-direction.entity";
 
@@ -65,6 +65,6 @@ export const entities = {
   userToWorkingDaysEntity,
   workingDayEntity,
   userRelations,
-  educatorsToDirectionsEntity,
+  userToDirectionEntity,
   educatorsToDirectionsRelations,
 };

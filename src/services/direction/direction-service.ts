@@ -4,11 +4,11 @@ import {
   directionEntity,
   directionsToGroupsEntity,
 } from "db/entities/direction/direction.entity";
-import { educatorsToDirectionsEntity } from "db/entities/direction/educator-to-direction.entity";
+import { userToDirectionEntity } from "db/entities/direction/educator-to-direction.entity";
 import { groupEntity } from "db/entities/group/group.entity";
 import { userEntity } from "db/entities/user/user.entity";
 import { and, eq, inArray, or, sql } from "drizzle-orm";
-import { IDirectionDto } from "dto/direction-dto";
+import { IDirectionDto, IGroupDto, IUserByDirection } from "dto/direction-dto";
 import { userService } from "services/user/user-service";
 
 const createDirection = async (data: IDirectionDto) => {
@@ -33,15 +33,18 @@ const getDirectionById = async (directionId: string) => {
   }
   return direction;
 };
-const createGroup = async (educatorId: string) => {
+const createGroup = async (data: IGroupDto) => {
   const [group] = await db
     .insert(groupEntity)
     .values({
-      educatorId,
+      educatorId: data.educatorId,
     })
     .returning();
   if (!group) {
     throw new Error("Error creating group");
+  }
+  for (const studentId of data.studentsIds) {
+    await addStudentToGroup(studentId, group.id);
   }
   return group;
 };
@@ -178,7 +181,7 @@ const deleteDirection = async (id: string) => {
     .returning();
   return direction;
 };
-const setEducatorToDirection = async (
+const setUserToDirection = async (
   educatorId: string,
   directionIds: string[]
 ) => {
@@ -188,9 +191,23 @@ const setEducatorToDirection = async (
   }
   const values = directionIds.map((it) => ({
     directionId: it,
-    educatorId: user.id,
+    userId: user.id,
   }));
-  await db.insert(educatorsToDirectionsEntity).values(values);
+  await db.insert(userToDirectionEntity).values(values);
+};
+const getUserWithDirection = async (data: IUserByDirection) => {
+  const result = await db
+    .select()
+    .from(userToDirectionEntity)
+    .innerJoin(userEntity, eq(userToDirectionEntity.userId, userEntity.id))
+    .where(
+      and(
+        eq(userToDirectionEntity.directionId, data.directionId),
+        eq(userEntity.role, data.role)
+      )
+    );
+
+  return result.map((row) => row.users);
 };
 export const directionService = {
   createDirection,
@@ -203,5 +220,6 @@ export const directionService = {
   updateDirection,
   deleteDirection,
   getDirectionById,
-  setEducatorToDirection,
+  setUserToDirection,
+  getUserWithDirection,
 };

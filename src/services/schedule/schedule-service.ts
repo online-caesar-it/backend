@@ -5,9 +5,10 @@ import {
   scheduleTransferEntity,
 } from "db/entities/schedule/schedule.entity";
 import { workingDayEntity } from "db/entities/working/working-day.entity";
-import { and, eq, gte, lte } from "drizzle-orm";
+import { and, asc, eq, gte, lte } from "drizzle-orm";
 import {
   IScheduleCanceledDto,
+  IScheduleDataDto,
   IScheduleDto,
   IScheduleFilter,
   IScheduleGetByDate,
@@ -20,60 +21,64 @@ import {
 } from "enums/schedule/schedule-status";
 import { directionService } from "services/direction/direction-service";
 import { userService } from "services/user/user-service";
-const generateScheduleDates = (startDate: Date, durationInMonths: number) => {
-  const dates = [];
 
-  const endDate = new Date(startDate);
-  endDate.setMonth(startDate.getMonth() + durationInMonths);
+function getNextWorkingDay(date: Date, firstDayOfWeek: number): Date {
+  const dayOfWeek = date.getDay();
+  const diff = (firstDayOfWeek - dayOfWeek + 7) % 7;
+  const nextWorkingDay = new Date(date);
+  nextWorkingDay.setDate(nextWorkingDay.getDate() + diff);
+  return nextWorkingDay;
+}
 
-  let dateIterator = new Date(startDate);
-
-  while (dateIterator <= endDate) {
-    dates.push(new Date(dateIterator));
-
-    dateIterator.setDate(dateIterator.getDate() + 1);
+function getWorkingDaysTeacher(
+  firstWorkingDay: Date,
+  workingDays: number[]
+): Date[] {
+  const workingDaysArray: Date[] = [];
+  for (let i: number = 0; i < workingDays.length; i++) {
+    const day: Date = new Date(firstWorkingDay);
+    day.setDate(day.getDate() + i);
+    if (workingDays.includes(day.getDay())) {
+      workingDaysArray.push(day);
+    }
   }
-
-  return dates;
-};
-const createSchedule = async (data: IScheduleDto) => {
-  const teacher = await userService.findUserById(data.teacherId);
+  return workingDaysArray;
+}
+const createSchedule = async (data: IScheduleDto, userId: string) => {
+  const teacher = await userService.findUserById(userId);
   if (!teacher) {
     throw new Error("Teacher does not exist");
   }
 
-  const working = await userService.findWorkingDayByNumber(data.workingDays);
-  const workingUserDays = await userService.findWorkingDayUser(teacher.id);
+  const scheduledData: IScheduleDataDto[] = [];
+  const firstWorkingDay: Date = getNextWorkingDay(
+    new Date(),
+    data.workingDays[0]
+  );
+  const workingDays: Date[] = getWorkingDaysTeacher(
+    firstWorkingDay,
+    data.workingDays
+  );
 
-  const isValidSchedule = working.toString() === workingUserDays.toString();
-  if (!isValidSchedule) {
-    throw new Error(
-      "Расписание преподавателя не позволяет вести уроки в выбранные дни"
+  workingDays.forEach((day: Date) => {
+    data.timeIntervals.forEach(
+      (interval: { startTime: string; endTime: string }) => {
+        scheduledData.push({
+          startTime: interval.startTime,
+          endTime: interval.endTime,
+          dateLesson: day,
+          userId: teacher.id,
+          status: EScheduleStatus.SCHEDULED,
+        });
+      }
     );
-  }
-
-  const direction = await directionService.getDirectionById(data.directionId);
-  if (!direction) {
-    throw new Error("Направления не найдено");
-  }
-  const duration = direction.duration;
-  let currentDate = new Date();
-
-  const allDates = generateScheduleDates(currentDate, duration);
-  const filteredDates = allDates.filter((date) => {
-    const dayOfWeek = date.getDay();
-    return data.workingDays.includes(dayOfWeek);
   });
-  const scheduledData = filteredDates.map((it) => ({
-    startTime: data.startTime,
-    endTime: data.endTime,
-    dateLesson: it,
-    userId: teacher.id,
-    status: EScheduleStatus.SCHEDULED,
-    directionId: direction.id,
-  }));
 
-  await db.insert(scheduleEntity).values(scheduledData);
+  const [schedule] = await db
+    .insert(scheduleEntity)
+    .values(scheduledData)
+    .returning();
+  return schedule;
 };
 const getSchedule = async (data: IScheduleGetByDate, userId: string) => {
   const start = new Date(data.startDate);
@@ -87,6 +92,7 @@ const getSchedule = async (data: IScheduleGetByDate, userId: string) => {
         gte(it.dateLesson, start),
         lte(it.dateLesson, end)
       ),
+    orderBy: (it) => [asc(it.dateLesson), asc(it.startTime)],
   });
   const uniqueGroupIds = scheduled
     .map((lesson) => lesson.groupId)
@@ -118,13 +124,12 @@ const getSchedule = async (data: IScheduleGetByDate, userId: string) => {
   return scheduleWithDetails;
 };
 const getScheduleForAdmin = async (data: IScheduleFilter) => {
-  const { directionId, userId, startDate, endDate } = data;
+  const { userId, startDate, endDate } = data;
   const start = new Date(startDate);
   const end = new Date(endDate);
   const schedules = await db.query.scheduleEntity.findMany({
     where: (it) =>
       and(
-        eq(it.directionId, directionId ?? ""),
         eq(it.userId, userId ?? ""),
         gte(it.dateLesson, start ?? ""),
         lte(it.dateLesson, end ?? "")
@@ -149,7 +154,7 @@ const createScheduleTransfer = async (
   const newLessonDate = new Date(data.newDateLesson);
   const lessonDate = new Date(scheduled.dateLesson);
   if (newLessonDate < lessonDate) {
-    throw new Error("Новая дата урока не может быть раньше");
+    throw new Error("Новая дата урока не может быть раньше изначального");
   }
   const scheduleExistByDate = await getSchedule(
     {
@@ -295,7 +300,6 @@ export const scheduleService = {
   createScheduleTransfer,
   createScheduleCancel,
   updateScheduleCancel,
-  generateScheduleDates,
   updateScheduleTransfer,
   getScheduleById,
   getScheduleCancelById,
