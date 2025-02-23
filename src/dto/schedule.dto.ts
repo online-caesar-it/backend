@@ -59,3 +59,6 @@ export interface IScheduleDataDto {
 export interface IScheduleAttachDto {
   scheduleId: string;
 }
+export interface IScheduleByDirection extends IScheduleGetByDate {
+  directionId: string;
+}

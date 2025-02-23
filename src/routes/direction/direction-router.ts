@@ -150,6 +150,16 @@ export const directionRouter = (routers: FastifyInstance) => {
         },
       });
     },
+    getMyDirections: () => {
+      get({
+        path: `${path}/users/direction-all`,
+        handler: directionHandlers.getMyDirections,
+        routers,
+        options: {
+          preHandler: [authMiddleWare.jwtCheck],
+        },
+      });
+    },
   };
   return {
     ...routes,

@@ -6,6 +6,7 @@ import {
 import { ROLE_EDUCATOR } from "consts/role/role";
 import {
   IScheduleAttachDto,
+  IScheduleByDirection,
   IScheduleCanceledDto,
   IScheduleDto,
   IScheduleEditWorkingDay,
@@ -180,6 +181,18 @@ const attachStudentToSchedule = async (
     errorUtils.replyError("error in attachStudentToSchedule", error, reply);
   }
 };
+const getScheduleByDirection = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const data = req.query as IScheduleByDirection;
+    const schedule = await scheduleService.getScheduleByDirection(data);
+    reply.status(SUCCESS).send(schedule);
+  } catch (error) {
+    errorUtils.replyError("error in getScheduleByDirection", error, reply);
+  }
+};
 export const scheduleHandler = {
   createSchedule,
   getSchedule,
@@ -193,4 +206,5 @@ export const scheduleHandler = {
   createWorkingDays,
   getScheduleEducator,
   attachStudentToSchedule,
+  getScheduleByDirection,
 };

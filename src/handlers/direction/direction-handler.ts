@@ -211,6 +211,18 @@ const attachUserToDirection = async (
     errorUtils.replyError("error in attachDirectionToUser", error, reply);
   }
 };
+const getMyDirections = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const userId = req.user?.id;
+    const data = await directionService.getDirectionsByUserId(userId ?? "");
+    reply.status(SUCCESS).send(data);
+  } catch (error) {
+    errorUtils.replyError("error in getMyDirections", error, reply);
+  }
+};
 export const directionHandlers = {
   createDirection,
   createGroup,
@@ -223,4 +235,5 @@ export const directionHandlers = {
   deleteDirection,
   getUsersByDirection,
   attachUserToDirection,
+  getMyDirections,
 };

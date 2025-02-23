@@ -28,7 +28,7 @@ export const directionGroupsRelations = relations(
   ({ many }) => ({
     groups: many(directionsToGroupsEntity),
     modules: many(moduleEntity),
-    educators: many(userToDirectionEntity),
+    users: many(userToDirectionEntity),
   })
 );
 

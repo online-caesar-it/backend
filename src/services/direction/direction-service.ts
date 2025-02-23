@@ -9,6 +9,7 @@ import { groupEntity } from "db/entities/group/group.entity";
 import { userEntity } from "db/entities/user/user.entity";
 import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { IDirectionDto, IGroupDto, IUserByDirection } from "dto/direction-dto";
+import { log } from "lib/logger/logger";
 import { userService } from "services/user/user-service";
 
 const createDirection = async (data: IDirectionDto) => {
@@ -206,6 +207,21 @@ const getUserWithDirection = async (data: IUserByDirection) => {
 
   return result.map((row) => row.users);
 };
+const getDirectionsByUserId = async (userId: string) => {
+  const result = await db
+    .select({
+      direction: directionEntity,
+    })
+    .from(userToDirectionEntity)
+    .innerJoin(
+      directionEntity,
+      eq(userToDirectionEntity.directionId, directionEntity.id)
+    )
+    .where(eq(userToDirectionEntity.userId, userId));
+
+  return result.map((row) => row.direction);
+};
+
 export const directionService = {
   createDirection,
   createGroup,
@@ -219,4 +235,5 @@ export const directionService = {
   getDirectionById,
   setUserToDirection,
   getUserWithDirection,
+  getDirectionsByUserId,
 };

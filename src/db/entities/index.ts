@@ -32,7 +32,7 @@ import { workingDayEntity } from "./working/working-day.entity";
 import { userToWorkingDaysEntity } from "./user/user-to-working.entity";
 import {
   userToDirectionEntity,
-  educatorsToDirectionsRelations,
+  userToDirectionsRelations,
 } from "./direction/educator-to-direction.entity";
 
 export const entities = {
@@ -66,5 +66,5 @@ export const entities = {
   workingDayEntity,
   userRelations,
   userToDirectionEntity,
-  educatorsToDirectionsRelations,
+  userToDirectionsRelations,
 };

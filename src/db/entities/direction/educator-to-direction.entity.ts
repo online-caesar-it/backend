@@ -12,10 +12,10 @@ export const userToDirectionEntity = pgTable("user_to_direction", {
     .notNull()
     .references(() => directionEntity.id),
 });
-export const educatorsToDirectionsRelations = relations(
+export const userToDirectionsRelations = relations(
   userToDirectionEntity,
   ({ one }) => ({
-    educator: one(userEntity, {
+    user: one(userEntity, {
       fields: [userToDirectionEntity.userId],
       references: [userEntity.id],
     }),

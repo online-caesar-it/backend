@@ -10,6 +10,7 @@ import { workingDayEntity } from "db/entities/working/working-day.entity";
 import { and, asc, eq, gte, lte } from "drizzle-orm";
 import {
   IScheduleAttachDto,
+  IScheduleByDirection,
   IScheduleCanceledDto,
   IScheduleDataDto,
   IScheduleDto,
@@ -24,6 +25,10 @@ import {
 } from "enums/schedule/schedule-status";
 import { userService } from "services/user/user-service";
 import { InferSelectModel } from "drizzle-orm";
+import { userToDirectionEntity } from "db/entities/direction/educator-to-direction.entity";
+import { IUserByDirection } from "dto/direction-dto";
+import { directionService } from "services/direction/direction-service";
+import { ROLE_EDUCATOR } from "consts/role/role";
 
 type ScheduleWithStudents = InferSelectModel<typeof scheduleEntity> & {
   students: InferSelectModel<typeof userEntity>[];
@@ -373,6 +378,32 @@ const attachStudentToSchedule = async (
 
   return newEntry;
 };
+const getScheduleByDirection = async (data: IScheduleByDirection) => {
+  const educators = await directionService.getUserWithDirection({
+    directionId: data.directionId,
+    role: ROLE_EDUCATOR,
+  });
+
+  const scheduleWithStudentsPromises = educators.map(async (educator) => {
+    const schedule = await getSchedule(
+      {
+        startDate: data.startDate,
+        endDate: data.endDate,
+      },
+      educator.id
+    );
+
+    return {
+      educator,
+      schedule,
+    };
+  });
+
+  const scheduleWithStudents = await Promise.all(scheduleWithStudentsPromises);
+
+  return scheduleWithStudents;
+};
+
 export const scheduleService = {
   createSchedule,
   getSchedule,
@@ -388,4 +419,5 @@ export const scheduleService = {
   createWorkingDays,
   attachStudentToSchedule,
   getScheduleForStudent,
+  getScheduleByDirection,
 };

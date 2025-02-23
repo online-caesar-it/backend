@@ -138,6 +138,19 @@ export const scheduleRoute = (routers: FastifyInstance) => {
         },
       });
     },
+    getScheduleByEducatorWithDirection: () => {
+      get({
+        path: `${path}/get-by-direction`,
+        handler: scheduleHandler.getScheduleByDirection,
+        routers,
+        options: {
+          preHandler: [
+            authMiddleWare.jwtCheck,
+            roleMiddleWare.checkedRoleStudent,
+          ],
+        },
+      });
+    },
   };
   return {
     ...routes,
