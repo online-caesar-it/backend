@@ -1,12 +1,15 @@
 import { db } from "db";
+import { scheduleToUsersEntity } from "db/entities/schedule/schedule-to-users.entity";
 import {
   scheduleCanceledEntity,
   scheduleEntity,
   scheduleTransferEntity,
 } from "db/entities/schedule/schedule.entity";
+import { userEntity } from "db/entities/user/user.entity";
 import { workingDayEntity } from "db/entities/working/working-day.entity";
 import { and, asc, eq, gte, lte } from "drizzle-orm";
 import {
+  IScheduleAttachDto,
   IScheduleCanceledDto,
   IScheduleDataDto,
   IScheduleDto,
@@ -19,9 +22,12 @@ import {
   EScheduleStatus,
   EScheduleTransferStatus,
 } from "enums/schedule/schedule-status";
-import { directionService } from "services/direction/direction-service";
 import { userService } from "services/user/user-service";
+import { InferSelectModel } from "drizzle-orm";
 
+type ScheduleWithStudents = InferSelectModel<typeof scheduleEntity> & {
+  students: InferSelectModel<typeof userEntity>[];
+};
 function getNextWorkingDay(date: Date, firstDayOfWeek: number): Date {
   const dayOfWeek = date.getDay();
   const diff = (firstDayOfWeek - dayOfWeek + 7) % 7;
@@ -80,49 +86,52 @@ const createSchedule = async (data: IScheduleDto, userId: string) => {
     .returning();
   return schedule;
 };
-const getSchedule = async (data: IScheduleGetByDate, userId: string) => {
+
+const getSchedule = async (
+  data: IScheduleGetByDate,
+  userId: string
+): Promise<ScheduleWithStudents[]> => {
   const start = new Date(data.startDate);
   const end = new Date(data.endDate);
   end.setHours(23, 59, 59, 999);
 
-  const scheduled = await db.query.scheduleEntity.findMany({
-    where: (it) =>
-      and(
-        eq(it.userId, userId),
-        gte(it.dateLesson, start),
-        lte(it.dateLesson, end)
-      ),
-    orderBy: (it) => [asc(it.dateLesson), asc(it.startTime)],
-  });
-  const uniqueGroupIds = scheduled
-    .map((lesson) => lesson.groupId)
-    .filter(Boolean);
-
-  const educator = await userService.findUserById(userId);
-
-  const studentsByGroup = await Promise.all(
-    uniqueGroupIds.map(async (groupId) => {
-      const students = await directionService.getStudentsByDirectionAndGroup(
-        groupId ?? ""
-      );
-      return { groupId, students };
+  const scheduled = await db
+    .select({
+      schedule: scheduleEntity,
+      student: userEntity,
     })
-  );
+    .from(scheduleEntity)
+    .leftJoin(
+      scheduleToUsersEntity,
+      eq(scheduleEntity.id, scheduleToUsersEntity.scheduleId)
+    )
+    .leftJoin(userEntity, eq(scheduleToUsersEntity.userId, userEntity.id))
+    .where(
+      and(
+        eq(scheduleEntity.userId, userId),
+        gte(scheduleEntity.dateLesson, start),
+        lte(scheduleEntity.dateLesson, end)
+      )
+    )
+    .orderBy(asc(scheduleEntity.dateLesson), asc(scheduleEntity.startTime));
 
-  const scheduleWithDetails = scheduled.map((lesson) => {
-    const groupStudents = studentsByGroup.find(
-      (group) => group.groupId === lesson.groupId
-    );
+  const scheduleMap = new Map<string, ScheduleWithStudents>();
 
-    return {
-      ...lesson,
-      educator: educator || null,
-      students: groupStudents ? groupStudents.students : [],
-    };
-  });
+  for (const { schedule, student } of scheduled) {
+    if (!scheduleMap.has(schedule.id)) {
+      scheduleMap.set(schedule.id, {
+        ...schedule,
+        students: [],
+      });
+    }
+    if (student) {
+      scheduleMap.get(schedule.id)!.students.push(student);
+    }
+  }
 
-  return scheduleWithDetails;
+  return Array.from(scheduleMap.values());
 };
+
 const getScheduleForAdmin = async (data: IScheduleFilter) => {
   const { userId, startDate, endDate } = data;
   const start = new Date(startDate);
@@ -137,6 +146,40 @@ const getScheduleForAdmin = async (data: IScheduleFilter) => {
   });
   return schedules;
 };
+const getScheduleForStudent = async (
+  data: IScheduleGetByDate,
+  userId: string
+) => {
+  const { startDate, endDate } = data;
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  end.setHours(23, 59, 59, 999);
+
+  const studentSchedules = await db
+    .select({
+      schedule: scheduleEntity,
+      educator: userEntity,
+    })
+    .from(scheduleToUsersEntity)
+    .leftJoin(
+      scheduleEntity,
+      eq(scheduleToUsersEntity.scheduleId, scheduleEntity.id)
+    )
+    .leftJoin(userEntity, eq(scheduleEntity.userId, userEntity.id))
+    .where(
+      and(
+        eq(scheduleToUsersEntity.userId, userId),
+        gte(scheduleEntity.dateLesson, start),
+        lte(scheduleEntity.dateLesson, end)
+      )
+    );
+  const scheduledMap = studentSchedules.map(({ schedule, educator }) => ({
+    ...schedule,
+    educator: educator || null,
+  }));
+  return scheduledMap;
+};
+
 const getScheduleById = async (scheduleId: string) => {
   const scheduled = await db.query.scheduleEntity.findFirst({
     where: (it) => eq(it.id, scheduleId),
@@ -293,6 +336,43 @@ const createWorkingDays = async () => {
 
   await db.insert(workingDayEntity).values(data);
 };
+const attachStudentToSchedule = async (
+  data: IScheduleAttachDto,
+  userId: string
+) => {
+  const schedule = await getScheduleById(data.scheduleId);
+
+  const existingStudents = await db
+    .select()
+    .from(scheduleToUsersEntity)
+    .where(eq(scheduleToUsersEntity.scheduleId, schedule.id));
+
+  if (existingStudents.length >= 8) {
+    throw new Error("Группа не может быть больше 8 человек");
+  }
+
+  const alreadyExists = existingStudents.some(
+    (student) => student.userId === userId
+  );
+
+  if (alreadyExists) {
+    throw new Error("Вы уже записаны на этот урок");
+  }
+
+  const [newEntry] = await db
+    .insert(scheduleToUsersEntity)
+    .values({
+      scheduleId: data.scheduleId,
+      userId: userId,
+    })
+    .returning();
+
+  if (!newEntry) {
+    throw new Error("Ошибка при записи на занятие");
+  }
+
+  return newEntry;
+};
 export const scheduleService = {
   createSchedule,
   getSchedule,
@@ -306,4 +386,6 @@ export const scheduleService = {
   updateSchedule,
   getWorkingDays,
   createWorkingDays,
+  attachStudentToSchedule,
+  getScheduleForStudent,
 };

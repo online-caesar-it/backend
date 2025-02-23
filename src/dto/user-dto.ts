@@ -11,7 +11,7 @@ export interface IUserWithWorkingDaysDto {
   user: IUserDto;
   directionIds: string[];
 }
-export interface IUserGetEducators {
+export interface IUserGetUsers {
   limit: number;
   offset: number;
 }

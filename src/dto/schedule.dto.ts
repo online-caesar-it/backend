@@ -56,3 +56,6 @@ export interface IScheduleDataDto {
   userId: string;
   status: EScheduleStatus;
 }
+export interface IScheduleAttachDto {
+  scheduleId: string;
+}

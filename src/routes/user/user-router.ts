@@ -55,6 +55,19 @@ export const userRouter = (routers: FastifyInstance) => {
         },
       });
     },
+    getStudents: () => {
+      get({
+        path: `${path}/student/get-all`,
+        handler: userHandlers.getStudents,
+        routers,
+        options: {
+          preHandler: [
+            authMiddleWare.jwtCheck,
+            roleMiddleWare.checkedRoleAdmin,
+          ],
+        },
+      });
+    },
   };
 
   return {

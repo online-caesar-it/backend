@@ -124,6 +124,20 @@ export const scheduleRoute = (routers: FastifyInstance) => {
         },
       });
     },
+    attachStudentToSchedule: () => {
+      post({
+        path: `${path}/attach-student`,
+        handler: scheduleHandler.attachStudentToSchedule,
+        routers,
+        options: {
+          preHandler: [
+            authMiddleWare.jwtCheck,
+            errorMiddlewares.checkRequestBody,
+            roleMiddleWare.checkedRoleStudent,
+          ],
+        },
+      });
+    },
   };
   return {
     ...routes,

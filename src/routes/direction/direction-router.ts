@@ -137,6 +137,19 @@ export const directionRouter = (routers: FastifyInstance) => {
         },
       });
     },
+    updateUserByDirection: () => {
+      post({
+        path: `${path}/users/attach`,
+        handler: directionHandlers.attachUserToDirection,
+        routers,
+        options: {
+          preHandler: [
+            authMiddleWare.jwtCheck,
+            errorMiddlewares.checkRequestBody,
+          ],
+        },
+      });
+    },
   };
   return {
     ...routes,

@@ -10,5 +10,4 @@ export const scheduleToUsersEntity = pgTable("schedule_to_users", {
   userId: uuid("user_id")
     .notNull()
     .references(() => userEntity.id),
-  role: text("role").notNull(),
 });

@@ -22,3 +22,7 @@ export interface IUserByDirection {
   role: string;
   directionId: string;
 }
+export interface IUserToDirectionDto {
+  userId: string;
+  directionIds: string[];
+}

@@ -1,10 +1,18 @@
-import { UNKNOW_ERROR } from "consts/response-status/response-message";
+import {
+  SUCCESS_DIRECTION_ATTACHED_TO_USER,
+  UNKNOW_ERROR,
+} from "consts/response-status/response-message";
 import {
   CLIENT_ERROR,
   CREATE_SUCCESS,
   SUCCESS,
 } from "consts/response-status/response-status";
-import { IDirectionDto, IGroupDto, IUserByDirection } from "dto/direction-dto";
+import {
+  IDirectionDto,
+  IGroupDto,
+  IUserByDirection,
+  IUserToDirectionDto,
+} from "dto/direction-dto";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { logger } from "lib/logger/logger";
 import { directionService } from "services/direction/direction-service";
@@ -189,6 +197,20 @@ const getUsersByDirection = async (
     errorUtils.replyError("error in get users by direction", error, reply);
   }
 };
+const attachUserToDirection = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const data = req.body as IUserToDirectionDto;
+    await directionService.setUserToDirection(data.userId, data.directionIds);
+    reply.status(SUCCESS).send({
+      message: SUCCESS_DIRECTION_ATTACHED_TO_USER,
+    });
+  } catch (error) {
+    errorUtils.replyError("error in attachDirectionToUser", error, reply);
+  }
+};
 export const directionHandlers = {
   createDirection,
   createGroup,
@@ -200,4 +222,5 @@ export const directionHandlers = {
   editDirection,
   deleteDirection,
   getUsersByDirection,
+  attachUserToDirection,
 };

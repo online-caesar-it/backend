@@ -3,7 +3,9 @@ import {
   CREATE_SUCCESS,
   SUCCESS,
 } from "consts/response-status/response-status";
+import { ROLE_EDUCATOR } from "consts/role/role";
 import {
+  IScheduleAttachDto,
   IScheduleCanceledDto,
   IScheduleDto,
   IScheduleEditWorkingDay,
@@ -40,7 +42,13 @@ const getSchedule = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
   try {
     const data = req.query as IScheduleGetByDate;
     const userId = req.user?.id as string;
-    const schedule = await scheduleService.getSchedule(data, userId);
+    const user = await userService.findUserById(userId);
+    let schedule: unknown = [];
+    if (user.role === ROLE_EDUCATOR) {
+      schedule = await scheduleService.getSchedule(data, userId);
+    } else {
+      schedule = await scheduleService.getScheduleForStudent(data, userId);
+    }
     reply.status(SUCCESS).send(schedule);
   } catch (error) {
     errorUtils.replyError("error in get schedule", error, reply);
@@ -156,6 +164,22 @@ const createWorkingDays = async () => {
     log.error(`${error} in create working days`);
   }
 };
+const attachStudentToSchedule = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const userId = req.user?.id as string;
+    const data = req.body as IScheduleAttachDto;
+    const schedule = await scheduleService.attachStudentToSchedule(
+      data,
+      userId
+    );
+    reply.status(SUCCESS).send(schedule);
+  } catch (error) {
+    errorUtils.replyError("error in attachStudentToSchedule", error, reply);
+  }
+};
 export const scheduleHandler = {
   createSchedule,
   getSchedule,
@@ -168,4 +192,5 @@ export const scheduleHandler = {
   getWorkingDays,
   createWorkingDays,
   getScheduleEducator,
+  attachStudentToSchedule,
 };

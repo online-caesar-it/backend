@@ -3,7 +3,7 @@ import { db } from "../../db";
 import { userConfigEntity } from "../../db/entities/user/user-config.entity";
 import {
   IUserDto,
-  IUserGetEducators,
+  IUserGetUsers,
   IUserWithWorkingDaysDto,
 } from "../../dto/user-dto";
 import {
@@ -17,7 +17,7 @@ import { workingDayEntity } from "db/entities/working/working-day.entity";
 import { userToWorkingDaysEntity } from "db/entities/user/user-to-working.entity";
 import { log } from "lib/logger/logger";
 import { IScheduleEditWorkingDay } from "dto/schedule.dto";
-import { ROLE_EDUCATOR } from "consts/role/role";
+import { ROLE_EDUCATOR, ROLE_STUDENT } from "consts/role/role";
 import { TClientUserUpdate } from "types/user-type";
 const findUserByEmail = async (email: string) => {
   const [userConfig] = await db
@@ -228,7 +228,7 @@ const deleteUserByEmail = async (email: string) => {
     .where(eq(userConfigEntity.id, userConfig.id));
   await db.delete(userEntity).where(eq(userEntity.id, userConfig.userId ?? ""));
 };
-const getEducators = async (data: IUserGetEducators) => {
+const getEducators = async (data: IUserGetUsers) => {
   const { limit = 10, offset = 0 } = data;
 
   const educators = await db.query.userEntity.findMany({
@@ -241,6 +241,20 @@ const getEducators = async (data: IUserGetEducators) => {
   });
 
   return educators;
+};
+const getStudents = async (data: IUserGetUsers) => {
+  const { limit = 10, offset = 0 } = data;
+
+  const students = await db.query.userEntity.findMany({
+    where: (it) => eq(it.role, ROLE_STUDENT),
+    limit: Number(limit),
+    offset: Number(offset),
+    with: {
+      config: true,
+    },
+  });
+
+  return students;
 };
 const updateUserService = async (data: TClientUserUpdate) => {
   return await db
@@ -279,4 +293,5 @@ export const userService = {
   getEducators,
   updateUserConfigService,
   updateUserService,
+  getStudents,
 };

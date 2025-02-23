@@ -8,11 +8,7 @@ import { IAuthenticatedRequest } from "types/req-type";
 import { logger } from "lib/logger/logger";
 import { db } from "db";
 import { TClientUserUpdate } from "types/user-type";
-import {
-  IUserDto,
-  IUserGetEducators,
-  IUserWithWorkingDaysDto,
-} from "dto/user-dto";
+import { IUserDto, IUserGetUsers, IUserWithWorkingDaysDto } from "dto/user-dto";
 import { errorUtils } from "utils/error";
 import { ROLE_EDUCATOR } from "consts/role/role";
 import { directionService } from "services/direction/direction-service";
@@ -67,14 +63,22 @@ const getEducators = async (
   reply: FastifyReply
 ) => {
   try {
-    const data = req.query as IUserGetEducators;
+    const data = req.query as IUserGetUsers;
     const educators = await userService.getEducators(data);
     reply.status(SUCCESS).send(educators);
   } catch (error) {
-    errorUtils.replyError("error in create educator", error, reply);
+    errorUtils.replyError("error in get educator", error, reply);
   }
 };
-
+const getStudents = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
+  try {
+    const data = req.query as IUserGetUsers;
+    const students = await userService.getStudents(data);
+    reply.status(SUCCESS).send(students);
+  } catch (error) {
+    errorUtils.replyError("error in get students", error, reply);
+  }
+};
 const updateUserHandler = async (req: FastifyRequest, reply: FastifyReply) => {
   try {
     const clientUser = (await req.body) as TClientUserUpdate;
@@ -108,4 +112,5 @@ export const userHandlers = {
   createEducator,
   getEducators,
   updateUserHandler,
+  getStudents,
 };

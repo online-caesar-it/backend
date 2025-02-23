@@ -181,11 +181,8 @@ const deleteDirection = async (id: string) => {
     .returning();
   return direction;
 };
-const setUserToDirection = async (
-  educatorId: string,
-  directionIds: string[]
-) => {
-  const user = await userService.findUserById(educatorId);
+const setUserToDirection = async (userId: string, directionIds: string[]) => {
+  const user = await userService.findUserById(userId);
   if (!directionIds || !Array.isArray(directionIds)) {
     throw new Error("Direction ids does not exist");
   }

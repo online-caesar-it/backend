@@ -11,6 +11,10 @@ export const ROLE_NOT_AUTH_ADMIN =
   "Вы не являетесь  админом для выполнения данного действия";
 export const ROLE_NOT_AUTH_EDUCATOR =
   "Вы не являетесь преподавателем для выполнения данного действия";
+export const ROLE_NOT_AUTH_STUDENT =
+  "Вы не являетесь студентом для выполнения данного действия";
 export const GROUP_NOT_FOUND = "Групп не найдено";
 export const USER_EXISTING = "User with this email existing";
 export const SCHEDULE_SUCCESS = "Расписание успешно добавлено";
+export const SUCCESS_DIRECTION_ATTACHED_TO_USER =
+  "Направление успешно добавлено";

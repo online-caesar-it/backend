@@ -17,7 +17,6 @@ const errorMiddleware = async (
 
   reply.status(500).send({ message: "Internal Server Error" });
 };
-
 export const errorMiddlewares = {
   checkRequestBody,
   errorMiddleware,
