@@ -28,32 +28,18 @@ import { InferSelectModel } from "drizzle-orm";
 import { userToDirectionEntity } from "db/entities/direction/educator-to-direction.entity";
 import { IUserByDirection } from "dto/direction-dto";
 import { directionService } from "services/direction/direction-service";
-import { ROLE_EDUCATOR } from "consts/role/role";
+import { ROLE_EDUCATOR, ROLE_STUDENT } from "consts/role/role";
 
 type ScheduleWithStudents = InferSelectModel<typeof scheduleEntity> & {
   students: InferSelectModel<typeof userEntity>[];
 };
-function getNextWorkingDay(date: Date, firstDayOfWeek: number): Date {
+function getNextWorkingDay(date: Date, targetDay: number): Date {
   const dayOfWeek = date.getDay();
-  const diff = (firstDayOfWeek - dayOfWeek + 7) % 7;
-  const nextWorkingDay = new Date(date);
-  nextWorkingDay.setDate(nextWorkingDay.getDate() + diff);
-  return nextWorkingDay;
-}
-
-function getWorkingDaysTeacher(
-  firstWorkingDay: Date,
-  workingDays: number[]
-): Date[] {
-  const workingDaysArray: Date[] = [];
-  for (let i: number = 0; i < workingDays.length; i++) {
-    const day: Date = new Date(firstWorkingDay);
-    day.setDate(day.getDate() + i);
-    if (workingDays.includes(day.getDay())) {
-      workingDaysArray.push(day);
-    }
-  }
-  return workingDaysArray;
+  let diff = targetDay - dayOfWeek;
+  if (diff <= 0) diff += 7; // Если день в прошлом — сдвигаем на следующую неделю
+  const nextDate = new Date(date);
+  nextDate.setDate(date.getDate() + diff);
+  return nextDate;
 }
 const createSchedule = async (data: IScheduleDto, userId: string) => {
   const teacher = await userService.findUserById(userId);
@@ -62,27 +48,20 @@ const createSchedule = async (data: IScheduleDto, userId: string) => {
   }
 
   const scheduledData: IScheduleDataDto[] = [];
-  const firstWorkingDay: Date = getNextWorkingDay(
-    new Date(),
-    data.workingDays[0]
-  );
-  const workingDays: Date[] = getWorkingDaysTeacher(
-    firstWorkingDay,
-    data.workingDays
-  );
+  const today = new Date();
 
-  workingDays.forEach((day: Date) => {
-    data.timeIntervals.forEach(
-      (interval: { startTime: string; endTime: string }) => {
-        scheduledData.push({
-          startTime: interval.startTime,
-          endTime: interval.endTime,
-          dateLesson: day,
-          userId: teacher.id,
-          status: EScheduleStatus.SCHEDULED,
-        });
-      }
-    );
+  data.workingDays.forEach(({ day, timeIntervals }) => {
+    const firstWorkingDay = getNextWorkingDay(today, day);
+
+    timeIntervals.forEach(({ startTime, endTime }) => {
+      scheduledData.push({
+        startTime,
+        endTime,
+        dateLesson: firstWorkingDay,
+        userId: teacher.id,
+        status: EScheduleStatus.SCHEDULED,
+      });
+    });
   });
 
   const [schedule] = await db
@@ -201,6 +180,7 @@ const createScheduleTransfer = async (
   const scheduled = await getScheduleById(data.scheduleId);
   const newLessonDate = new Date(data.newDateLesson);
   const lessonDate = new Date(scheduled.dateLesson);
+
   if (newLessonDate < lessonDate) {
     throw new Error("Новая дата урока не может быть раньше изначального");
   }
@@ -235,6 +215,17 @@ const createScheduleCancel = async (
   userId: string
 ) => {
   const scheduled = await getScheduleById(data.scheduleId);
+  const user = await userService.findUserById(userId);
+  if (user.role === ROLE_STUDENT) {
+    await scheduleService.updateSchedule(
+      String(scheduled.dateLesson),
+      scheduled.id,
+      scheduled.startTime,
+      scheduled.endTime,
+      EScheduleStatus.CANCELED
+    );
+    return;
+  }
   const [scheduleCancel] = await db
     .insert(scheduleCanceledEntity)
     .values({
@@ -314,15 +305,30 @@ const updateScheduleTransfer = async (
   };
 };
 const updateScheduleCancel = async (data: IScheduleUpdateTransferCancelDto) => {
-  const schedule = await getScheduleCancelById(data.scheduleTransferId);
+  const scheduleCancel = await getScheduleCancelById(data.scheduleTransferId);
   const [cancel] = await db
     .update(scheduleCanceledEntity)
     .set({
       status: data.status,
     })
-    .where(eq(scheduleCanceledEntity.id, schedule.id))
+    .where(eq(scheduleCanceledEntity.id, scheduleCancel.id))
     .returning();
-  return cancel;
+  const schedule = await getScheduleById(scheduleCancel.scheduleId ?? "");
+  const statusScheduled =
+    cancel.status === EScheduleTransferStatus.APPROVED
+      ? EScheduleStatus.CANCELED
+      : EScheduleStatus.SCHEDULED;
+  const updatedSchedule = await updateSchedule(
+    String(schedule.dateLesson),
+    schedule.id ?? "",
+    schedule.startTime,
+    schedule.endTime,
+    statusScheduled
+  );
+  return {
+    updatedSchedule,
+    cancel,
+  };
 };
 const getWorkingDays = async () => {
   const data = await db.query.workingDayEntity.findMany();

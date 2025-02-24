@@ -187,6 +187,13 @@ const setUserToDirection = async (userId: string, directionIds: string[]) => {
   if (!directionIds || !Array.isArray(directionIds)) {
     throw new Error("Direction ids does not exist");
   }
+  const findDirectionToUser = await db.query.userToDirectionEntity.findMany({
+    where: (it) =>
+      and(eq(it.userId, userId), inArray(it.directionId, directionIds)),
+  });
+  if (findDirectionToUser.length > 0) {
+    throw new Error("У пользователя уже есть такое направление");
+  }
   const values = directionIds.map((it) => ({
     directionId: it,
     userId: user.id,

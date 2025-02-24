@@ -4,12 +4,12 @@ import {
 } from "enums/schedule/schedule-status";
 
 export interface IScheduleDto {
-  workingDays: number[];
-  directionId: string;
-  dateLesson: string;
-  timeIntervals: {
-    startTime: string;
-    endTime: string;
+  workingDays: {
+    day: number;
+    timeIntervals: {
+      startTime: string;
+      endTime: string;
+    }[];
   }[];
 }
 export interface IScheduleGet {
