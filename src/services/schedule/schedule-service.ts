@@ -17,6 +17,7 @@ import {
   IScheduleDto,
   IScheduleFilter,
   IScheduleGetByDate,
+  IScheduleLessonAttach,
   IScheduleTransferDto,
   IScheduleUpdateTransferCancelDto,
 } from "dto/schedule.dto";
@@ -30,6 +31,7 @@ import { userToDirectionEntity } from "db/entities/direction/educator-to-directi
 import { IUserByDirection } from "dto/direction-dto";
 import { directionService } from "services/direction/direction-service";
 import { ROLE_EDUCATOR, ROLE_STUDENT } from "consts/role/role";
+import { lessonService } from "services/lesson/lesson-service";
 
 type ScheduleWithStudents = InferSelectModel<typeof scheduleEntity> & {
   students: InferSelectModel<typeof userEntity>[];
@@ -260,7 +262,8 @@ const updateSchedule = async (
   scheduleId: string,
   startTime: string,
   endTime: string,
-  status: EScheduleStatus
+  status: EScheduleStatus,
+  lessonId?: string
 ) => {
   const schedule = await getScheduleById(scheduleId);
   const [updatedSchedule] = await db
@@ -270,6 +273,7 @@ const updateSchedule = async (
       startTime,
       endTime,
       status,
+      lessonId: lessonId ?? schedule.lessonId,
     })
     .where(eq(scheduleEntity.id, schedule.id))
     .returning();
@@ -455,6 +459,18 @@ const getScheduleCancelByStatus = async (data: IScheduleByStatus) => {
     .where(eq(scheduleCanceledEntity.status, data.status));
   return transfer;
 };
+const attachLesson = async (data: IScheduleLessonAttach) => {
+  const lesson = await lessonService.getLessonById(data.lessonId);
+  const schedule = await scheduleService.getScheduleById(data.scheduleId);
+  await updateSchedule(
+    String(schedule.dateLesson),
+    schedule.id,
+    schedule.startTime,
+    schedule.endTime,
+    schedule.status,
+    lesson.id
+  );
+};
 export const scheduleService = {
   createSchedule,
   getSchedule,
@@ -473,4 +489,5 @@ export const scheduleService = {
   getScheduleByDirection,
   getScheduleTransferByStatus,
   getScheduleCancelByStatus,
+  attachLesson,
 };

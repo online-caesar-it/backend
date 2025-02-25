@@ -7,4 +7,5 @@ export enum entities {
   LESSON = "lesson",
   SCHEDULE = "schedule",
   PAYMENT = "payment",
+  ORDER = "order",
 }

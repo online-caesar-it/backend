@@ -64,3 +64,7 @@ export interface IScheduleByDirection extends IScheduleGetByDate {
 export interface IScheduleByStatus {
   status: EScheduleTransferStatus;
 }
+export interface IScheduleLessonAttach {
+  lessonId: string;
+  scheduleId: string;
+}

@@ -1,4 +1,4 @@
-import { pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { boolean, pgTable, text, uuid } from "drizzle-orm/pg-core";
 import { groupEntity } from "../group/group.entity";
 import { relations } from "drizzle-orm/relations";
 import { paymentEntity } from "../payment/payment.entity";
@@ -12,6 +12,7 @@ export const userEntity = pgTable("users", {
   patronymic: text("patronymic"),
   avatar: text("avatar"),
   groupId: uuid("groupId"),
+  isAccessToPortal: boolean("is_access_to_portal").default(false),
 });
 
 export const userGroupRelations = relations(userEntity, ({ one }) => ({

@@ -1,7 +1,6 @@
 import { IModuleDto } from "./../../dto/direction-dto";
-import { CLIENT_ERROR, SUCCESS } from "consts/response-status/response-status";
+import { SUCCESS } from "consts/response-status/response-status";
 import { FastifyReply, FastifyRequest } from "fastify";
-import { logger } from "lib/logger/logger";
 import { moduleService } from "services/module/module-service";
 import { IAuthenticatedRequest } from "types/req-type";
 import { errorUtils } from "utils/error";

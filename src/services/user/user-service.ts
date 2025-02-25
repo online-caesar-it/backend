@@ -277,6 +277,14 @@ const updateUserConfigService = async (data: TClientUserUpdate) => {
     })
     .where(eq(userConfigEntity.userId, data.userId));
 };
+const setAccessToPortal = async (userId: string, isAccessToPortal: boolean) => {
+  await db
+    .update(userEntity)
+    .set({
+      isAccessToPortal,
+    })
+    .where(eq(userEntity.id, userId));
+};
 export const userService = {
   findUserByEmail,
   findUserById,
@@ -294,4 +302,5 @@ export const userService = {
   updateUserConfigService,
   updateUserService,
   getStudents,
+  setAccessToPortal,
 };

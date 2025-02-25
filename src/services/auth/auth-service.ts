@@ -5,6 +5,7 @@ import { error } from "../../enums/error/error";
 import { userService } from "services/user/user-service";
 import { jwtService } from "services/jwt/jwt-service";
 import { envConfig } from "env";
+import { ROLE_ADMIN } from "consts/role/role";
 const TOKEN_EXPIRIES = "7d";
 const sendEmailWithToken = async (
   email: string,
@@ -76,7 +77,11 @@ const initiateLogin = async (email: string, isPortal: boolean) => {
     phone: user.config.phone_number ?? "",
   };
   const token = jwtService.createTemporaryToken(userObj);
-
+  if (user.role !== ROLE_ADMIN) {
+    if (!user.isAccessToPortal && isPortal) {
+      throw new Error("Нет доступа к порталу");
+    }
+  }
   await sendEmailWithToken(email, token, "sign-in", isPortal);
   return { message: "Confirmation email sent", token };
 };

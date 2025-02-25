@@ -177,6 +177,19 @@ export const scheduleRoute = (routers: FastifyInstance) => {
         },
       });
     },
+    attachLesson: () => {
+      post({
+        path: `${path}/lesson/attach`,
+        handler: scheduleHandler.attachLesson,
+        routers,
+        options: {
+          preHandler: [
+            authMiddleWare.jwtCheck,
+            roleMiddleWare.checkedRoleAdminAndEducator,
+          ],
+        },
+      });
+    },
   };
   return {
     ...routes,

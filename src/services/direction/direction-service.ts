@@ -198,6 +198,7 @@ const setUserToDirection = async (userId: string, directionIds: string[]) => {
     directionId: it,
     userId: user.id,
   }));
+  await userService.setAccessToPortal(user.id, true);
   await db.insert(userToDirectionEntity).values(values);
 };
 const getUserWithDirection = async (data: IUserByDirection) => {

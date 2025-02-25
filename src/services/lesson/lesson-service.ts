@@ -36,21 +36,26 @@ const updateLesson = async (id: string, name: string, description: string) => {
   return updatedLesson;
 };
 const deleteLesson = async (id: string) => {
+  const existingLesson = await getLessonById(id);
+  const [lesson] = await db
+    .delete(lessonEntity)
+    .where(eq(lessonEntity.id, existingLesson.id))
+    .returning();
+  return lesson;
+};
+const getLessonById = async (id: string) => {
   const existingLesson = await db.query.lessonEntity.findFirst({
     where: (it) => eq(it.id, id),
   });
   if (!existingLesson) {
     throw new Error("Lesson is not defined");
   }
-  const [lesson] = await db
-    .delete(lessonEntity)
-    .where(eq(lessonEntity.id, id))
-    .returning();
-  return lesson;
+  return existingLesson;
 };
 export const lessonService = {
   createLesson,
   deleteLesson,
   updateLesson,
   getLessonByModuleId,
+  getLessonById,
 };

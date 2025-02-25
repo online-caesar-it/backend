@@ -14,6 +14,7 @@ import {
   IScheduleFilter,
   IScheduleGetByDate,
   IScheduleGetByEducatorId,
+  IScheduleLessonAttach,
   IScheduleTransferDto,
   IScheduleUpdateTransferCancelDto,
 } from "dto/schedule.dto";
@@ -218,6 +219,18 @@ const getScheduleCancelByStatus = async (
     errorUtils.replyError("error in getScheduleTransferByStatus", error, reply);
   }
 };
+const attachLesson = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const data = req.body as IScheduleLessonAttach;
+    const schedule = await scheduleService.attachLesson(data);
+    reply.status(SUCCESS).send(schedule);
+  } catch (error) {
+    errorUtils.replyError("error in attachLesson", error, reply);
+  }
+};
 export const scheduleHandler = {
   createSchedule,
   getSchedule,
@@ -234,4 +247,5 @@ export const scheduleHandler = {
   getScheduleByDirection,
   getScheduleCancelByStatus,
   getScheduleTransferByStatus,
+  attachLesson,
 };
