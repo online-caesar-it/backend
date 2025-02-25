@@ -11,6 +11,7 @@ import { and, asc, eq, gte, lte } from "drizzle-orm";
 import {
   IScheduleAttachDto,
   IScheduleByDirection,
+  IScheduleByStatus,
   IScheduleCanceledDto,
   IScheduleDataDto,
   IScheduleDto,
@@ -36,7 +37,7 @@ type ScheduleWithStudents = InferSelectModel<typeof scheduleEntity> & {
 function getNextWorkingDay(date: Date, targetDay: number): Date {
   const dayOfWeek = date.getDay();
   let diff = targetDay - dayOfWeek;
-  if (diff <= 0) diff += 7; // Если день в прошлом — сдвигаем на следующую неделю
+  if (diff <= 0) diff += 7;
   const nextDate = new Date(date);
   nextDate.setDate(date.getDate() + diff);
   return nextDate;
@@ -118,17 +119,14 @@ const getSchedule = async (
 
 const getScheduleForAdmin = async (data: IScheduleFilter) => {
   const { userId, startDate, endDate } = data;
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  const schedules = await db.query.scheduleEntity.findMany({
-    where: (it) =>
-      and(
-        eq(it.userId, userId ?? ""),
-        gte(it.dateLesson, start ?? ""),
-        lte(it.dateLesson, end ?? "")
-      ),
-  });
-  return schedules;
+  const schedule = await getSchedule(
+    {
+      startDate,
+      endDate,
+    },
+    userId
+  );
+  return schedule;
 };
 const getScheduleForStudent = async (
   data: IScheduleGetByDate,
@@ -409,7 +407,54 @@ const getScheduleByDirection = async (data: IScheduleByDirection) => {
 
   return scheduleWithStudents;
 };
-
+const getScheduleTransferByStatus = async (data: IScheduleByStatus) => {
+  const transfer = await db
+    .select({
+      scheduleId: scheduleTransferEntity.id,
+      status: scheduleTransferEntity.status,
+      requestByUserId: scheduleTransferEntity.requestByUserId,
+      id: scheduleTransferEntity.id,
+      reason: scheduleTransferEntity.reason,
+      educator: {
+        id: userEntity.id,
+        firstName: userEntity.firstName,
+        surname: userEntity.surname,
+        avatar: userEntity.avatar,
+        patronymic: userEntity.patronymic,
+      },
+    })
+    .from(scheduleTransferEntity)
+    .leftJoin(
+      userEntity,
+      eq(scheduleTransferEntity.requestByUserId, userEntity.id)
+    )
+    .where(eq(scheduleTransferEntity.status, data.status));
+  return transfer;
+};
+const getScheduleCancelByStatus = async (data: IScheduleByStatus) => {
+  const transfer = await db
+    .select({
+      scheduleId: scheduleCanceledEntity.id,
+      status: scheduleCanceledEntity.status,
+      requestByUserId: scheduleCanceledEntity.requestByUserId,
+      id: scheduleCanceledEntity.id,
+      reason: scheduleCanceledEntity.reason,
+      educator: {
+        id: userEntity.id,
+        firstName: userEntity.firstName,
+        surname: userEntity.surname,
+        avatar: userEntity.avatar,
+        patronymic: userEntity.patronymic,
+      },
+    })
+    .from(scheduleCanceledEntity)
+    .leftJoin(
+      userEntity,
+      eq(scheduleCanceledEntity.requestByUserId, userEntity.id)
+    )
+    .where(eq(scheduleCanceledEntity.status, data.status));
+  return transfer;
+};
 export const scheduleService = {
   createSchedule,
   getSchedule,
@@ -426,4 +471,6 @@ export const scheduleService = {
   attachStudentToSchedule,
   getScheduleForStudent,
   getScheduleByDirection,
+  getScheduleTransferByStatus,
+  getScheduleCancelByStatus,
 };

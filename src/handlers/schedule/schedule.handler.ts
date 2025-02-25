@@ -7,6 +7,7 @@ import { ROLE_EDUCATOR } from "consts/role/role";
 import {
   IScheduleAttachDto,
   IScheduleByDirection,
+  IScheduleByStatus,
   IScheduleCanceledDto,
   IScheduleDto,
   IScheduleEditWorkingDay,
@@ -193,6 +194,30 @@ const getScheduleByDirection = async (
     errorUtils.replyError("error in getScheduleByDirection", error, reply);
   }
 };
+const getScheduleTransferByStatus = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const data = req.query as IScheduleByStatus;
+    const transfer = await scheduleService.getScheduleTransferByStatus(data);
+    reply.status(SUCCESS).send(transfer);
+  } catch (error) {
+    errorUtils.replyError("error in getScheduleTransferByStatus", error, reply);
+  }
+};
+const getScheduleCancelByStatus = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const data = req.query as IScheduleByStatus;
+    const transfer = await scheduleService.getScheduleCancelByStatus(data);
+    reply.status(SUCCESS).send(transfer);
+  } catch (error) {
+    errorUtils.replyError("error in getScheduleTransferByStatus", error, reply);
+  }
+};
 export const scheduleHandler = {
   createSchedule,
   getSchedule,
@@ -207,4 +232,6 @@ export const scheduleHandler = {
   getScheduleEducator,
   attachStudentToSchedule,
   getScheduleByDirection,
+  getScheduleCancelByStatus,
+  getScheduleTransferByStatus,
 };

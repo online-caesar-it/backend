@@ -151,6 +151,32 @@ export const scheduleRoute = (routers: FastifyInstance) => {
         },
       });
     },
+    getScheduleTransferByStatus: () => {
+      get({
+        path: `${path}/transfer/by-status`,
+        handler: scheduleHandler.getScheduleTransferByStatus,
+        routers,
+        options: {
+          preHandler: [
+            authMiddleWare.jwtCheck,
+            roleMiddleWare.checkedRoleAdmin,
+          ],
+        },
+      });
+    },
+    getScheduleCancelByStatus: () => {
+      get({
+        path: `${path}/cancel/by-status`,
+        handler: scheduleHandler.getScheduleCancelByStatus,
+        routers,
+        options: {
+          preHandler: [
+            authMiddleWare.jwtCheck,
+            roleMiddleWare.checkedRoleAdmin,
+          ],
+        },
+      });
+    },
   };
   return {
     ...routes,

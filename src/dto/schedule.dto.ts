@@ -29,7 +29,6 @@ export interface IScheduleEditWorkingDay {
   workingDays: number[];
 }
 export interface IScheduleFilter {
-  directionId: string;
   userId: string;
   startDate: string;
   endDate: string;
@@ -61,4 +60,7 @@ export interface IScheduleAttachDto {
 }
 export interface IScheduleByDirection extends IScheduleGetByDate {
   directionId: string;
+}
+export interface IScheduleByStatus {
+  status: EScheduleTransferStatus;
 }
