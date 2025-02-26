@@ -19,6 +19,8 @@ import { log } from "lib/logger/logger";
 import { IScheduleEditWorkingDay } from "dto/schedule.dto";
 import { ROLE_EDUCATOR, ROLE_STUDENT } from "consts/role/role";
 import { TClientUserUpdate } from "types/user-type";
+import { userToDirectionEntity } from "db/entities/direction/user-to-direction.entity";
+import { directionService } from "services/direction/direction-service";
 const findUserByEmail = async (email: string) => {
   const [userConfig] = await db
     .select()
@@ -285,6 +287,28 @@ const setAccessToPortal = async (userId: string, isAccessToPortal: boolean) => {
     })
     .where(eq(userEntity.id, userId));
 };
+const getUsersWithDirection = async (userId: string) => {
+  const directions = await db
+    .select()
+    .from(userToDirectionEntity)
+    .where(eq(userToDirectionEntity.userId, userId));
+
+  const result = await db
+    .select()
+    .from(userToDirectionEntity)
+    .innerJoin(userEntity, eq(userToDirectionEntity.userId, userEntity.id))
+    .where(
+      and(
+        inArray(
+          userToDirectionEntity.directionId,
+          directions.map((row) => row.directionId)
+        ),
+        eq(userToDirectionEntity.userId, userEntity.id)
+      )
+    );
+
+  return result.map((row) => row.users);
+};
 export const userService = {
   findUserByEmail,
   findUserById,
@@ -303,4 +327,5 @@ export const userService = {
   updateUserService,
   getStudents,
   setAccessToPortal,
+  getUsersWithDirection,
 };

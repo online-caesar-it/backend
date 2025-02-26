@@ -5,8 +5,10 @@ import { relations } from "drizzle-orm";
 export const lessonEntity = pgTable("lesson", {
   id: uuid("id").notNull().primaryKey().defaultRandom(),
   name: varchar("name", { length: 255 }).notNull(),
-  moduleId: uuid("module_id").references(() => moduleEntity.id),
-  description: text("description"),
+  moduleId: uuid("module_id")
+    .references(() => moduleEntity.id)
+    .notNull(),
+  description: text("description").notNull(),
 });
 
 export const lessonRelations = relations(lessonEntity, ({ one }) => ({

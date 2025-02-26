@@ -2,6 +2,7 @@ export enum EScheduleStatus {
   SCHEDULED = "scheduled",
   CANCELED = "canceled",
   MOVED = "moved",
+  END = "end",
 }
 export enum EScheduleTransferStatus {
   PENDING = "pending",

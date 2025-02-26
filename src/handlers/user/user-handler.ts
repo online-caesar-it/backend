@@ -105,7 +105,18 @@ const updateUserHandler = async (req: FastifyRequest, reply: FastifyReply) => {
     }
   }
 };
-
+const getUsersWithDirection = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const userId = req.user?.id as string;
+    const users = await userService.getUsersWithDirection(userId);
+    reply.status(SUCCESS).send(users);
+  } catch (error) {
+    errorUtils.replyError("error in getUsersWithDirection", error, reply);
+  }
+};
 export const userHandlers = {
   getAllHandler,
   getSelfHandler,
@@ -113,4 +124,5 @@ export const userHandlers = {
   getEducators,
   updateUserHandler,
   getStudents,
+  getUsersWithDirection,
 };

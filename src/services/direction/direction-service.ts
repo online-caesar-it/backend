@@ -4,7 +4,7 @@ import {
   directionEntity,
   directionsToGroupsEntity,
 } from "db/entities/direction/direction.entity";
-import { userToDirectionEntity } from "db/entities/direction/educator-to-direction.entity";
+import { userToDirectionEntity } from "db/entities/direction/user-to-direction.entity";
 import { groupEntity } from "db/entities/group/group.entity";
 import { userEntity } from "db/entities/user/user.entity";
 import { and, eq, inArray, or, sql } from "drizzle-orm";

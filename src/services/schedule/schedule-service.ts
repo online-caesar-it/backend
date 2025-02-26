@@ -27,14 +27,16 @@ import {
 } from "enums/schedule/schedule-status";
 import { userService } from "services/user/user-service";
 import { InferSelectModel } from "drizzle-orm";
-import { userToDirectionEntity } from "db/entities/direction/educator-to-direction.entity";
+import { userToDirectionEntity } from "db/entities/direction/user-to-direction.entity";
 import { IUserByDirection } from "dto/direction-dto";
 import { directionService } from "services/direction/direction-service";
 import { ROLE_EDUCATOR, ROLE_STUDENT } from "consts/role/role";
 import { lessonService } from "services/lesson/lesson-service";
+import { lessonEntity } from "db/entities/lesson/lesson.entity";
 
 type ScheduleWithStudents = InferSelectModel<typeof scheduleEntity> & {
   students: InferSelectModel<typeof userEntity>[];
+  lesson?: InferSelectModel<typeof lessonEntity> | null;
 };
 function getNextWorkingDay(date: Date, targetDay: number): Date {
   const dayOfWeek = date.getDay();
@@ -86,6 +88,7 @@ const getSchedule = async (
     .select({
       schedule: scheduleEntity,
       student: userEntity,
+      lesson: lessonEntity,
     })
     .from(scheduleEntity)
     .leftJoin(
@@ -93,6 +96,7 @@ const getSchedule = async (
       eq(scheduleEntity.id, scheduleToUsersEntity.scheduleId)
     )
     .leftJoin(userEntity, eq(scheduleToUsersEntity.userId, userEntity.id))
+    .leftJoin(lessonEntity, eq(scheduleEntity.lessonId, lessonEntity.id))
     .where(
       and(
         eq(scheduleEntity.userId, userId),
@@ -104,11 +108,12 @@ const getSchedule = async (
 
   const scheduleMap = new Map<string, ScheduleWithStudents>();
 
-  for (const { schedule, student } of scheduled) {
+  for (const { schedule, student, lesson } of scheduled) {
     if (!scheduleMap.has(schedule.id)) {
       scheduleMap.set(schedule.id, {
         ...schedule,
         students: [],
+        lesson: lesson || null,
       });
     }
     if (student) {
@@ -143,6 +148,7 @@ const getScheduleForStudent = async (
     .select({
       schedule: scheduleEntity,
       educator: userEntity,
+      lesson: lessonEntity,
     })
     .from(scheduleToUsersEntity)
     .leftJoin(
@@ -150,6 +156,7 @@ const getScheduleForStudent = async (
       eq(scheduleToUsersEntity.scheduleId, scheduleEntity.id)
     )
     .leftJoin(userEntity, eq(scheduleEntity.userId, userEntity.id))
+    .leftJoin(lessonEntity, eq(scheduleEntity.lessonId, lessonEntity.id))
     .where(
       and(
         eq(scheduleToUsersEntity.userId, userId),
@@ -157,10 +164,13 @@ const getScheduleForStudent = async (
         lte(scheduleEntity.dateLesson, end)
       )
     );
-  const scheduledMap = studentSchedules.map(({ schedule, educator }) => ({
-    ...schedule,
-    educator: educator || null,
-  }));
+  const scheduledMap = studentSchedules.map(
+    ({ schedule, educator, lesson }) => ({
+      ...schedule,
+      educator: educator || null,
+      lesson: lesson || null,
+    })
+  );
   return scheduledMap;
 };
 
@@ -217,14 +227,17 @@ const createScheduleCancel = async (
   const scheduled = await getScheduleById(data.scheduleId);
   const user = await userService.findUserById(userId);
   if (user.role === ROLE_STUDENT) {
-    await scheduleService.updateSchedule(
+    const scheduleCancel = await scheduleService.updateSchedule(
       String(scheduled.dateLesson),
       scheduled.id,
       scheduled.startTime,
       scheduled.endTime,
       EScheduleStatus.CANCELED
     );
-    return;
+    return {
+      scheduleCancel,
+      scheduled,
+    };
   }
   const [scheduleCancel] = await db
     .insert(scheduleCanceledEntity)
@@ -470,6 +483,21 @@ const attachLesson = async (data: IScheduleLessonAttach) => {
     schedule.status,
     lesson.id
   );
+  return {
+    updateSchedule,
+    lesson,
+  };
+};
+const updateScheduleStatusEnd = async (data: IScheduleAttachDto) => {
+  const schedule = await getScheduleById(data.scheduleId);
+  const scheduleUpdated = await updateSchedule(
+    String(schedule.dateLesson),
+    schedule.id,
+    schedule.startTime,
+    schedule.endTime,
+    EScheduleStatus.END
+  );
+  return scheduleUpdated;
 };
 export const scheduleService = {
   createSchedule,
@@ -490,4 +518,5 @@ export const scheduleService = {
   getScheduleTransferByStatus,
   getScheduleCancelByStatus,
   attachLesson,
+  updateScheduleStatusEnd,
 };

@@ -190,6 +190,19 @@ export const scheduleRoute = (routers: FastifyInstance) => {
         },
       });
     },
+    endSchedule: () => {
+      put({
+        path: `${path}/update/end`,
+        handler: scheduleHandler.updateScheduleStatusEnd,
+        routers,
+        options: {
+          preHandler: [
+            authMiddleWare.jwtCheck,
+            roleMiddleWare.checkedRoleAdminAndEducator,
+          ],
+        },
+      });
+    },
   };
   return {
     ...routes,

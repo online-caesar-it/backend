@@ -68,6 +68,16 @@ export const userRouter = (routers: FastifyInstance) => {
         },
       });
     },
+    getUsersWithDirection: () => {
+      get({
+        path: `${path}/direction/get-all`,
+        handler: userHandlers.getUsersWithDirection,
+        routers,
+        options: {
+          preHandler: [authMiddleWare.jwtCheck],
+        },
+      });
+    },
   };
 
   return {

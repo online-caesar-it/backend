@@ -18,6 +18,8 @@ const envSchema = z.object({
   LOG_PATH: z.string().default("./logs.log"),
   HOST: z.string().nonempty("HOST is required"),
   WS_PORT: z.string().nonempty("WS_PORT is required"),
+  TELEGRAM_BOT_TOKEN: z.string().nonempty("TELEGRAM_BOT_TOKEN is required"),
+  TELEGRAM_GROUPS: z.string().nonempty("TELEGRAM_GROUPS is required"),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

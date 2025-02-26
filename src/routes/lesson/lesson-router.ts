@@ -61,6 +61,16 @@ export const lessonRouter = (routers: FastifyInstance) => {
         },
       });
     },
+    getByLessonByDirection: () => {
+      get({
+        path: `${path}/get-my-lessons`,
+        handler: lessonHandler.getByLessonByDirection,
+        routers,
+        options: {
+          preHandler: [authMiddleWare.jwtCheck],
+        },
+      });
+    },
   };
   return {
     ...routes,

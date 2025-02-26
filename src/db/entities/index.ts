@@ -33,7 +33,7 @@ import { userToWorkingDaysEntity } from "./user/user-to-working.entity";
 import {
   userToDirectionEntity,
   userToDirectionsRelations,
-} from "./direction/educator-to-direction.entity";
+} from "./direction/user-to-direction.entity";
 
 export const entities = {
   userEntity,

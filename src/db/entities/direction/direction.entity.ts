@@ -3,7 +3,7 @@ import { relations } from "drizzle-orm";
 import { groupEntity } from "../group/group.entity";
 import { moduleEntity } from "../module/module.entity";
 import { paymentEntity } from "../payment/payment.entity";
-import { userToDirectionEntity } from "./educator-to-direction.entity";
+import { userToDirectionEntity } from "./user-to-direction.entity";
 
 export const directionEntity = pgTable("direction", {
   id: uuid("id").primaryKey().defaultRandom(),

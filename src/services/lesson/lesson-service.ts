@@ -1,5 +1,8 @@
 import { db } from "db";
+import { directionEntity } from "db/entities/direction/direction.entity";
+import { userToDirectionEntity } from "db/entities/direction/user-to-direction.entity";
 import { lessonEntity } from "db/entities/lesson/lesson.entity";
+import { moduleEntity } from "db/entities/module/module.entity";
 import { eq } from "drizzle-orm";
 import { ILessonDto } from "dto/direction-dto";
 
@@ -52,10 +55,35 @@ const getLessonById = async (id: string) => {
   }
   return existingLesson;
 };
+const getLessonByUserId = async (userId: string) => {
+  const lessons = await db
+    .select({
+      lessonId: lessonEntity.id,
+      lessonName: lessonEntity.name,
+      lessonDescription: lessonEntity.description,
+      moduleId: moduleEntity.id,
+      moduleName: moduleEntity.name,
+      moduleDescription: moduleEntity.description,
+      directionId: directionEntity.id,
+      directionName: directionEntity.name,
+      directionDescription: directionEntity.description,
+    })
+    .from(userToDirectionEntity)
+    .leftJoin(
+      directionEntity,
+      eq(userToDirectionEntity.directionId, directionEntity.id)
+    )
+    .leftJoin(moduleEntity, eq(moduleEntity.directionId, directionEntity.id))
+    .leftJoin(lessonEntity, eq(lessonEntity.moduleId, moduleEntity.id))
+    .where(eq(userToDirectionEntity.userId, userId));
+
+  return lessons;
+};
 export const lessonService = {
   createLesson,
   deleteLesson,
   updateLesson,
   getLessonByModuleId,
   getLessonById,
+  getLessonByUserId,
 };

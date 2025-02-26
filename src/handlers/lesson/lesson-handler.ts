@@ -64,9 +64,22 @@ const deleteLesson = async (
     errorUtils.replyError("error in delete lesson", error, reply);
   }
 };
+const getByLessonByDirection = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const userId = req.user?.id as string;
+    const lessons = await lessonService.getLessonByUserId(userId);
+    reply.status(SUCCESS).send(lessons);
+  } catch (error) {
+    errorUtils.replyError("error in getByLessonByDirection", error, reply);
+  }
+};
 export const lessonHandler = {
   createLesson,
   deleteLesson,
   getLessonByModuleId,
   updateLesson,
+  getByLessonByDirection,
 };

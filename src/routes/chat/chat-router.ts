@@ -31,8 +31,6 @@ export const chatRouter = (
           preHandler: [
             authMiddleWare.jwtCheck,
             errorMiddlewares.checkRequestBody,
-            roleMiddleWare.checkedRoleAdmin,
-            roleMiddleWare.checkedRoleEducator,
           ],
         },
       });

@@ -231,6 +231,18 @@ const attachLesson = async (
     errorUtils.replyError("error in attachLesson", error, reply);
   }
 };
+const updateScheduleStatusEnd = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const data = req.body as IScheduleAttachDto;
+    const schedule = await scheduleService.updateScheduleStatusEnd(data);
+    reply.status(SUCCESS).send(schedule);
+  } catch (error) {
+    errorUtils.replyError("error in updateScheduleStatusEnd", error, reply);
+  }
+};
 export const scheduleHandler = {
   createSchedule,
   getSchedule,
@@ -248,4 +260,5 @@ export const scheduleHandler = {
   getScheduleCancelByStatus,
   getScheduleTransferByStatus,
   attachLesson,
+  updateScheduleStatusEnd,
 };
