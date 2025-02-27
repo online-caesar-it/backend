@@ -307,7 +307,9 @@ const getUsersWithDirection = async (userId: string) => {
       )
     );
 
-  return result.map((row) => row.users);
+  const uniqueUsers = new Set(result.map((row) => JSON.stringify(row.users)));
+
+  return Array.from(uniqueUsers).map((userString) => JSON.parse(userString));
 };
 export const userService = {
   findUserByEmail,

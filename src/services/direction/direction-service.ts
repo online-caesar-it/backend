@@ -10,6 +10,7 @@ import { userEntity } from "db/entities/user/user.entity";
 import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { IDirectionDto, IGroupDto, IUserByDirection } from "dto/direction-dto";
 import { log } from "lib/logger/logger";
+import { moduleService } from "services/module/module-service";
 import { userService } from "services/user/user-service";
 
 const createDirection = async (data: IDirectionDto) => {
@@ -147,39 +148,27 @@ const getDirections = async () => {
   }
   return directions;
 };
-const updateDirection = async (
-  id: string,
-  name: string,
-  description: string
-) => {
-  const direction = await db
-    .select()
-    .from(directionEntity)
-    .where(eq(directionEntity.id, id));
-  if (direction) {
-    throw new Error("Direction not found");
-  }
+const updateDirection = async (data: IDirectionDto & { id: string }) => {
+  const direction = await getDirectionById(data.id);
   const [updatedDirection] = await db
     .update(directionEntity)
     .set({
-      name,
-      description,
+      name: data.name,
+      description: data.description,
+      price: data.price,
+      duration: data.duration,
     })
-    .where(eq(directionEntity.id, id))
+    .where(eq(directionEntity.id, direction.id))
     .returning();
   return updatedDirection;
 };
 const deleteDirection = async (id: string) => {
-  const existingDirection = await db.query.directionEntity.findFirst({
-    where: (it) => eq(it.id, id),
-  });
-  if (existingDirection) {
-    throw new Error("Direction not found");
-  }
+  const existingDirection = await getDirectionById(id);
   const [direction] = await db
     .delete(directionEntity)
-    .where(eq(directionEntity.id, id))
+    .where(eq(directionEntity.id, existingDirection.id))
     .returning();
+  await moduleService.deleteModuleByDirection(existingDirection.id);
   return direction;
 };
 const setUserToDirection = async (userId: string, directionIds: string[]) => {

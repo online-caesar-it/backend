@@ -30,7 +30,6 @@ export const directionRouter = (routers: FastifyInstance) => {
         routers,
         options: {
           preHandler: [
-            errorMiddlewares.checkRequestBody,
             authMiddleWare.jwtCheck,
             roleMiddleWare.checkedRoleAdmin,
           ],

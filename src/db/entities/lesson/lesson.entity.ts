@@ -9,6 +9,7 @@ export const lessonEntity = pgTable("lesson", {
     .references(() => moduleEntity.id)
     .notNull(),
   description: text("description").notNull(),
+  file: text("file").notNull(),
 });
 
 export const lessonRelations = relations(lessonEntity, ({ one }) => ({

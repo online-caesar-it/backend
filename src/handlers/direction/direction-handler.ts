@@ -156,16 +156,10 @@ const editDirection = async (
   reply: FastifyReply
 ) => {
   try {
-    const { name, description, id } = req.body as {
+    const data = req.body as IDirectionDto & {
       id: string;
-      name: string;
-      description: string;
     };
-    const direction = await directionService.updateDirection(
-      id,
-      name,
-      description
-    );
+    const direction = await directionService.updateDirection(data);
     reply.status(SUCCESS).send(direction);
   } catch (error) {
     errorUtils.replyError("error in update direction", error, reply);
@@ -176,7 +170,7 @@ const deleteDirection = async (
   reply: FastifyReply
 ) => {
   try {
-    const { id } = req.body as {
+    const { id } = req.query as {
       id: string;
     };
     const directionDeleted = await directionService.deleteDirection(id);

@@ -1,7 +1,8 @@
 import { db } from "db";
 import { moduleEntity } from "db/entities/module/module.entity";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { IModuleDto } from "dto/direction-dto";
+import { lessonService } from "services/lesson/lesson-service";
 
 const createModule = async (data: IModuleDto) => {
   const [module] = await db.insert(moduleEntity).values(data).returning();
@@ -49,7 +50,7 @@ const editModule = async (id: string, name?: string, description?: string) => {
   return updatedModule;
 };
 const deleteModule = async (id: string) => {
-  const existingModule = await db.query.messageEntity.findFirst({
+  const existingModule = await db.query.moduleEntity.findFirst({
     where: (it) => eq(it.id, id),
   });
   if (!existingModule) {
@@ -61,9 +62,24 @@ const deleteModule = async (id: string) => {
     .returning();
   return module;
 };
+const deleteModuleByDirection = async (id: string) => {
+  const existingModule = await getModuleByDirectionId(id);
+
+  const [module] = await db
+    .delete(moduleEntity)
+    .where(
+      inArray(
+        moduleEntity.id,
+        existingModule.modules.map((it) => it.id)
+      )
+    )
+    .returning();
+  return module;
+};
 export const moduleService = {
   createModule,
   getModuleByDirectionId,
   editModule,
   deleteModule,
+  deleteModuleByDirection,
 };

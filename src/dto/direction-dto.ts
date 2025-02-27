@@ -2,12 +2,13 @@ export interface IDirectionDto {
   name: string;
   description: string;
   price: string;
-  duration: string;
+  duration: number;
 }
 export interface ILessonDto {
   name: string;
   description: string;
   moduleId: string;
+  file: string;
 }
 export interface IModuleDto {
   name: string;
