@@ -197,7 +197,7 @@ const attachUserToDirection = async (
 ) => {
   try {
     const data = req.body as IUserToDirectionDto;
-    await directionService.setUserToDirection(data.userId, data.directionIds);
+    await directionService.setUserToDirection(data);
     reply.status(SUCCESS).send({
       message: SUCCESS_DIRECTION_ATTACHED_TO_USER,
     });

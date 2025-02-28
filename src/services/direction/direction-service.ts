@@ -8,7 +8,12 @@ import { userToDirectionEntity } from "db/entities/direction/user-to-direction.e
 import { groupEntity } from "db/entities/group/group.entity";
 import { userEntity } from "db/entities/user/user.entity";
 import { and, eq, inArray, or, sql } from "drizzle-orm";
-import { IDirectionDto, IGroupDto, IUserByDirection } from "dto/direction-dto";
+import {
+  IDirectionDto,
+  IGroupDto,
+  IUserByDirection,
+  IUserToDirectionDto,
+} from "dto/direction-dto";
 import { log } from "lib/logger/logger";
 import { moduleService } from "services/module/module-service";
 import { userService } from "services/user/user-service";
@@ -171,7 +176,8 @@ const deleteDirection = async (id: string) => {
   await moduleService.deleteModuleByDirection(existingDirection.id);
   return direction;
 };
-const setUserToDirection = async (userId: string, directionIds: string[]) => {
+const setUserToDirection = async (data: IUserToDirectionDto) => {
+  const { directionIds, userId, availableLessonCount } = data;
   const user = await userService.findUserById(userId);
   if (!directionIds || !Array.isArray(directionIds)) {
     throw new Error("Direction ids does not exist");
@@ -186,6 +192,7 @@ const setUserToDirection = async (userId: string, directionIds: string[]) => {
   const values = directionIds.map((it) => ({
     directionId: it,
     userId: user.id,
+    availableLessonCount,
   }));
   await userService.setAccessToPortal(user.id, true);
   await db.insert(userToDirectionEntity).values(values);

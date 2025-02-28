@@ -51,7 +51,10 @@ const createEducator = async (
       ...data.user,
       role: ROLE_EDUCATOR,
     });
-    await directionService.setUserToDirection(user.id, data.directionIds);
+    await directionService.setUserToDirection({
+      userId: user.id,
+      directionIds: data.directionIds,
+    });
     reply.status(SUCCESS).send(user);
   } catch (error) {
     // await userService.deleteUserByEmail(data.user.email);

@@ -20,6 +20,7 @@ const getLessonByModuleId = async (id: string) => {
   if (!lessons) {
     throw new Error("Lesson is not defined");
   }
+  return lessons;
 };
 const updateLesson = async (id: string, name: string, description: string) => {
   const lesson = await db.query.lessonEntity.findFirst({

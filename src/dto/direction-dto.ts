@@ -26,4 +26,5 @@ export interface IUserByDirection {
 export interface IUserToDirectionDto {
   userId: string;
   directionIds: string[];
+  availableLessonCount?: number;
 }

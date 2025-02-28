@@ -29,7 +29,7 @@ const getLessonByModuleId = async (
       id: string;
     };
     const data = await lessonService.getLessonByModuleId(id);
-    reply.status(CREATE_SUCCESS).send(data);
+    reply.status(SUCCESS).send(data);
   } catch (error) {
     errorUtils.replyError("error in get lesson by module id", error, reply);
   }

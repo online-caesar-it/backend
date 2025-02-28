@@ -99,6 +99,7 @@ const createUser = async (user: IUserDto) => {
       userId: userCreating.id,
       phone_number: user.phone,
       refresh_token: refreshToken,
+      telegram: user.telegram || "",
     })
     .returning();
 

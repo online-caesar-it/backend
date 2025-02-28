@@ -6,6 +6,7 @@ export interface IUserDto {
   patronymic: string;
   avatar?: string;
   phone: string;
+  telegram?: string;
 }
 export interface IUserWithWorkingDaysDto {
   user: IUserDto;
