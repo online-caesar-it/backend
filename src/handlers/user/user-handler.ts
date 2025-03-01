@@ -53,7 +53,9 @@ const createEducator = async (
     });
     await directionService.setUserToDirection({
       userId: user.id,
-      directionIds: data.directionIds,
+      direction: data.directionIds.map((it) => ({
+        directionId: it,
+      })),
     });
     reply.status(SUCCESS).send(user);
   } catch (error) {

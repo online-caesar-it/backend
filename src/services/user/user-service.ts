@@ -10,7 +10,7 @@ import {
   USER_EXISTING,
   USER_NOT_FOUND,
 } from "../../consts/response-status/response-message";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import jwt from "jsonwebtoken";
 import { envConfig } from "env";
 import { workingDayEntity } from "db/entities/working/working-day.entity";
@@ -312,6 +312,60 @@ const getUsersWithDirection = async (userId: string) => {
 
   return Array.from(uniqueUsers).map((userString) => JSON.parse(userString));
 };
+const decrementLessonCount = async (userIds: string[], directionId: string) => {
+  const result = await db
+    .update(userToDirectionEntity)
+    .set({
+      availableLessonCount: sql`${userToDirectionEntity.availableLessonCount} - 1`,
+    })
+    .where(
+      and(
+        inArray(userToDirectionEntity.userId, userIds),
+        eq(userToDirectionEntity.directionId, directionId)
+      )
+    )
+    .returning();
+
+  return result;
+};
+const decrementPendingLessonCount = async (
+  userIds: string[],
+  directionId: string
+) => {
+  const result = await db
+    .update(userToDirectionEntity)
+    .set({
+      pendingLessonCount: sql`${userToDirectionEntity.pendingLessonCount} - 1`,
+    })
+    .where(
+      and(
+        inArray(userToDirectionEntity.userId, userIds),
+        eq(userToDirectionEntity.directionId, directionId)
+      )
+    )
+    .returning();
+
+  return result;
+};
+const incrementPendingLessonCount = async (
+  userIds: string[],
+  directionId: string
+) => {
+  const result = await db
+    .update(userToDirectionEntity)
+    .set({
+      pendingLessonCount: sql`${userToDirectionEntity.pendingLessonCount} + 1`,
+    })
+    .where(
+      and(
+        inArray(userToDirectionEntity.userId, userIds),
+        eq(userToDirectionEntity.directionId, directionId)
+      )
+    )
+    .returning();
+
+  return result;
+};
 export const userService = {
   findUserByEmail,
   findUserById,
@@ -331,4 +385,7 @@ export const userService = {
   getStudents,
   setAccessToPortal,
   getUsersWithDirection,
+  decrementLessonCount,
+  decrementPendingLessonCount,
+  incrementPendingLessonCount,
 };

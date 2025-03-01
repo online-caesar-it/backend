@@ -217,6 +217,18 @@ const getMyDirections = async (
     errorUtils.replyError("error in getMyDirections", error, reply);
   }
 };
+const getDirectionsByUserId = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const { id } = req.query as { id: string };
+    const data = await directionService.getDirectionsByUserId(id ?? "");
+    reply.status(SUCCESS).send(data);
+  } catch (error) {
+    errorUtils.replyError("error in getMyDirections", error, reply);
+  }
+};
 export const directionHandlers = {
   createDirection,
   createGroup,
@@ -230,4 +242,5 @@ export const directionHandlers = {
   getUsersByDirection,
   attachUserToDirection,
   getMyDirections,
+  getDirectionsByUserId,
 };

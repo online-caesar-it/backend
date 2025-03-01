@@ -58,13 +58,14 @@ const createSchedule = async (data: IScheduleDto, userId: string) => {
   data.workingDays.forEach(({ day, timeIntervals }) => {
     const firstWorkingDay = getNextWorkingDay(today, day);
 
-    timeIntervals.forEach(({ startTime, endTime }) => {
+    timeIntervals.forEach(({ startTime, endTime, directionId }) => {
       scheduledData.push({
         startTime,
         endTime,
         dateLesson: firstWorkingDay,
         userId: teacher.id,
         status: EScheduleStatus.SCHEDULED,
+        directionId,
       });
     });
   });
@@ -101,7 +102,10 @@ const getSchedule = async (
       and(
         eq(scheduleEntity.userId, userId),
         gte(scheduleEntity.dateLesson, start),
-        lte(scheduleEntity.dateLesson, end)
+        lte(scheduleEntity.dateLesson, end),
+        data.directionId
+          ? eq(scheduleEntity.directionId, data.directionId)
+          : undefined
       )
     )
     .orderBy(asc(scheduleEntity.dateLesson), asc(scheduleEntity.startTime));
@@ -367,6 +371,25 @@ const attachStudentToSchedule = async (
   userId: string
 ) => {
   const schedule = await getScheduleById(data.scheduleId);
+  if (!schedule.directionId) {
+    throw new Error("У расписание нет направления");
+  }
+  const [userDirection] = await db
+    .select()
+    .from(userToDirectionEntity)
+    .where(
+      and(
+        eq(userToDirectionEntity.userId, userId),
+        eq(userToDirectionEntity.directionId, schedule.directionId)
+      )
+    );
+
+  if (
+    userDirection.pendingLessonCount !== null &&
+    userDirection?.pendingLessonCount <= 0
+  ) {
+    throw new Error("У вас нет доступных уроков для записи");
+  }
 
   const existingStudents = await db
     .select()
@@ -397,6 +420,11 @@ const attachStudentToSchedule = async (
     throw new Error("Ошибка при записи на занятие");
   }
 
+  await userService.decrementPendingLessonCount(
+    [userId],
+    userDirection.directionId
+  );
+
   return newEntry;
 };
 const getScheduleByDirection = async (data: IScheduleByDirection) => {
@@ -410,6 +438,7 @@ const getScheduleByDirection = async (data: IScheduleByDirection) => {
       {
         startDate: data.startDate,
         endDate: data.endDate,
+        directionId: data.directionId,
       },
       educator.id
     );
@@ -490,6 +519,29 @@ const attachLesson = async (data: IScheduleLessonAttach) => {
 };
 const updateScheduleStatusEnd = async (data: IScheduleAttachDto) => {
   const schedule = await getScheduleById(data.scheduleId);
+  if (!schedule.lessonId) {
+    throw new Error("Вы не можете завершить занятие, без прикрепленного урок");
+  }
+  if (schedule.status === EScheduleStatus.END) {
+    throw new Error("Занятие уже завершено");
+  }
+  const direction = await directionService.getDirectionByLessonId(
+    schedule.lessonId
+  );
+  const students = await db
+    .select({ userId: scheduleToUsersEntity.userId })
+    .from(scheduleToUsersEntity)
+    .where(eq(scheduleToUsersEntity.scheduleId, data.scheduleId));
+  const studentsUserIds = students.map((student) => student.userId);
+  const userToDirection = await userService.decrementLessonCount(
+    studentsUserIds,
+    direction.id
+  );
+  for (const user of userToDirection) {
+    if (user.availableLessonCount === 0) {
+      await userService.setAccessToPortal(user.userId, false);
+    }
+  }
   const scheduleUpdated = await updateSchedule(
     String(schedule.dateLesson),
     schedule.id,

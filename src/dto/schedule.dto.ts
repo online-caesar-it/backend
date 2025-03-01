@@ -9,6 +9,7 @@ export interface IScheduleDto {
     timeIntervals: {
       startTime: string;
       endTime: string;
+      directionId: string;
     }[];
   }[];
 }
@@ -19,6 +20,7 @@ export interface IScheduleGet {
 export interface IScheduleGetByDate {
   startDate: string;
   endDate: string;
+  directionId?: string;
 }
 export interface IScheduleGetByEducatorId {
   startDate: string;
@@ -54,6 +56,7 @@ export interface IScheduleDataDto {
   dateLesson: Date;
   userId: string;
   status: EScheduleStatus;
+  directionId: string;
 }
 export interface IScheduleAttachDto {
   scheduleId: string;

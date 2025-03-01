@@ -80,6 +80,20 @@ const getLessonByUserId = async (userId: string) => {
 
   return lessons;
 };
+const getLessonsByDirectionId = async (directionId: string) => {
+  const lessons = await db
+    .select({
+      id: lessonEntity.id,
+      name: lessonEntity.name,
+      description: lessonEntity.description,
+    })
+    .from(directionEntity)
+    .leftJoin(moduleEntity, eq(moduleEntity.directionId, directionEntity.id))
+    .leftJoin(lessonEntity, eq(lessonEntity.moduleId, moduleEntity.id))
+    .where(eq(directionEntity.id, directionId));
+
+  return lessons;
+};
 export const lessonService = {
   createLesson,
   deleteLesson,
@@ -87,4 +101,5 @@ export const lessonService = {
   getLessonByModuleId,
   getLessonById,
   getLessonByUserId,
+  getLessonsByDirectionId,
 };

@@ -76,10 +76,25 @@ const getByLessonByDirection = async (
     errorUtils.replyError("error in getByLessonByDirection", error, reply);
   }
 };
+const getLessonsByDirectionId = async (
+  req: IAuthenticatedRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const { id } = req.query as {
+      id: string;
+    };
+    const lessons = await lessonService.getLessonsByDirectionId(id);
+    reply.status(SUCCESS).send(lessons);
+  } catch (error) {
+    errorUtils.replyError("error in getLessonsByDirectionId", error, reply);
+  }
+};
 export const lessonHandler = {
   createLesson,
   deleteLesson,
   getLessonByModuleId,
   updateLesson,
   getByLessonByDirection,
+  getLessonsByDirectionId,
 };

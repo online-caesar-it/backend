@@ -12,6 +12,7 @@ export const userToDirectionEntity = pgTable("user_to_direction", {
     .notNull()
     .references(() => directionEntity.id),
   availableLessonCount: integer("available_lesson_count"),
+  pendingLessonCount: integer("pending_lesson_count"),
 });
 export const userToDirectionsRelations = relations(
   userToDirectionEntity,

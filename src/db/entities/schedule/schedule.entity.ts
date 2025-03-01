@@ -7,6 +7,7 @@ import {
   EScheduleStatus,
   EScheduleTransferStatus,
 } from "enums/schedule/schedule-status";
+import { directionEntity } from "../direction/direction.entity";
 
 export const scheduleEntity = pgTable("schedule", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -21,6 +22,7 @@ export const scheduleEntity = pgTable("schedule", {
     .notNull(),
   userId: uuid("user_id").references(() => userEntity.id),
   createdAt: timestamp("created_at").defaultNow(),
+  directionId: uuid("direction_id").references(() => directionEntity.id),
 });
 export const scheduleTransferEntity = pgTable("schedule_transfers", {
   id: uuid("id").primaryKey().defaultRandom(),

@@ -6,6 +6,8 @@ import {
 } from "db/entities/direction/direction.entity";
 import { userToDirectionEntity } from "db/entities/direction/user-to-direction.entity";
 import { groupEntity } from "db/entities/group/group.entity";
+import { lessonEntity } from "db/entities/lesson/lesson.entity";
+import { moduleEntity } from "db/entities/module/module.entity";
 import { userEntity } from "db/entities/user/user.entity";
 import { and, eq, inArray, or, sql } from "drizzle-orm";
 import {
@@ -177,24 +179,33 @@ const deleteDirection = async (id: string) => {
   return direction;
 };
 const setUserToDirection = async (data: IUserToDirectionDto) => {
-  const { directionIds, userId, availableLessonCount } = data;
+  const { userId, direction } = data;
+
   const user = await userService.findUserById(userId);
-  if (!directionIds || !Array.isArray(directionIds)) {
-    throw new Error("Direction ids does not exist");
+
+  if (!direction || !Array.isArray(direction)) {
+    throw new Error("Directions does not exist or is not an array");
   }
+
+  const directionIds = direction.map((it) => it.directionId);
   const findDirectionToUser = await db.query.userToDirectionEntity.findMany({
     where: (it) =>
       and(eq(it.userId, userId), inArray(it.directionId, directionIds)),
   });
+
   if (findDirectionToUser.length > 0) {
-    throw new Error("У пользователя уже есть такое направление");
+    throw new Error("У пользователя уже есть такие направления");
   }
-  const values = directionIds.map((it) => ({
-    directionId: it,
+
+  const values = direction.map((it) => ({
+    directionId: it.directionId,
     userId: user.id,
-    availableLessonCount,
+    availableLessonCount: it.availableLessonCount ?? null,
+    pendingLessonCount: it.availableLessonCount ?? null,
   }));
+
   await userService.setAccessToPortal(user.id, true);
+
   await db.insert(userToDirectionEntity).values(values);
 };
 const getUserWithDirection = async (data: IUserByDirection) => {
@@ -223,9 +234,24 @@ const getDirectionsByUserId = async (userId: string) => {
     )
     .where(eq(userToDirectionEntity.userId, userId));
 
-  return result.map((row) => row.direction);
-};
+  const uniqueDirections = Array.from(
+    new Map(result.map((row) => [row.direction.id, row.direction])).values()
+  );
 
+  return uniqueDirections;
+};
+const getDirectionByLessonId = async (lessonId: string) => {
+  const result = await db
+    .select()
+    .from(lessonEntity)
+    .innerJoin(moduleEntity, eq(lessonEntity.moduleId, moduleEntity.id))
+    .innerJoin(
+      directionEntity,
+      eq(moduleEntity.directionId, directionEntity.id)
+    )
+    .where(eq(lessonEntity.id, lessonId));
+  return result.map((it) => it.direction)[0];
+};
 export const directionService = {
   createDirection,
   createGroup,
@@ -240,4 +266,5 @@ export const directionService = {
   setUserToDirection,
   getUserWithDirection,
   getDirectionsByUserId,
+  getDirectionByLessonId,
 };

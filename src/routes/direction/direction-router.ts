@@ -159,6 +159,16 @@ export const directionRouter = (routers: FastifyInstance) => {
         },
       });
     },
+    getDirectionsByUserId: () => {
+      get({
+        path: `${path}/users/get-all-by-user-id`,
+        handler: directionHandlers.getDirectionsByUserId,
+        routers,
+        options: {
+          preHandler: [authMiddleWare.jwtCheck],
+        },
+      });
+    },
   };
   return {
     ...routes,

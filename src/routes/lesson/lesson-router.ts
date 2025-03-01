@@ -61,10 +61,20 @@ export const lessonRouter = (routers: FastifyInstance) => {
         },
       });
     },
-    getByLessonByDirection: () => {
+    getMyLessons: () => {
       get({
         path: `${path}/get-my-lessons`,
         handler: lessonHandler.getByLessonByDirection,
+        routers,
+        options: {
+          preHandler: [authMiddleWare.jwtCheck],
+        },
+      });
+    },
+    getLessonsByDirection: () => {
+      get({
+        path: `${path}/get-lessons-by-direction-id`,
+        handler: lessonHandler.getLessonsByDirectionId,
         routers,
         options: {
           preHandler: [authMiddleWare.jwtCheck],
