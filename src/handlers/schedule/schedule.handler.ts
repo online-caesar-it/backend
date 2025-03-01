@@ -189,7 +189,8 @@ const getScheduleByDirection = async (
 ) => {
   try {
     const data = req.query as IScheduleByDirection;
-    const schedule = await scheduleService.getScheduleByDirection(data);
+    const userId = req.user?.id as string;
+    const schedule = await scheduleService.getScheduleByDirection(data, userId);
     reply.status(SUCCESS).send(schedule);
   } catch (error) {
     errorUtils.replyError("error in getScheduleByDirection", error, reply);

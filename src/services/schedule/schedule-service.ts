@@ -7,7 +7,7 @@ import {
 } from "db/entities/schedule/schedule.entity";
 import { userEntity } from "db/entities/user/user.entity";
 import { workingDayEntity } from "db/entities/working/working-day.entity";
-import { and, asc, eq, gte, lte } from "drizzle-orm";
+import { and, asc, eq, gte, lte, sql } from "drizzle-orm";
 import {
   IScheduleAttachDto,
   IScheduleByDirection,
@@ -238,6 +238,10 @@ const createScheduleCancel = async (
       scheduled.endTime,
       EScheduleStatus.CANCELED
     );
+    await userService.incrementPendingLessonCount(
+      [user.id],
+      scheduled.directionId ?? ""
+    );
     return {
       scheduleCancel,
       scheduled,
@@ -344,6 +348,19 @@ const updateScheduleCancel = async (data: IScheduleUpdateTransferCancelDto) => {
     schedule.endTime,
     statusScheduled
   );
+  const students = await db
+    .select({ userId: scheduleToUsersEntity.userId })
+    .from(scheduleToUsersEntity)
+    .where(eq(scheduleToUsersEntity.scheduleId, schedule.id));
+
+  const studentsUserIds = students.map((student) => student.userId);
+
+  if (studentsUserIds.length > 0) {
+    await userService.incrementPendingLessonCount(
+      studentsUserIds,
+      schedule.directionId ?? ""
+    );
+  }
   return {
     updatedSchedule,
     cancel,
@@ -427,12 +444,24 @@ const attachStudentToSchedule = async (
 
   return newEntry;
 };
-const getScheduleByDirection = async (data: IScheduleByDirection) => {
+const getScheduleByDirection = async (
+  data: IScheduleByDirection,
+  userId: string
+) => {
   const educators = await directionService.getUserWithDirection({
     directionId: data.directionId,
     role: ROLE_EDUCATOR,
   });
-
+  const userDirection = await db
+    .select({ pendingLessonCount: userToDirectionEntity.pendingLessonCount })
+    .from(userToDirectionEntity)
+    .where(
+      and(
+        eq(userToDirectionEntity.userId, userId),
+        eq(userToDirectionEntity.directionId, data.directionId)
+      )
+    )
+    .then((rows) => rows[0] || { pendingLessonCount: 0 });
   const scheduleWithStudentsPromises = educators.map(async (educator) => {
     const schedule = await getSchedule(
       {
@@ -445,7 +474,10 @@ const getScheduleByDirection = async (data: IScheduleByDirection) => {
 
     return {
       educator,
-      schedule,
+      schedule: schedule.map((lesson) => ({
+        ...lesson,
+        availableLessons: userDirection.pendingLessonCount,
+      })),
     };
   });
 
@@ -538,7 +570,14 @@ const updateScheduleStatusEnd = async (data: IScheduleAttachDto) => {
     direction.id
   );
   for (const user of userToDirection) {
-    if (user.availableLessonCount === 0) {
+    const userDirections = await userService.getTotalAvailableLessons(
+      user.userId
+    );
+    const allLessonsZero = userDirections.every(
+      (dir) => dir.availableLessonCount === 0
+    );
+    if (allLessonsZero) {
+      await directionService.deleteUserToDirectionAll(user.userId);
       await userService.setAccessToPortal(user.userId, false);
     }
   }
@@ -551,6 +590,7 @@ const updateScheduleStatusEnd = async (data: IScheduleAttachDto) => {
   );
   return scheduleUpdated;
 };
+
 export const scheduleService = {
   createSchedule,
   getSchedule,

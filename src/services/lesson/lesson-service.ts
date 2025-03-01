@@ -5,6 +5,7 @@ import { lessonEntity } from "db/entities/lesson/lesson.entity";
 import { moduleEntity } from "db/entities/module/module.entity";
 import { eq } from "drizzle-orm";
 import { ILessonDto } from "dto/direction-dto";
+import { P } from "pino";
 
 const createLesson = async (data: ILessonDto) => {
   const [lesson] = await db.insert(lessonEntity).values(data).returning();
@@ -20,9 +21,17 @@ const getLessonByModuleId = async (id: string) => {
   if (!lessons) {
     throw new Error("Lesson is not defined");
   }
-  return lessons;
+  const module = await db.query.moduleEntity.findFirst({
+    where: (it) => eq(it.id, id),
+  });
+  return { module, lessons };
 };
-const updateLesson = async (id: string, name: string, description: string) => {
+const updateLesson = async (
+  id: string,
+  name: string,
+  description: string,
+  file: string
+) => {
   const lesson = await db.query.lessonEntity.findFirst({
     where: (it) => eq(it.id, id),
   });
@@ -34,6 +43,7 @@ const updateLesson = async (id: string, name: string, description: string) => {
     .set({
       name,
       description,
+      file,
     })
     .where(eq(lessonEntity.id, id))
     .returning();

@@ -39,12 +39,13 @@ const updateLesson = async (
   reply: FastifyReply
 ) => {
   try {
-    const { id, name, description } = req.body as {
+    const { id, name, description, file } = req.body as {
       id: string;
       name: string;
       description: string;
+      file: string;
     };
-    const data = await lessonService.updateLesson(id, name, description);
+    const data = await lessonService.updateLesson(id, name, description, file);
     reply.status(CREATE_SUCCESS).send(data);
   } catch (error) {
     errorUtils.replyError("error in update lesson", error, reply);
@@ -55,7 +56,7 @@ const deleteLesson = async (
   reply: FastifyReply
 ) => {
   try {
-    const { id } = req.body as {
+    const { id } = req.query as {
       id: string;
     };
     const data = await lessonService.deleteLesson(id);

@@ -366,6 +366,14 @@ const incrementPendingLessonCount = async (
 
   return result;
 };
+const getTotalAvailableLessons = async (userId: string) => {
+  const result = await db
+    .select()
+    .from(userToDirectionEntity)
+    .where(eq(userToDirectionEntity.userId, userId));
+
+  return result;
+};
 export const userService = {
   findUserByEmail,
   findUserById,
@@ -388,4 +396,5 @@ export const userService = {
   decrementLessonCount,
   decrementPendingLessonCount,
   incrementPendingLessonCount,
+  getTotalAvailableLessons,
 };

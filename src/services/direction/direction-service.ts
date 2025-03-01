@@ -252,6 +252,11 @@ const getDirectionByLessonId = async (lessonId: string) => {
     .where(eq(lessonEntity.id, lessonId));
   return result.map((it) => it.direction)[0];
 };
+const deleteUserToDirectionAll = async (userId: string) => {
+  await db
+    .delete(userToDirectionEntity)
+    .where(eq(userToDirectionEntity.userId, userId));
+};
 export const directionService = {
   createDirection,
   createGroup,
@@ -267,4 +272,5 @@ export const directionService = {
   getUserWithDirection,
   getDirectionsByUserId,
   getDirectionByLessonId,
+  deleteUserToDirectionAll,
 };

@@ -4,7 +4,7 @@ import { lessonHandler } from "handlers/lesson/lesson-handler";
 import { authMiddleWare } from "middleware/auth";
 import { errorMiddlewares } from "middleware/error";
 import { roleMiddleWare } from "middleware/role";
-import { get, post } from "..";
+import { get, post, put, remove } from "..";
 export const lessonRouter = (routers: FastifyInstance) => {
   const path = `/${entities.LESSON}`;
 
@@ -34,7 +34,7 @@ export const lessonRouter = (routers: FastifyInstance) => {
       });
     },
     updateLesson: () => {
-      get({
+      put({
         path: `${path}/update`,
         handler: lessonHandler.updateLesson,
         routers,
@@ -48,14 +48,13 @@ export const lessonRouter = (routers: FastifyInstance) => {
       });
     },
     deleteLesson: () => {
-      get({
+      remove({
         path: `${path}/delete`,
         handler: lessonHandler.deleteLesson,
         routers,
         options: {
           preHandler: [
             authMiddleWare.jwtCheck,
-            errorMiddlewares.checkRequestBody,
             roleMiddleWare.checkedRoleAdmin,
           ],
         },
