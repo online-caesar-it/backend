@@ -32,7 +32,7 @@ const sendEmailWithToken = async (
   await transporter.sendMail({
     from: process.env.SMTP_FROM,
     to: email,
-    subject: "Подтверждение регистрации",
+    subject: "Подтверждение авторизации",
     html: `
       <div style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; text-align: center;">
         <h2 style="color: #333;">Подтверждение авторизации</h2>
