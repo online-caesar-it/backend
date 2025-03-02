@@ -33,8 +33,19 @@ const sendEmailWithToken = async (
     from: process.env.SMTP_FROM,
     to: email,
     subject: "Подтверждение регистрации",
-    html: `<p>Для завершения регистрации перейдите по ссылке:</p>
-           <a href="${link}">Подтвердить</a>`,
+    html: `
+      <div style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; text-align: center;">
+        <h2 style="color: #333;">Подтверждение авторизации</h2>
+        <p style="font-size: 16px; color: #555;">
+          Для завершения авторизации перейдите по ссылке:
+        </p>
+        <a href="${link}" 
+           style="display: inline-block; padding: 10px 20px; background-color: #007bff; 
+                  color: #ffffff; text-decoration: none; border-radius: 5px; font-size: 16px;">
+          Подтвердить
+        </a>
+      </div>
+    `,
   });
 };
 
