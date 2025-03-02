@@ -56,6 +56,7 @@ const deleteModule = async (id: string) => {
   if (!existingModule) {
     throw new Error("Module not found");
   }
+  await lessonService.deleteLessonByModuleId(id);
   const [module] = await db
     .delete(moduleEntity)
     .where(eq(moduleEntity.id, id))

@@ -33,13 +33,17 @@ const getModuleByDirectionId = async (
 };
 const editModule = async (req: IAuthenticatedRequest, reply: FastifyReply) => {
   try {
-    const { id, name, description } = req.body as {
-      id: string;
+    const { moduleId, name, description } = req.body as {
+      moduleId: string;
       name?: string;
       description?: string;
     };
 
-    const updatedModule = await moduleService.editModule(id, name, description);
+    const updatedModule = await moduleService.editModule(
+      moduleId,
+      name,
+      description
+    );
 
     reply.status(SUCCESS).send(updatedModule);
   } catch (error) {
@@ -51,7 +55,7 @@ const deleteModule = async (
   reply: FastifyReply
 ) => {
   try {
-    const { id } = req.body as {
+    const { id } = req.query as {
       id: string;
     };
     const module = await moduleService.deleteModule(id);

@@ -3,9 +3,8 @@ import { directionEntity } from "db/entities/direction/direction.entity";
 import { userToDirectionEntity } from "db/entities/direction/user-to-direction.entity";
 import { lessonEntity } from "db/entities/lesson/lesson.entity";
 import { moduleEntity } from "db/entities/module/module.entity";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { ILessonDto } from "dto/direction-dto";
-import { P } from "pino";
 
 const createLesson = async (data: ILessonDto) => {
   const [lesson] = await db.insert(lessonEntity).values(data).returning();
@@ -54,6 +53,19 @@ const deleteLesson = async (id: string) => {
   const [lesson] = await db
     .delete(lessonEntity)
     .where(eq(lessonEntity.id, existingLesson.id))
+    .returning();
+  return lesson;
+};
+const deleteLessonByModuleId = async (id: string) => {
+  const existingLesson = await getLessonByModuleId(id);
+  const [lesson] = await db
+    .delete(lessonEntity)
+    .where(
+      inArray(
+        lessonEntity.id,
+        existingLesson.lessons.map((lesson) => lesson.id)
+      )
+    )
     .returning();
   return lesson;
 };
@@ -112,4 +124,5 @@ export const lessonService = {
   getLessonById,
   getLessonByUserId,
   getLessonsByDirectionId,
+  deleteLessonByModuleId,
 };

@@ -47,11 +47,10 @@ export const moduleRouter = (routers: FastifyInstance) => {
     deleteModule: () => {
       remove({
         path: `${path}/delete`,
-        handler: moduleHandler.createModule,
+        handler: moduleHandler.deleteModule,
         routers,
         options: {
           preHandler: [
-            errorMiddlewares.checkRequestBody,
             authMiddleWare.jwtCheck,
             roleMiddleWare.checkedRoleAdmin,
           ],
