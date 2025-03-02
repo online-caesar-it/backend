@@ -16,7 +16,6 @@ import {
   IUserByDirection,
   IUserToDirectionDto,
 } from "dto/direction-dto";
-import { log } from "lib/logger/logger";
 import { moduleService } from "services/module/module-service";
 import { userService } from "services/user/user-service";
 
@@ -24,7 +23,9 @@ const createDirection = async (data: IDirectionDto) => {
   const [direction] = await db
     .insert(directionEntity)
     .values({
-      ...data,
+      name: data.name,
+      description: data.description,
+      price: data.price,
       duration: Number(data.duration),
     })
     .returning();
