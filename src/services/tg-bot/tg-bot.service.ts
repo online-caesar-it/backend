@@ -32,20 +32,14 @@ const sendTelegramAlert = async (
 
     if (Array.isArray(message)) {
       msg = message
-        .map(
-          (it) =>
-            `*${it.tag}*\n\n` +
-            "```json\n" +
-            JSON.stringify(it.obj, null, 2) +
-            "\n```"
-        )
+        .map((it) => {
+          const { fio, phoneNumber, email } = it.obj as Record<string, string>;
+          return `🔔 *${it.tag}*\n\n👤 ФИО: *${fio}*\n📞 Телефон: *${phoneNumber}*\n📧 Email: *${email}*`;
+        })
         .join("\n\n");
     } else {
-      msg =
-        `*${tag}*\n\n` +
-        "```json\n" +
-        JSON.stringify(message, null, 2) +
-        "\n```";
+      const { fio, phoneNumber, email } = message as Record<string, string>;
+      msg = `🔔 *${tag}*\n\n👤 ФИО: *${fio}*\n📞 Телефон: *${phoneNumber}*\n📧 Email: *${email}*`;
     }
 
     await bot.api.sendMessage(groups[level], msg, { parse_mode: "Markdown" });
